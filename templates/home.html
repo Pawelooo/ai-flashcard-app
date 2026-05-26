@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+{% block title %}NaukaAI — Fiszki AI/ML do rozmów rekrutacyjnych{% endblock %}
+
+{% block content %}
+
+{# Hero #}
+<div class="text-center py-5 mb-5">
+  <div class="mb-3">
+    <span style="font-size:3.5rem;">⚡</span>
+  </div>
+  <h1 class="display-4 fw-bold mb-3">
+    Przygotuj się na rozmowę<br>
+    <span class="text-primary">rekrutacyjną z AI/ML</span>
+  </h1>
+  <p class="lead text-muted mb-4 mx-auto" style="max-width:560px;">
+    Ucz się pojęć z uczenia maszynowego przez interaktywne fiszki.
+    Śledź postępy, buduj serię dni, sprawdzaj statystyki.
+  </p>
+  <div class="d-flex gap-3 justify-content-center flex-wrap">
+    <a href="{% url 'register' %}" class="btn btn-primary btn-lg px-5 shadow-sm">
+      Zacznij za darmo
+    </a>
+    <a href="{% url 'login' %}" class="btn btn-outline-secondary btn-lg px-5">
+      Zaloguj się
+    </a>
+  </div>
+</div>
+
+{# Features #}
+<div class="row g-4 mb-5">
+  <div class="col-md-4">
+    <div class="card h-100 border-0 shadow-sm text-center p-4">
+      <div class="mb-3" style="font-size:2.5rem;">🧠</div>
+      <h5 class="fw-bold">10 kategorii AI/ML</h5>
+      <p class="text-muted mb-0">
+        Gradient descent, transformery, LLM, backpropagation — wszystko czego pytają rekruterzy.
+      </p>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card h-100 border-0 shadow-sm text-center p-4">
+      <div class="mb-3" style="font-size:2.5rem;">📈</div>
+      <h5 class="fw-bold">Statystyki i seria dni</h5>
+      <p class="text-muted mb-0">
+        Śledź procent poprawnych odpowiedzi, buduj serię codziennej nauki i obserwuj postępy.
+      </p>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card h-100 border-0 shadow-sm text-center p-4">
+      <div class="mb-3" style="font-size:2.5rem;">⚡</div>
+      <h5 class="fw-bold">Szybka sesja nauki</h5>
+      <p class="text-muted mb-0">
+        Pytanie → odkryj odpowiedź → oceń siebie. Jedna sesja zajmuje mniej niż 5 minut.
+      </p>
+    </div>
+  </div>
+</div>
+
+{# How it works #}
+<div class="bg-white rounded-4 shadow-sm p-5 mb-5">
+  <h2 class="fw-bold text-center mb-4">Jak to działa?</h2>
+  <div class="row g-4 align-items-center">
+    <div class="col-md-4 text-center">
+      <div class="rounded-circle bg-primary text-white d-inline-flex align-items-center justify-content-center mb-3"
+           style="width:56px;height:56px;font-size:1.4rem;font-weight:700;">1</div>
+      <h6 class="fw-bold">Zarejestruj się</h6>
+      <p class="text-muted small mb-0">Utwórz darmowe konto w 30 sekund.</p>
+    </div>
+    <div class="col-md-4 text-center">
+      <div class="rounded-circle bg-primary text-white d-inline-flex align-items-center justify-content-center mb-3"
+           style="width:56px;height:56px;font-size:1.4rem;font-weight:700;">2</div>
+      <h6 class="fw-bold">Ucz się codziennie</h6>
+      <p class="text-muted small mb-0">Przeglądaj fiszki — odkrywaj odpowiedź i oceniaj siebie szczerze.</p>
+    </div>
+    <div class="col-md-4 text-center">
+      <div class="rounded-circle bg-primary text-white d-inline-flex align-items-center justify-content-center mb-3"
+           style="width:56px;height:56px;font-size:1.4rem;font-weight:700;">3</div>
+      <h6 class="fw-bold">Idź na rozmowę</h6>
+      <p class="text-muted small mb-0">Z serią dni i wysokim wynikiem poprawnych — jesteś gotowy.</p>
+    </div>
+  </div>
+</div>
+
+{# Sample card preview #}
+<div class="text-center mb-5">
+  <h2 class="fw-bold mb-4">Przykładowa fiszka</h2>
+  <div class="card shadow mx-auto" style="max-width:540px;">
+    <div class="card-body py-4 px-5">
+      <p class="text-muted small text-uppercase fw-semibold mb-2">Pytanie</p>
+      <h5 class="mb-3">Co to jest backpropagation?</h5>
+      <hr>
+      <p class="text-muted small text-uppercase fw-semibold mb-2">Odpowiedź</p>
+      <p class="mb-0 text-start">
+        Algorytm trenowania sieci neuronowych — oblicza gradienty funkcji straty
+        względem wag metodą łańcuchową (chain rule), propagując błąd od warstwy
+        wyjściowej do wejściowej.
+      </p>
+    </div>
+  </div>
+  <a href="{% url 'register' %}" class="btn btn-primary btn-lg px-5 mt-4 shadow-sm">
+    Zacznij naukę teraz →
+  </a>
+</div>
+
+{% endblock %}

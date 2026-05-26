@@ -1,0 +1,58 @@
+from datetime import date, timedelta
+
+from django.utils import timezone
+
+from flashcards.models import CardReview
+
+from .types import StudyStats
+
+
+def compute_study_stats(user) -> StudyStats:
+    today = timezone.localdate()
+
+    today_qs = CardReview.objects.filter(user=user, reviewed_at__date=today)
+    today_count = today_qs.count()
+
+    if today_count:
+        correct_count = today_qs.filter(is_correct=True).count()
+        correct_pct = round(correct_count / today_count * 100)
+    else:
+        correct_pct = None
+
+    last_review = (
+        CardReview.objects.filter(user=user)
+        .order_by('-reviewed_at')
+        .values_list('reviewed_at', flat=True)
+        .first()
+    )
+    last_reviewed = last_review.date() if last_review else None
+    next_review = _compute_next_review(last_reviewed, today)
+
+    return StudyStats(
+        today_count=today_count,
+        correct_pct=correct_pct,
+        streak=_compute_streak(user, today),
+        last_reviewed=last_reviewed,
+        next_review=next_review,
+    )
+
+
+def _compute_next_review(last_reviewed: date | None, today: date) -> date:
+    if last_reviewed is None:
+        return today
+    if last_reviewed >= today:
+        return today + timedelta(days=1)
+    return today
+
+
+def _compute_streak(user, today: date) -> int:
+    reviewed_dates = set(
+        CardReview.objects.filter(user=user).dates('reviewed_at', 'day')
+    )
+
+    streak = 0
+    current = today
+    while current in reviewed_dates:
+        streak += 1
+        current -= timedelta(days=1)
+    return streak
