@@ -323,30 +323,30 @@ No new models introduced in this plan. No data migrations required. Existing `Ca
 
 #### Automated
 
-- [x] 1.1 `uv run python manage.py test flashcards` passes with no regressions
+- [x] 1.1 `uv run python manage.py test flashcards` passes with no regressions — 62248fa
 
 #### Manual
 
-- [x] 1.2 Visiting `/` while logged in redirects to `/flashcards/topics/`
-- [x] 1.3 Registering a new account redirects to `/flashcards/topics/`
-- [x] 1.4 Clicking "Nauka" in the navbar goes to `/flashcards/topics/`
-- [x] 1.5 Topics page renders; seeded topics are listed
-- [x] 1.6 "Zacznij naukę" on stats dashboard goes to `/flashcards/topics/`
+- [x] 1.2 Visiting `/` while logged in redirects to `/flashcards/topics/` — 62248fa
+- [x] 1.3 Registering a new account redirects to `/flashcards/topics/` — 62248fa
+- [x] 1.4 Clicking "Nauka" in the navbar goes to `/flashcards/topics/` — 62248fa
+- [x] 1.5 Topics page renders; seeded topics are listed — 62248fa
+- [x] 1.6 "Zacznij naukę" on stats dashboard goes to `/flashcards/topics/` — 62248fa
 
 ### Phase 2: Session Initialization + Card Loop
 
 #### Automated
 
-- [ ] 2.1 `uv run python manage.py test flashcards` passes
-- [ ] 2.2 GET `/flashcards/study/` with no session returns 302 to `/flashcards/topics/`
-- [ ] 2.3 POST to `/flashcards/study/start/` with valid topic returns 302 to `/flashcards/study/`
+- [x] 2.1 `uv run python manage.py test flashcards` passes
+- [x] 2.2 GET `/flashcards/study/` with no session returns 302 to `/flashcards/topics/`
+- [x] 2.3 POST to `/flashcards/study/start/` with valid topic returns 302 to `/flashcards/study/`
 
 #### Manual
 
-- [ ] 2.4 Selecting a topic starts a session; card 1 of N shown with correct total
-- [ ] 2.5 Answering cards advances the progress indicator correctly
-- [ ] 2.6 After last card, browser navigates to `/flashcards/study/results/`
-- [ ] 2.7 Topic with zero cards redirects to topics with warning message
+- [x] 2.4 Selecting a topic starts a session; card 1 of N shown with correct total
+- [x] 2.5 Answering cards advances the progress indicator correctly
+- [x] 2.6 After last card, browser navigates to `/flashcards/study/results/`
+- [x] 2.7 Topic with zero cards redirects to topics with warning message
 
 ### Phase 3: Score Screen + Integration Tests
 

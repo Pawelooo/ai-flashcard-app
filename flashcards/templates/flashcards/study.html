@@ -9,6 +9,16 @@
     <div class="card shadow text-center" id="flashcard">
       <div class="card-body py-5 px-4">
 
+        {% if total %}
+        <div class="mb-3">
+          <p class="text-muted small mb-1">Karta {{ current }} z {{ total }}</p>
+          <div class="progress" style="height:6px;">
+            <div class="progress-bar" role="progressbar"
+                 style="width:{% widthratio current total 100 %}%"></div>
+          </div>
+        </div>
+        {% endif %}
+
         <p class="text-muted small mb-2 text-uppercase fw-semibold">Pytanie</p>
         <h3 class="mb-4" id="question">{{ card.question }}</h3>
 
