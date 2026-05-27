@@ -54,7 +54,26 @@ def session_start(request):
 
 @login_required
 def session_results(request):
-    return redirect('flashcards:topics')
+    if 'session_cards' not in request.session:
+        return redirect('flashcards:topics')
+
+    score = request.session['session_score']
+    total = len(request.session['session_cards'])
+    wrong_ids = request.session['session_wrong_ids']
+    topic_id = request.session['session_topic_id']
+    missed_cards = Card.objects.filter(pk__in=wrong_ids)
+    percent = round(score / total * 100) if total else 0
+
+    for key in _SESSION_KEYS:
+        request.session.pop(key, None)
+
+    return render(request, 'flashcards/session_results.html', {
+        'score': score,
+        'total': total,
+        'percent': percent,
+        'missed_cards': missed_cards,
+        'topic_id': topic_id,
+    })
 
 
 class CardListView(LoginRequiredMixin, ListView):

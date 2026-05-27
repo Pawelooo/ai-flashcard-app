@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% block title %}Wynik sesji — NaukaAI{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-7">
+
+    <div class="card shadow text-center mb-4">
+      <div class="card-body py-5 px-4">
+
+        {% if percent == 100 %}
+        <div class="mb-3" style="font-size:3rem;">🏆</div>
+        {% elif percent >= 70 %}
+        <div class="mb-3" style="font-size:3rem;">👍</div>
+        {% else %}
+        <div class="mb-3" style="font-size:3rem;">📚</div>
+        {% endif %}
+
+        <h2 class="fw-bold mb-1">{{ score }} / {{ total }}</h2>
+        <p class="display-6 fw-bold text-primary mb-3">{{ percent }}%</p>
+        <p class="text-muted mb-4">
+          {% if percent == 100 %}Idealny wynik! Wszystkie karty poprawnie.
+          {% elif percent >= 70 %}Dobry wynik! Kilka kart do powtórki.
+          {% else %}Wróć do materiału i spróbuj ponownie.{% endif %}
+        </p>
+
+        <div class="d-flex gap-3 justify-content-center flex-wrap">
+          <form method="post" action="{% url 'flashcards:study_start' %}">
+            {% csrf_token %}
+            <input type="hidden" name="topic_id" value="{{ topic_id }}">
+            <button type="submit" class="btn btn-primary btn-lg px-4">
+              <i class="bi bi-arrow-repeat me-1"></i>Ucz się ponownie
+            </button>
+          </form>
+          <a href="{% url 'flashcards:topics' %}" class="btn btn-outline-secondary btn-lg px-4">
+            <i class="bi bi-grid me-1"></i>Wybierz temat
+          </a>
+        </div>
+
+      </div>
+    </div>
+
+    {% if missed_cards %}
+    <div class="card shadow-sm">
+      <div class="card-header fw-semibold">
+        <i class="bi bi-x-circle text-danger me-1"></i>Karty do powtórki ({{ missed_cards|length }})
+      </div>
+      <ul class="list-group list-group-flush">
+        {% for card in missed_cards %}
+        <li class="list-group-item text-start py-3">{{ card.question }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+    {% else %}
+    <p class="text-center text-success fw-semibold mt-3">
+      <i class="bi bi-check-circle me-1"></i>Żadnych błędów — idealny wynik!
+    </p>
+    {% endif %}
+
+  </div>
+</div>
+{% endblock %}

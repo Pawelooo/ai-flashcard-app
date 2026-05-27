@@ -337,27 +337,27 @@ No new models introduced in this plan. No data migrations required. Existing `Ca
 
 #### Automated
 
-- [x] 2.1 `uv run python manage.py test flashcards` passes
-- [x] 2.2 GET `/flashcards/study/` with no session returns 302 to `/flashcards/topics/`
-- [x] 2.3 POST to `/flashcards/study/start/` with valid topic returns 302 to `/flashcards/study/`
+- [x] 2.1 `uv run python manage.py test flashcards` passes — fbaec0d
+- [x] 2.2 GET `/flashcards/study/` with no session returns 302 to `/flashcards/topics/` — fbaec0d
+- [x] 2.3 POST to `/flashcards/study/start/` with valid topic returns 302 to `/flashcards/study/` — fbaec0d
 
 #### Manual
 
-- [x] 2.4 Selecting a topic starts a session; card 1 of N shown with correct total
-- [x] 2.5 Answering cards advances the progress indicator correctly
-- [x] 2.6 After last card, browser navigates to `/flashcards/study/results/`
-- [x] 2.7 Topic with zero cards redirects to topics with warning message
+- [x] 2.4 Selecting a topic starts a session; card 1 of N shown with correct total — fbaec0d
+- [x] 2.5 Answering cards advances the progress indicator correctly — fbaec0d
+- [x] 2.6 After last card, browser navigates to `/flashcards/study/results/` — fbaec0d
+- [x] 2.7 Topic with zero cards redirects to topics with warning message — fbaec0d
 
 ### Phase 3: Score Screen + Integration Tests
 
 #### Automated
 
-- [ ] 3.1 `uv run python manage.py test flashcards` passes all 5 new test cases with no regressions
+- [x] 3.1 `uv run python manage.py test flashcards` passes all 5 new test cases with no regressions
 
 #### Manual
 
-- [ ] 3.2 Complete E2E flow works: log in → topics → start → answer all → results with correct score
-- [ ] 3.3 Score (X/N, %) is accurate for the answers given
-- [ ] 3.4 "Study again" starts a new shuffled session on the same topic
-- [ ] 3.5 Mid-session navbar click → topics → new session starts from card 1
-- [ ] 3.6 Stats dashboard reflects newly created CardReview records after a completed session
+- [x] 3.2 Complete E2E flow works: log in → topics → start → answer all → results with correct score
+- [x] 3.3 Score (X/N, %) is accurate for the answers given
+- [x] 3.4 "Study again" starts a new shuffled session on the same topic
+- [x] 3.5 Mid-session navbar click → topics → new session starts from card 1
+- [x] 3.6 Stats dashboard reflects newly created CardReview records after a completed session
