@@ -2,7 +2,7 @@
 id: complete-study-session
 roadmap_id: S-01
 title: Kompletna sesja nauki
-status: implementing
+status: implemented
 created: 2026-05-27
 updated: 2026-05-27
 prd_refs: [FR-001, FR-002, FR-003, FR-004, US-01]

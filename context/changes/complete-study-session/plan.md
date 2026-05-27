@@ -352,12 +352,12 @@ No new models introduced in this plan. No data migrations required. Existing `Ca
 
 #### Automated
 
-- [x] 3.1 `uv run python manage.py test flashcards` passes all 5 new test cases with no regressions
+- [x] 3.1 `uv run python manage.py test flashcards` passes all 5 new test cases with no regressions — 8539c1a
 
 #### Manual
 
-- [x] 3.2 Complete E2E flow works: log in → topics → start → answer all → results with correct score
-- [x] 3.3 Score (X/N, %) is accurate for the answers given
-- [x] 3.4 "Study again" starts a new shuffled session on the same topic
-- [x] 3.5 Mid-session navbar click → topics → new session starts from card 1
-- [x] 3.6 Stats dashboard reflects newly created CardReview records after a completed session
+- [x] 3.2 Complete E2E flow works: log in → topics → start → answer all → results with correct score — 8539c1a
+- [x] 3.3 Score (X/N, %) is accurate for the answers given — 8539c1a
+- [x] 3.4 "Study again" starts a new shuffled session on the same topic — 8539c1a
+- [x] 3.5 Mid-session navbar click → topics → new session starts from card 1 — 8539c1a
+- [x] 3.6 Stats dashboard reflects newly created CardReview records after a completed session — 8539c1a
