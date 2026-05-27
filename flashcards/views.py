@@ -6,8 +6,32 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.views.generic import CreateView, ListView
 from django.urls import reverse_lazy
 
-from .models import Card, CardReview
+from .models import Card, CardReview, Topic
 from .forms import CardForm
+
+_SESSION_KEYS = [
+    'session_topic_id',
+    'session_cards',
+    'session_index',
+    'session_score',
+    'session_wrong_ids',
+]
+
+
+class TopicsListView(LoginRequiredMixin, ListView):
+    model = Topic
+    template_name = 'flashcards/topics.html'
+    context_object_name = 'topics'
+
+    def get(self, request, *args, **kwargs):
+        for key in _SESSION_KEYS:
+            request.session.pop(key, None)
+        return super().get(request, *args, **kwargs)
+
+
+@login_required
+def session_start(request):
+    return redirect('flashcards:topics')
 
 
 class CardListView(LoginRequiredMixin, ListView):

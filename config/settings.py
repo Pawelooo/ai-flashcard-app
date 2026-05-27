@@ -58,7 +58,7 @@ MIDDLEWARE = [
 ROOT_URLCONF = 'config.urls'
 
 LOGIN_URL = '/accounts/login/'
-LOGIN_REDIRECT_URL = '/flashcards/study/'
+LOGIN_REDIRECT_URL = '/flashcards/topics/'
 LOGOUT_REDIRECT_URL = '/accounts/login/'
 
 TEMPLATES = [

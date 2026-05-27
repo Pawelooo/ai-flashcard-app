@@ -53,8 +53,8 @@
       {% if user.is_authenticated %}
       <ul class="navbar-nav me-auto gap-1">
         <li class="nav-item">
-          <a class="nav-link px-3 rounded {% if request.path == '/flashcards/study/' %}bg-primary bg-opacity-25{% endif %}"
-             href="{% url 'flashcards:study' %}">
+          <a class="nav-link px-3 rounded {% if request.path == '/flashcards/topics/' %}bg-primary bg-opacity-25{% endif %}"
+             href="{% url 'flashcards:topics' %}">
             <i class="bi bi-play-circle me-1"></i>Nauka
           </a>
         </li>

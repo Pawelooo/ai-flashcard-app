@@ -1,5 +1,5 @@
 from django.core.management.base import BaseCommand
-from flashcards.models import Card
+from flashcards.models import Card, Topic
 
 CARDS = [
     (
@@ -70,6 +70,10 @@ class Command(BaseCommand):
             self.stdout.write(self.style.WARNING("Fiszki już istnieją, pomijam."))
             return
 
-        cards = [Card(question=q, answer=a) for q, a in CARDS]
+        topic, _ = Topic.objects.get_or_create(
+            slug='ai-ml-fundamentals',
+            defaults={'name': 'AI/ML Fundamentals'},
+        )
+        cards = [Card(topic=topic, question=q, answer=a) for q, a in CARDS]
         Card.objects.bulk_create(cards)
-        self.stdout.write(self.style.SUCCESS(f"Dodano {len(cards)} fiszek."))
+        self.stdout.write(self.style.SUCCESS(f"Dodano {len(cards)} fiszek do tematu '{topic.name}'."))

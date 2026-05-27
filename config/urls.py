@@ -31,7 +31,7 @@ class RegisterView(CreateView):
     def form_valid(self, form):
         user = form.save()
         login(self.request, user)
-        return redirect('flashcards:study')
+        return redirect('flashcards:topics')
 
 
 class HomeView(TemplateView):
@@ -39,7 +39,7 @@ class HomeView(TemplateView):
 
     def dispatch(self, request, *args, **kwargs):
         if request.user.is_authenticated:
-            return redirect('flashcards:study')
+            return redirect('flashcards:topics')
         return super().dispatch(request, *args, **kwargs)
 
 
