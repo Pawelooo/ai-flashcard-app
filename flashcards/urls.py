@@ -9,5 +9,5 @@ urlpatterns = [
     path('study/results/', views.session_results, name='study_results'),
     path('', views.CardListView.as_view(), name='card_list'),
     path('create/', views.CardCreateView.as_view(), name='card_create'),
-    path('study/', views.study, name='study'),
+    path('study/', views.study_card, name='study'),
 ]

@@ -24,6 +24,7 @@ class TopicsListView(LoginRequiredMixin, ListView):
     model = Topic
     template_name = 'flashcards/topics.html'
     context_object_name = 'topics'
+    ordering = ['name']
 
     def get(self, request, *args, **kwargs):
         for key in _SESSION_KEYS:
@@ -54,7 +55,8 @@ def session_start(request):
 
 @login_required
 def session_results(request):
-    if 'session_cards' not in request.session:
+    required = {'session_cards', 'session_score', 'session_wrong_ids', 'session_topic_id'}
+    if not required.issubset(request.session.keys()):
         return redirect('flashcards:topics')
 
     score = request.session['session_score']
@@ -64,16 +66,16 @@ def session_results(request):
     missed_cards = Card.objects.filter(pk__in=wrong_ids)
     percent = round(score / total * 100) if total else 0
 
-    for key in _SESSION_KEYS:
-        request.session.pop(key, None)
-
-    return render(request, 'flashcards/session_results.html', {
+    response = render(request, 'flashcards/session_results.html', {
         'score': score,
         'total': total,
         'percent': percent,
         'missed_cards': missed_cards,
         'topic_id': topic_id,
     })
+    for key in _SESSION_KEYS:
+        request.session.pop(key, None)
+    return response
 
 
 class CardListView(LoginRequiredMixin, ListView):
@@ -91,7 +93,7 @@ class CardCreateView(LoginRequiredMixin, CreateView):
 
 
 @login_required
-def study(request):
+def study_card(request):
     if 'session_cards' not in request.session:
         return redirect('flashcards:topics')
 
@@ -99,7 +101,12 @@ def study(request):
     index = request.session['session_index']
 
     if request.method == 'POST':
-        card_id = int(request.POST.get('card_id'))
+        try:
+            card_id = int(request.POST.get('card_id', ''))
+        except ValueError:
+            return redirect('flashcards:study')
+        if card_id != card_ids[index]:
+            return redirect('flashcards:study')
         is_correct = request.POST.get('is_correct') == '1'
         card = get_object_or_404(Card, pk=card_id)
         CardReview.objects.create(user=request.user, card=card, is_correct=is_correct)
@@ -117,6 +124,8 @@ def study(request):
             return redirect('flashcards:study_results')
         return redirect('flashcards:study')
 
+    if index >= len(card_ids):
+        return redirect('flashcards:study_results')
     card = get_object_or_404(Card, pk=card_ids[index])
     return render(request, 'flashcards/study.html', {
         'card': card,

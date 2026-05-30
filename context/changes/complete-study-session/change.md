@@ -2,9 +2,9 @@
 id: complete-study-session
 roadmap_id: S-01
 title: Kompletna sesja nauki
-status: implemented
+status: impl_reviewed
 created: 2026-05-27
-updated: 2026-05-27
+updated: 2026-05-28
 prd_refs: [FR-001, FR-002, FR-003, FR-004, US-01]
 prerequisites: [F-01, F-02]
 ---
@@ -17,3 +17,4 @@ User can select a topic from the home screen, flip through that topic's full dec
 
 - `plan.md` — implementation contract
 - `plan-brief.md` — two-pager summary
+- `library-research.md` — library options for session state, navigation, and card flip animation

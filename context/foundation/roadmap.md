@@ -1,9 +1,10 @@
+
 ---
 project: AI Flashcard App
 version: 1
 status: draft
 created: 2026-05-26
-updated: 2026-05-26
+updated: 2026-05-30
 prd_version: 1
 main_goal: speed
 top_blocker: decisions
@@ -31,7 +32,7 @@ Working developers preparing for AI/ML job interviews have no clear, structured 
 |------|--------------------------|---------------------------------------------------------------|---------------|--------------------------------------|----------|
 | F-01 | dev-tooling-baseline     | (foundation) ruff + .env.example in place                     | —             | —                                    | ready    |
 | F-02 | topic-deck-model         | (foundation) Topic model exists; Card linked to Topic         | —             | FR-002, FR-007                       | ready    |
-| S-01 | complete-study-session   | pick a topic, flip deck, mark cards correct/incorrect, see score | F-01, F-02 | FR-001, FR-002, FR-003, FR-004, US-01 | proposed |
+| S-01 | complete-study-session   | pick a topic, flip deck, mark cards correct/incorrect, see score | F-01, F-02 | FR-001, FR-002, FR-003, FR-004, US-01 | impl_reviewed |
 | S-03 | admin-ai-deck-seeding    | (admin) create AI-seeded topic decks                          | F-01, F-02    | FR-007                               | blocked  |
 | S-02 | leaderboard              | view ranking of all users by cumulative correct answers       | S-01          | FR-005                               | proposed |
 | S-04 | spaced-repetition-review | review cards marked incorrect in a prior session              | S-01          | FR-006                               | proposed |
@@ -100,7 +101,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
   - Session model design — should a `StudySession` model track start/end of a deck run, or should the score be computed on-the-fly from `CardReview` records within a time window? — Owner: user/team. Block: no (can decide during `/10x-plan`; both approaches deliver the user-visible outcome).
   - US-01 acceptance criteria incomplete — edge cases not specified: empty deck, mid-session connection failure, score display precision, duplicate session submissions (PRD Open Question #4) — Owner: user. Block: no (enough to start; details matter before implementation ends).
 - **Risk:** The current study view shows one random card at a time with no session boundary and no end screen. The transition to "session with a defined deck, ordered progression, and a results screen" is the largest design change in this slice. Scoped correctly it is still straightforward, but the session abstraction — what constitutes one session, when it ends — must be decided before the view is rewritten.
-- **Status:** proposed
+- **Status:** impl_reviewed
 
 ### S-03: Admin — seeding decków z AI
 
