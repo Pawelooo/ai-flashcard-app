@@ -25,6 +25,7 @@
         </p>
 
         <div class="d-flex gap-3 justify-content-center flex-wrap">
+          {% if topic_id %}
           <form method="post" action="{% url 'flashcards:study_start' %}">
             {% csrf_token %}
             <input type="hidden" name="topic_id" value="{{ topic_id }}">
@@ -32,6 +33,7 @@
               <i class="bi bi-arrow-repeat me-1"></i>Ucz się ponownie
             </button>
           </form>
+          {% endif %}
           <a href="{% url 'flashcards:topics' %}" class="btn btn-outline-secondary btn-lg px-4">
             <i class="bi bi-grid me-1"></i>Wybierz temat
           </a>
@@ -50,6 +52,14 @@
         <li class="list-group-item text-start py-3">{{ card.question }}</li>
         {% endfor %}
       </ul>
+      <div class="card-footer text-end">
+        <form method="post" action="{% url 'flashcards:study_review' %}">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-warning">
+            <i class="bi bi-arrow-clockwise me-1"></i>Powtórz błędne karty
+          </button>
+        </form>
+      </div>
     </div>
     {% else %}
     <p class="text-center text-success fw-semibold mt-3">
