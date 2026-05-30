@@ -137,15 +137,20 @@ class SpacedRepetitionTests(TestCase):
         self.assertRedirects(response, reverse('flashcards:study'))
         self.assertEqual(len(self.client.session['session_cards']), 2)
 
-        # answer both review cards
-        for _ in range(2):
-            response = self.client.get(reverse('flashcards:study'))
-            self.assertEqual(response.status_code, 200)
-            card_id = response.context['card'].pk
-            response = self.client.post(
-                reverse('flashcards:study'),
-                {'card_id': card_id, 'is_correct': '1'},
-            )
+        # 1.3: first study GET must show "Karta 1 z 2" (N = missed-card count)
+        response = self.client.get(reverse('flashcards:study'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Karta 1 z 2')
+        card_id = response.context['card'].pk
+        self.client.post(reverse('flashcards:study'), {'card_id': card_id, 'is_correct': '1'})
+
+        response = self.client.get(reverse('flashcards:study'))
+        self.assertEqual(response.status_code, 200)
+        card_id = response.context['card'].pk
+        response = self.client.post(
+            reverse('flashcards:study'),
+            {'card_id': card_id, 'is_correct': '1'},
+        )
 
         self.assertEqual(response.status_code, 302)
         self.assertIn('study/results', response['Location'])
@@ -238,3 +243,51 @@ class SpacedRepetitionTests(TestCase):
 
         response = self.client.get(reverse('flashcards:study_results'))
         self.assertIn(topics_url.encode(), response.content)
+
+    def test_e2e_full_review_flow(self):
+        # 2.2: regular session with 1 wrong → review → results: score correct, buttons correct
+        self.client.force_login(self.user)
+
+        # regular session: answer card 0 wrong, rest correct
+        self.client.post(reverse('flashcards:study_start'), {'topic_id': self.topic.pk})
+        wrong_card_id = None
+        cards_answered = 0
+        while cards_answered < len(self.cards):
+            response = self.client.get(reverse('flashcards:study'))
+            if response.status_code != 200:
+                break
+            card_id = response.context['card'].pk
+            is_correct = '0' if wrong_card_id is None else '1'
+            if wrong_card_id is None:
+                wrong_card_id = card_id
+            response = self.client.post(
+                reverse('flashcards:study'), {'card_id': card_id, 'is_correct': is_correct}
+            )
+            cards_answered += 1
+            if response.status_code == 302 and 'results' in response['Location']:
+                break
+
+        # get results — confirms missed_cards has the one wrong card
+        results = self.client.get(reverse('flashcards:study_results'))
+        self.assertEqual(results.status_code, 200)
+        self.assertEqual(len(results.context['missed_cards']), 1)
+
+        # start review session
+        response = self.client.post(reverse('flashcards:study_review'))
+        self.assertRedirects(response, reverse('flashcards:study'))
+        self.assertEqual(len(self.client.session['session_cards']), 1)
+
+        # review card: shows "Karta 1 z 1", is the missed card
+        response = self.client.get(reverse('flashcards:study'))
+        self.assertContains(response, 'Karta 1 z 1')
+        card_id = response.context['card'].pk
+        self.assertEqual(card_id, wrong_card_id)
+        self.client.post(reverse('flashcards:study'), {'card_id': card_id, 'is_correct': '1'})
+
+        # review results: score=1/1, study-again absent, topics present
+        results = self.client.get(reverse('flashcards:study_results'))
+        self.assertEqual(results.status_code, 200)
+        self.assertEqual(results.context['score'], 1)
+        self.assertEqual(results.context['total'], 1)
+        self.assertNotIn(reverse('flashcards:study_start').encode(), results.content)
+        self.assertIn(reverse('flashcards:topics').encode(), results.content)

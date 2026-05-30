@@ -206,11 +206,11 @@ No new models or fields. No migrations required.
 
 #### Manual
 
-- [ ] 1.2 After a session with missed cards, "Powtórz błędne karty" button appears on results screen
-- [ ] 1.3 Clicking it starts a new session with N = missed-card count
-- [ ] 1.4 After a perfect session, the review button is absent
-- [ ] 1.5 "Ucz się ponownie" button absent after a review session
-- [ ] 1.6 "Wybierz temat" works from both regular and review results screens
+- [x] 1.2 After a session with missed cards, "Powtórz błędne karty" button appears on results screen
+- [x] 1.3 Clicking it starts a new session with N = missed-card count
+- [x] 1.4 After a perfect session, the review button is absent
+- [x] 1.5 "Ucz się ponownie" button absent after a review session
+- [x] 1.6 "Wybierz temat" works from both regular and review results screens
 
 ### Phase 2: Integration Tests
 
@@ -220,4 +220,4 @@ No new models or fields. No migrations required.
 
 #### Manual
 
-- [ ] 2.2 Full E2E: session with missed cards → review → results → score correct, buttons correct
+- [x] 2.2 Full E2E: session with missed cards → review → results → score correct, buttons correct
