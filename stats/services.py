@@ -1,10 +1,19 @@
 from datetime import date, timedelta
 
+from django.contrib.auth import get_user_model
+from django.db.models import Count, Q
 from django.utils import timezone
 
 from flashcards.models import CardReview
 
 from .types import StudyStats
+
+
+def get_leaderboard():
+    User = get_user_model()
+    return User.objects.annotate(
+        total_correct=Count('card_reviews', filter=Q(card_reviews__is_correct=True))
+    ).order_by('-total_correct', 'username')[:10]
 
 
 def compute_study_stats(user) -> StudyStats:
