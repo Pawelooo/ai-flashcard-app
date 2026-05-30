@@ -1,3 +1,4 @@
+
 # Spaced Repetition Review — Implementation Plan
 
 ## Overview
@@ -205,11 +206,11 @@ No new models or fields. No migrations required.
 
 #### Manual
 
-- [x] 1.2 After a session with missed cards, "Powtórz błędne karty" button appears on results screen — test_review_button_visible_when_missed_cards_exist
-- [x] 1.3 Clicking it starts a new session with N = missed-card count — test_review_session_happy_path (session_cards len == 2)
-- [x] 1.4 After a perfect session, the review button is absent — test_perfect_session_hides_review_button
-- [x] 1.5 "Ucz się ponownie" button absent after a review session — test_review_results_hides_study_again_button
-- [x] 1.6 "Wybierz temat" works from both regular and review results screens — test_topics_button_present_on_regular_and_review_results
+- [ ] 1.2 After a session with missed cards, "Powtórz błędne karty" button appears on results screen
+- [ ] 1.3 Clicking it starts a new session with N = missed-card count
+- [ ] 1.4 After a perfect session, the review button is absent
+- [ ] 1.5 "Ucz się ponownie" button absent after a review session
+- [ ] 1.6 "Wybierz temat" works from both regular and review results screens
 
 ### Phase 2: Integration Tests
 
