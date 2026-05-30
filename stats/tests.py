@@ -114,6 +114,56 @@ class StudyStatsTests(TestCase):
         self.assertIsInstance(stats, StudyStats)
 
 
+class LeaderboardViewTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username='viewer', password='pass')
+
+    def _make_user(self, username):
+        return User.objects.create_user(username=username, password='pass')
+
+    def _add_correct_reviews(self, user, count):
+        for _ in range(count):
+            CardReview.objects.create(user=user, reviewed_at=timezone.now(), is_correct=True)
+
+    def test_leaderboard_order(self):
+        u1 = self._make_user('alice')
+        u2 = self._make_user('bob')
+        u3 = self._make_user('carol')
+        self._add_correct_reviews(u1, 5)
+        self._add_correct_reviews(u2, 3)
+        self._add_correct_reviews(u3, 1)
+        self.client.force_login(self.user)
+        response = self.client.get('/stats/leaderboard/')
+        lb = list(response.context['leaderboard'])
+        self.assertEqual(lb[0].total_correct, 5)
+        self.assertEqual(lb[1].total_correct, 3)
+        self.assertEqual(lb[2].total_correct, 1)
+
+    def test_leaderboard_tie_broken_alphabetically(self):
+        bravo = self._make_user('bravo')
+        alpha = self._make_user('alpha')
+        self._add_correct_reviews(bravo, 2)
+        self._add_correct_reviews(alpha, 2)
+        self.client.force_login(self.user)
+        response = self.client.get('/stats/leaderboard/')
+        lb = list(response.context['leaderboard'])
+        usernames = [e.username for e in lb]
+        self.assertLess(usernames.index('alpha'), usernames.index('bravo'))
+
+    def test_leaderboard_unauthenticated_redirects(self):
+        response = self.client.get('/stats/leaderboard/')
+        self.assertEqual(response.status_code, 302)
+        self.assertIn('/accounts/login/', response['Location'])
+
+    def test_leaderboard_top_10_limit(self):
+        for i in range(11):
+            u = self._make_user(f'user{i:02d}')
+            self._add_correct_reviews(u, 1)
+        self.client.force_login(self.user)
+        response = self.client.get('/stats/leaderboard/')
+        self.assertEqual(len(list(response.context['leaderboard'])), 10)
+
+
 class StatsDashboardViewTests(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(username='viewer', password='pass')

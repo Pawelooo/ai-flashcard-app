@@ -185,14 +185,14 @@ No new models or fields. No migrations required.
 
 #### Manual
 
-- [ ] 1.2 GET `/stats/leaderboard/` returns HTTP 200 for a logged-in user
-- [ ] 1.3 GET `/stats/leaderboard/` redirects unauthenticated user to login
+- [x] 1.2 GET `/stats/leaderboard/` returns HTTP 200 for a logged-in user
+- [x] 1.3 GET `/stats/leaderboard/` redirects unauthenticated user to login
 
 ### Phase 2: Template + Navbar + Tests
 
 #### Automated
 
-- [ ] 2.1 `uv run python manage.py test` passes all 4 new test cases with no regressions
+- [x] 2.1 `uv run python manage.py test` passes all 4 new test cases with no regressions
 
 #### Manual
 
