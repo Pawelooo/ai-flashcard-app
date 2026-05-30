@@ -196,7 +196,7 @@ No new models or fields. No migrations required.
 
 #### Manual
 
-- [ ] 2.2 Navbar shows "Ranking" link; clicking it lands on `/stats/leaderboard/`
-- [ ] 2.3 Table shows rank, username, and total correct for each row
-- [ ] 2.4 Current user's row is highlighted
-- [ ] 2.5 Navbar active state is highlighted when on `/stats/leaderboard/`
+- [x] 2.2 Navbar shows "Ranking" link; clicking it lands on `/stats/leaderboard/`
+- [x] 2.3 Table shows rank, username, and total correct for each row
+- [x] 2.4 Current user's row is highlighted
+- [x] 2.5 Navbar active state is highlighted when on `/stats/leaderboard/`
