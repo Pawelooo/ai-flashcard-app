@@ -188,3 +188,53 @@ class SpacedRepetitionTests(TestCase):
         response = self.client.get(reverse('flashcards:study_results'))
         study_review_url = reverse('flashcards:study_review')
         self.assertIn(study_review_url.encode(), response.content)
+
+    def test_perfect_session_hides_review_button(self):
+        # 1.4: After a perfect session the review button must be absent
+        self.client.force_login(self.user)
+        self.client.post(reverse('flashcards:study_start'), {'topic_id': self.topic.pk})
+        while True:
+            response = self.client.get(reverse('flashcards:study'))
+            if response.status_code != 200:
+                break
+            card_id = response.context['card'].pk
+            response = self.client.post(
+                reverse('flashcards:study'), {'card_id': card_id, 'is_correct': '1'}
+            )
+            if response.status_code == 302 and 'results' in response['Location']:
+                break
+
+        response = self.client.get(reverse('flashcards:study_results'))
+        self.assertEqual(response.status_code, 200)
+        self.assertNotIn(reverse('flashcards:study_review').encode(), response.content)
+
+    def test_topics_button_present_on_regular_and_review_results(self):
+        # 1.6: Wybierz temat always visible on results — regular session
+        self.client.force_login(self.user)
+        self.client.post(reverse('flashcards:study_start'), {'topic_id': self.topic.pk})
+        while True:
+            response = self.client.get(reverse('flashcards:study'))
+            if response.status_code != 200:
+                break
+            card_id = response.context['card'].pk
+            response = self.client.post(
+                reverse('flashcards:study'), {'card_id': card_id, 'is_correct': '1'}
+            )
+            if response.status_code == 302 and 'results' in response['Location']:
+                break
+
+        response = self.client.get(reverse('flashcards:study_results'))
+        topics_url = reverse('flashcards:topics')
+        self.assertIn(topics_url.encode(), response.content)
+
+        # 1.6: Wybierz temat visible on review-session results too
+        session = self.client.session
+        session['session_topic_id'] = None
+        session['session_cards'] = [self.cards[0].pk]
+        session['session_index'] = 1
+        session['session_score'] = 1
+        session['session_wrong_ids'] = []
+        session.save()
+
+        response = self.client.get(reverse('flashcards:study_results'))
+        self.assertIn(topics_url.encode(), response.content)

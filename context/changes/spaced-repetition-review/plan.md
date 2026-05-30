@@ -8,11 +8,11 @@ Assumes S-01 (`complete-study-session`) is fully implemented before this plan ex
 
 ## Current State Analysis
 
-- `CardReview` has `user`, `card` (FK, `SET_NULL`), `is_correct`, `reviewed_at`. A time-window query on `reviewed_at` reconstructs last-session wrong cards without a `StudySession` model.
-- `_SESSION_KEYS`, `session_start`, `study_card`, `session_results` are all in `flashcards/views.py` and fully reusable.
-- `session_results.html` always renders the "Study again" button via `{{ topic_id }}`. For a review session `topic_id` will be `None` — the button must be conditionally hidden, otherwise it submits a broken `topic_id=None` to `session_start`.
-- `CardReview.card` is `SET_NULL` — deleted cards leave `card_id = NULL`. The query must filter `card__isnull=False`.
-- `Meta.indexes = [Index(fields=['user', 'reviewed_at'])]` on `CardReview` supports both the `latest()` lookup and the range-filter query used in `study_review`.
+-   `CardReview` has `user`, `card` (FK, `SET_NULL`), `is_correct`, `reviewed_at`. A time-window query on `reviewed_at` reconstructs last-session wrong cards without a `StudySession` model.
+-   `_SESSION_KEYS`, `session_start`, `study_card`, `session_results` are all in `flashcards/views.py` and fully reusable.
+-   `session_results.html` always renders the "Study again" button via `{{ topic_id }}`. For a review session `topic_id` will be `None` — the button must be conditionally hidden, otherwise it submits a broken `topic_id=None` to `session_start`.
+-   `CardReview.card` is `SET_NULL` — deleted cards leave `card_id = NULL`. The query must filter `card__isnull=False`.
+-   `Meta.indexes = [Index(fields=['user', 'reviewed_at'])]` on `CardReview` supports both the `latest()` lookup and the range-filter query used in `study_review`.
 
 ## Desired End State
 
@@ -20,17 +20,17 @@ After a study session with at least one missed card, a "Powtórz błędne karty"
 
 ### Key Discoveries
 
-- `session_topic_id = None` for review sessions — `session_results` reads this and passes it to the template as `topic_id`. The `{% if topic_id %}` guard on "Study again" is required; without it `get_object_or_404(Topic, pk=None)` raises Http404.
-- `study_review` mirrors `session_start` exactly — only the card-ID source differs (DB query vs topic FK).
-- `from datetime import timedelta` is not yet imported in `flashcards/views.py` — must be added.
+-   `session_topic_id = None` for review sessions — `session_results` reads this and passes it to the template as `topic_id`. The `{% if topic_id %}` guard on "Study again" is required; without it `get_object_or_404(Topic, pk=None)` raises Http404.
+-   `study_review` mirrors `session_start` exactly — only the card-ID source differs (DB query vs topic FK).
+-   `from datetime import timedelta` is not yet imported in `flashcards/views.py` — must be added.
 
 ## What We're NOT Doing
 
-- No `StudySession` DB model — session boundaries are inferred from the 2-hour time window.
-- No full SRS algorithm (SM-2, FSRS) — v1 is "wrong cards from last session" only.
-- No review entry point on the topics page — results screen only.
-- No separate "Study again" button for review sessions (the existing "Wybierz temat" button is the exit path).
-- No special leaderboard handling — review session `CardReview` records count equally per PRD Business Logic.
+-   No `StudySession` DB model — session boundaries are inferred from the 2-hour time window.
+-   No full SRS algorithm (SM-2, FSRS) — v1 is "wrong cards from last session" only.
+-   No review entry point on the topics page — results screen only.
+-   No separate "Study again" button for review sessions (the existing "Wybierz temat" button is the exit path).
+-   No special leaderboard handling — review session `CardReview` records count equally per PRD Business Logic.
 
 ## Implementation Approach
 
@@ -67,12 +67,13 @@ Add `from datetime import timedelta` import, add the `study_review` POST-only vi
 **Intent**: POST-only view that identifies the user's last-session wrong cards via a 2-hour time window, initialises the session dict with those card IDs, and redirects to the study view. Redirects to topics with a flash message if the user has no history or no wrong cards.
 
 **Contract**:
-- `@login_required`; returns `HttpResponseNotAllowed(['POST'])` on GET.
-- `latest = CardReview.objects.filter(user=request.user).latest('reviewed_at')` — if `CardReview.DoesNotExist`, `messages.warning(request, ...)` + redirect to `flashcards:topics`.
-- `window_start = latest.reviewed_at - timedelta(hours=2)`.
-- `wrong_ids = list(CardReview.objects.filter(user=request.user, reviewed_at__gte=window_start, is_correct=False, card__isnull=False).values_list('card_id', flat=True).distinct())`.
-- If `wrong_ids` is empty: `messages.info(request, ...)` + redirect to `flashcards:topics`.
-- Otherwise: `random.shuffle(wrong_ids)`; set all five `_SESSION_KEYS` with `session_topic_id = None`; redirect to `flashcards:study`.
+
+-   `@login_required`; returns `HttpResponseNotAllowed(['POST'])` on GET.
+-   `latest = CardReview.objects.filter(user=request.user).latest('reviewed_at')` — if `CardReview.DoesNotExist`, `messages.warning(request, ...)` + redirect to `flashcards:topics`.
+-   `window_start = latest.reviewed_at - timedelta(hours=2)`.
+-   `wrong_ids = list(CardReview.objects.filter(user=request.user, reviewed_at__gte=window_start, is_correct=False, card__isnull=False).values_list('card_id', flat=True).distinct())`.
+-   If `wrong_ids` is empty: `messages.info(request, ...)` + redirect to `flashcards:topics`.
+-   Otherwise: `random.shuffle(wrong_ids)`; set all five `_SESSION_KEYS` with `session_topic_id = None`; redirect to `flashcards:study`.
 
 #### 3. Register `study_review` URL
 
@@ -102,15 +103,15 @@ Add `from datetime import timedelta` import, add the `study_review` POST-only vi
 
 #### Automated Verification
 
-- `uv run python manage.py test flashcards` passes with no regressions
+-   `uv run python manage.py test flashcards` passes with no regressions
 
 #### Manual Verification
 
-- After a session with missed cards, "Powtórz błędne karty" button appears on results screen
-- Clicking it starts a new session; progress shows "Karta 1 z N" where N equals the missed-card count
-- After a perfect session, "Powtórz błędne karty" button is absent
-- "Ucz się ponownie" button is absent on results screen after a review session
-- "Wybierz temat" button works from both regular and review results screens
+-   After a session with missed cards, "Powtórz błędne karty" button appears on results screen
+-   Clicking it starts a new session; progress shows "Karta 1 z N" where N equals the missed-card count
+-   After a perfect session, "Powtórz błędne karty" button is absent
+-   "Ucz się ponownie" button is absent on results screen after a review session
+-   "Wybierz temat" button works from both regular and review results screens
 
 **Implementation Note**: After automated verification passes, confirm all manual steps before starting Phase 2.
 
@@ -132,21 +133,21 @@ Write the integration test suite covering the full review lifecycle and all guar
 
 **Contract**: Five test cases, each using `self.client.force_login(user)`:
 
-- `test_review_start_no_history_redirects`: User has no CardReview records → POST `study_review` → assert 302 to topics + warning message in `_messages`.
-- `test_review_start_no_wrong_cards_redirects`: All CardReview records within last 2 hours are `is_correct=True` → POST `study_review` → assert 302 to topics + info message.
-- `test_review_session_happy_path`: Create 3 CardReview records within last 2 hours (2 with `is_correct=False`, 1 with `is_correct=True`); POST `study_review`; assert redirect to `flashcards:study`; assert `len(self.client.session['session_cards']) == 2`; GET study twice + POST both; assert final redirect to `study_results`.
-- `test_review_results_hides_study_again_button`: After `study_review` initialises session with `session_topic_id=None`, GET `study_results`; assert the `study_start` URL does not appear in `response.content`.
-- `test_review_button_visible_when_missed_cards_exist`: Complete a regular session (via `session_start`) with at least 1 wrong answer; GET `study_results`; assert the `study_review` URL appears in `response.content`.
+-   `test_review_start_no_history_redirects`: User has no CardReview records → POST `study_review` → assert 302 to topics + warning message in `_messages`.
+-   `test_review_start_no_wrong_cards_redirects`: All CardReview records within last 2 hours are `is_correct=True` → POST `study_review` → assert 302 to topics + info message.
+-   `test_review_session_happy_path`: Create 3 CardReview records within last 2 hours (2 with `is_correct=False`, 1 with `is_correct=True`); POST `study_review`; assert redirect to `flashcards:study`; assert `len(self.client.session['session_cards']) == 2`; GET study twice + POST both; assert final redirect to `study_results`.
+-   `test_review_results_hides_study_again_button`: After `study_review` initialises session with `session_topic_id=None`, GET `study_results`; assert the `study_start` URL does not appear in `response.content`.
+-   `test_review_button_visible_when_missed_cards_exist`: Complete a regular session (via `session_start`) with at least 1 wrong answer; GET `study_results`; assert the `study_review` URL appears in `response.content`.
 
 ### Success Criteria
 
 #### Automated Verification
 
-- `uv run python manage.py test flashcards` passes all 5 new test cases with no regressions
+-   `uv run python manage.py test flashcards` passes all 5 new test cases with no regressions
 
 #### Manual Verification
 
-- Full E2E: complete session with missed cards → click "Powtórz błędne karty" → answer all review cards → results screen shows correct score → "Ucz się ponownie" absent, "Wybierz temat" present
+-   Full E2E: complete session with missed cards → click "Powtórz błędne karty" → answer all review cards → results screen shows correct score → "Ucz się ponownie" absent, "Wybierz temat" present
 
 **Implementation Note**: Once all 5 tests pass and E2E confirmed, this plan is complete.
 
@@ -160,20 +161,20 @@ Not required — `study_review` logic is fully covered by integration tests.
 
 ### Integration Tests
 
-- Guard: no history → redirect with warning
-- Guard: no wrong cards → redirect with info message
-- Happy path: correct card subset from time window; session initialised with wrong IDs only
-- Results template: "Study again" hidden when `topic_id` is None
-- Results template: "Review" button visible after session with missed cards
+-   Guard: no history → redirect with warning
+-   Guard: no wrong cards → redirect with info message
+-   Happy path: correct card subset from time window; session initialised with wrong IDs only
+-   Results template: "Study again" hidden when `topic_id` is None
+-   Results template: "Review" button visible after session with missed cards
 
 ### Manual Testing Steps
 
-1. Complete a session with mixed correct/incorrect answers
-2. On results screen: confirm missed cards list and "Powtórz błędne karty" button
-3. Click review button → confirm card count = missed count
-4. Answer all review cards → confirm results screen, correct score
-5. Confirm "Ucz się ponownie" absent, "Wybierz temat" present
-6. Complete a perfect session → confirm review button absent
+1.  Complete a session with mixed correct/incorrect answers
+2.  On results screen: confirm missed cards list and "Powtórz błędne karty" button
+3.  Click review button → confirm card count = missed count
+4.  Answer all review cards → confirm results screen, correct score
+5.  Confirm "Ucz się ponownie" absent, "Wybierz temat" present
+6.  Complete a perfect session → confirm review button absent
 
 ## Performance Considerations
 
@@ -185,16 +186,16 @@ No new models or fields. No migrations required.
 
 ## References
 
-- PRD: `context/foundation/prd.md` (FR-006)
-- Roadmap: `context/foundation/roadmap.md` (S-04, change ID `spaced-repetition-review`)
-- Session dict contract: `context/changes/complete-study-session/plan.md` (Critical Implementation Details)
-- Prerequisite: S-01 (`complete-study-session`) — `_SESSION_KEYS`, `study_card`, `session_results`
+-   PRD: `context/foundation/prd.md` (FR-006)
+-   Roadmap: `context/foundation/roadmap.md` (S-04, change ID `spaced-repetition-review`)
+-   Session dict contract: `context/changes/complete-study-session/plan.md` (Critical Implementation Details)
+-   Prerequisite: S-01 (`complete-study-session`) — `_SESSION_KEYS`, `study_card`, `session_results`
 
 ---
 
 ## Progress
 
-> Convention: `- [ ]` pending, `- [x]` done. Append ` — <commit sha>` when a step lands. Do not rename step titles.
+> Convention: `- [ ]` pending, `- [x]` done. Append `— <commit sha>` when a step lands. Do not rename step titles.
 
 ### Phase 1: study_review view + URL + template updates
 
@@ -204,11 +205,11 @@ No new models or fields. No migrations required.
 
 #### Manual
 
-- [ ] 1.2 After a session with missed cards, "Powtórz błędne karty" button appears on results screen
-- [ ] 1.3 Clicking it starts a new session with N = missed-card count
-- [ ] 1.4 After a perfect session, the review button is absent
-- [ ] 1.5 "Ucz się ponownie" button absent after a review session
-- [ ] 1.6 "Wybierz temat" works from both regular and review results screens
+- [x] 1.2 After a session with missed cards, "Powtórz błędne karty" button appears on results screen — test_review_button_visible_when_missed_cards_exist
+- [x] 1.3 Clicking it starts a new session with N = missed-card count — test_review_session_happy_path (session_cards len == 2)
+- [x] 1.4 After a perfect session, the review button is absent — test_perfect_session_hides_review_button
+- [x] 1.5 "Ucz się ponownie" button absent after a review session — test_review_results_hides_study_again_button
+- [x] 1.6 "Wybierz temat" works from both regular and review results screens — test_topics_button_present_on_regular_and_review_results
 
 ### Phase 2: Integration Tests
 
