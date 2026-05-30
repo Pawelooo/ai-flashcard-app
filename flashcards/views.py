@@ -1,4 +1,5 @@
 import random
+from datetime import timedelta
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -90,6 +91,40 @@ class CardCreateView(LoginRequiredMixin, CreateView):
     form_class = CardForm
     template_name = 'flashcards/card_form.html'
     success_url = reverse_lazy('flashcards:card_list')
+
+
+@login_required
+def study_review(request):
+    if request.method != 'POST':
+        return HttpResponseNotAllowed(['POST'])
+
+    try:
+        latest = CardReview.objects.filter(user=request.user).latest('reviewed_at')
+    except CardReview.DoesNotExist:
+        messages.warning(request, 'Brak historii sesji — najpierw ukończ sesję.')
+        return redirect('flashcards:topics')
+
+    window_start = latest.reviewed_at - timedelta(hours=2)
+    wrong_ids = list(
+        CardReview.objects.filter(
+            user=request.user,
+            reviewed_at__gte=window_start,
+            is_correct=False,
+            card__isnull=False,
+        ).values_list('card_id', flat=True).distinct()
+    )
+
+    if not wrong_ids:
+        messages.info(request, 'Brak błędnych kart z ostatniej sesji.')
+        return redirect('flashcards:topics')
+
+    random.shuffle(wrong_ids)
+    request.session['session_topic_id'] = None
+    request.session['session_cards'] = wrong_ids
+    request.session['session_index'] = 0
+    request.session['session_score'] = 0
+    request.session['session_wrong_ids'] = []
+    return redirect('flashcards:study')
 
 
 @login_required
