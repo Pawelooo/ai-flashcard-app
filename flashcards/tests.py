@@ -1,8 +1,11 @@
+from datetime import timedelta
+
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django.urls import reverse
+from django.utils import timezone
 
-from .models import Card, Topic
+from .models import Card, CardReview, Topic
 
 
 class StudySessionTests(TestCase):
@@ -90,3 +93,98 @@ class StudySessionTests(TestCase):
         self.assertNotIn('session_score', session)
         self.assertNotIn('session_wrong_ids', session)
         self.assertNotIn('session_topic_id', session)
+
+
+class SpacedRepetitionTests(TestCase):
+
+    def setUp(self):
+        self.user = User.objects.create_user(username='sruser', password='pass')
+        self.topic = Topic.objects.create(name='SR Topic', slug='sr-topic')
+        self.cards = [
+            Card.objects.create(topic=self.topic, question=f'SRQ{i}', answer=f'SRA{i}')
+            for i in range(3)
+        ]
+
+    def _post_review(self):
+        return self.client.post(reverse('flashcards:study_review'))
+
+    def test_review_start_no_history_redirects(self):
+        self.client.force_login(self.user)
+        response = self._post_review()
+        self.assertRedirects(response, reverse('flashcards:topics'))
+        msgs = list(response.wsgi_request._messages)
+        self.assertTrue(any(m.level_tag == 'warning' for m in msgs))
+
+    def test_review_start_no_wrong_cards_redirects(self):
+        self.client.force_login(self.user)
+        now = timezone.now()
+        for card in self.cards:
+            CardReview.objects.create(user=self.user, card=card, is_correct=True, reviewed_at=now)
+        response = self._post_review()
+        self.assertRedirects(response, reverse('flashcards:topics'))
+        msgs = list(response.wsgi_request._messages)
+        self.assertTrue(any(m.level_tag == 'info' for m in msgs))
+
+    def test_review_session_happy_path(self):
+        self.client.force_login(self.user)
+        now = timezone.now()
+        wrong_cards = self.cards[:2]
+        for card in wrong_cards:
+            CardReview.objects.create(user=self.user, card=card, is_correct=False, reviewed_at=now)
+        CardReview.objects.create(user=self.user, card=self.cards[2], is_correct=True, reviewed_at=now)
+
+        response = self._post_review()
+        self.assertRedirects(response, reverse('flashcards:study'))
+        self.assertEqual(len(self.client.session['session_cards']), 2)
+
+        # answer both review cards
+        for _ in range(2):
+            response = self.client.get(reverse('flashcards:study'))
+            self.assertEqual(response.status_code, 200)
+            card_id = response.context['card'].pk
+            response = self.client.post(
+                reverse('flashcards:study'),
+                {'card_id': card_id, 'is_correct': '1'},
+            )
+
+        self.assertEqual(response.status_code, 302)
+        self.assertIn('study/results', response['Location'])
+
+    def test_review_results_hides_study_again_button(self):
+        self.client.force_login(self.user)
+        session = self.client.session
+        session['session_topic_id'] = None
+        session['session_cards'] = [self.cards[0].pk]
+        session['session_index'] = len(self.cards[:1])
+        session['session_score'] = 0
+        session['session_wrong_ids'] = []
+        session.save()
+
+        response = self.client.get(reverse('flashcards:study_results'))
+        self.assertEqual(response.status_code, 200)
+        study_start_url = reverse('flashcards:study_start')
+        self.assertNotIn(study_start_url.encode(), response.content)
+
+    def test_review_button_visible_when_missed_cards_exist(self):
+        self.client.force_login(self.user)
+        # start a regular session and answer one wrong
+        self.client.post(reverse('flashcards:study_start'), {'topic_id': self.topic.pk})
+        response = self.client.get(reverse('flashcards:study'))
+        card_id = response.context['card'].pk
+        self.client.post(reverse('flashcards:study'), {'card_id': card_id, 'is_correct': '0'})
+
+        # answer remaining cards correctly to reach results
+        while True:
+            response = self.client.get(reverse('flashcards:study'))
+            if response.status_code == 302:
+                break
+            card_id = response.context['card'].pk
+            response = self.client.post(
+                reverse('flashcards:study'), {'card_id': card_id, 'is_correct': '1'}
+            )
+            if response.status_code == 302 and 'results' in response['Location']:
+                break
+
+        response = self.client.get(reverse('flashcards:study_results'))
+        study_review_url = reverse('flashcards:study_review')
+        self.assertIn(study_review_url.encode(), response.content)
