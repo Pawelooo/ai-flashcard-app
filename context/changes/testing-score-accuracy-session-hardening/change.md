@@ -2,7 +2,7 @@
 id: testing-score-accuracy-session-hardening
 roadmap_id: test-plan-phase-1
 title: Score accuracy & session hardening — integration tests
-status: implementing
+status: implemented
 created: 2026-06-03
 updated: 2026-06-03
 prd_refs: [FR-003, FR-004]

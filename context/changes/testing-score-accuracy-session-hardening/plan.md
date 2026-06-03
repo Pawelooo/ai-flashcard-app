@@ -247,10 +247,10 @@ Phase 3 adds one `issubset()` check per request to `study_card` — negligible o
 
 #### Automated
 
-- [x] 3.1 4 Phase 3 tests added before view fix: missing_index and missing_score tests fail with KeyError
-- [x] 3.2 View fix applied; `uv run python manage.py test flashcards` — all 20 tests pass
+- [x] 3.1 4 Phase 3 tests added before view fix: missing_index and missing_score tests fail with KeyError — e0d24ba
+- [x] 3.2 View fix applied; `uv run python manage.py test flashcards` — all 20 tests pass — e0d24ba
 
 #### Manual
 
-- [x] 3.3 Code review: expanded guard in study_card uses required.issubset() matching session_results pattern
-- [x] 3.4 Code review: test_partial_session_missing_score_post asserts CardReview.objects.count() == 0
+- [x] 3.3 Code review: expanded guard in study_card uses required.issubset() matching session_results pattern — e0d24ba
+- [x] 3.4 Code review: test_partial_session_missing_score_post asserts CardReview.objects.count() == 0 — e0d24ba
