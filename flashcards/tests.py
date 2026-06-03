@@ -116,22 +116,20 @@ class SpacedRepetitionTests(TestCase):
         self.assertTrue(any(m.level_tag == 'warning' for m in msgs))
 
     def test_review_start_no_wrong_cards_redirects(self):
+        # Perfect session leaves no last_wrong_ids in session — same as no history
         self.client.force_login(self.user)
-        now = timezone.now()
-        for card in self.cards:
-            CardReview.objects.create(user=self.user, card=card, is_correct=True, reviewed_at=now)
         response = self._post_review()
         self.assertRedirects(response, reverse('flashcards:topics'))
         msgs = list(response.wsgi_request._messages)
-        self.assertTrue(any(m.level_tag == 'info' for m in msgs))
+        self.assertTrue(any(m.level_tag == 'warning' for m in msgs))
 
     def test_review_session_happy_path(self):
         self.client.force_login(self.user)
-        now = timezone.now()
         wrong_cards = self.cards[:2]
-        for card in wrong_cards:
-            CardReview.objects.create(user=self.user, card=card, is_correct=False, reviewed_at=now)
-        CardReview.objects.create(user=self.user, card=self.cards[2], is_correct=True, reviewed_at=now)
+
+        session = self.client.session
+        session['last_wrong_ids'] = [card.pk for card in wrong_cards]
+        session.save()
 
         response = self._post_review()
         self.assertRedirects(response, reverse('flashcards:study'))
@@ -291,3 +289,56 @@ class SpacedRepetitionTests(TestCase):
         self.assertEqual(results.context['total'], 1)
         self.assertNotIn(reverse('flashcards:study_start').encode(), results.content)
         self.assertIn(reverse('flashcards:topics').encode(), results.content)
+
+
+class SessionHardeningTests(TestCase):
+
+    def setUp(self):
+        self.user = User.objects.create_user(username='hardenuser', password='pass')
+        self.topic = Topic.objects.create(name='Hardening Topic', slug='hardening-topic')
+        self.cards = [
+            Card.objects.create(topic=self.topic, question=f'HQ{i}', answer=f'HA{i}')
+            for i in range(3)
+        ]
+
+    def _start_session(self):
+        return self.client.post(
+            reverse('flashcards:study_start'),
+            {'topic_id': self.topic.pk},
+        )
+
+    def test_session_score_matches_cardreview_db(self):
+        self.client.force_login(self.user)
+        self._start_session()
+
+        for is_correct in ['1', '0', '1']:
+            response = self.client.get(reverse('flashcards:study'))
+            self.assertEqual(response.status_code, 200)
+            card_id = response.context['card'].pk
+            self.client.post(
+                reverse('flashcards:study'),
+                {'card_id': card_id, 'is_correct': is_correct},
+            )
+
+        response = self.client.get(reverse('flashcards:study_results'))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['score'], 2)
+        self.assertEqual(CardReview.objects.count(), 3)
+        self.assertEqual(CardReview.objects.filter(is_correct=True).count(), 2)
+        self.assertEqual(CardReview.objects.filter(is_correct=False).count(), 1)
+
+    def test_missing_is_correct_field_counts_as_incorrect(self):
+        self.client.force_login(self.user)
+        self._start_session()
+
+        response = self.client.get(reverse('flashcards:study'))
+        self.assertEqual(response.status_code, 200)
+        card_id = response.context['card'].pk
+
+        response = self.client.post(
+            reverse('flashcards:study'),
+            {'card_id': card_id},
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertFalse(CardReview.objects.last().is_correct)
+        self.assertEqual(self.client.session['session_score'], 0)
