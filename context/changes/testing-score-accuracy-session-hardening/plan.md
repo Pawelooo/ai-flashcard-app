@@ -226,22 +226,22 @@ Phase 3 adds one `issubset()` check per request to `study_card` — negligible o
 
 #### Automated
 
-- [x] 1.1 `uv run python manage.py test flashcards.tests.SessionHardeningTests` passes (both new tests green, no regressions)
+- [x] 1.1 `uv run python manage.py test flashcards.tests.SessionHardeningTests` passes (both new tests green, no regressions) — 83622f0
 
 #### Manual
 
-- [x] 1.2 Code review: score test reads from CardReview DB counts, not from session_score
-- [x] 1.3 Code review: missing_is_correct test sends POST without is_correct key (not empty string)
+- [x] 1.2 Code review: score test reads from CardReview DB counts, not from session_score — 83622f0
+- [x] 1.3 Code review: missing_is_correct test sends POST without is_correct key (not empty string) — 83622f0
 
 ### Phase 2: Injection Guard Test (Risk #2)
 
 #### Automated
 
-- [ ] 2.1 `uv run python manage.py test flashcards.tests.SessionHardeningTests.test_cross_card_post_rejected_no_db_write` passes
+- [x] 2.1 `uv run python manage.py test flashcards.tests.SessionHardeningTests.test_cross_card_post_rejected_no_db_write` passes
 
 #### Manual
 
-- [ ] 2.2 Code review: test uses session_cards[1] (not session_cards[0]) as the wrong-index card ID
+- [x] 2.2 Code review: test uses session_cards[1] (not session_cards[0]) as the wrong-index card ID
 
 ### Phase 3: Partial Session Fix + Tests (Risk #3)
 

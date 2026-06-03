@@ -342,3 +342,17 @@ class SessionHardeningTests(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertFalse(CardReview.objects.last().is_correct)
         self.assertEqual(self.client.session['session_score'], 0)
+
+    def test_cross_card_post_rejected_no_db_write(self):
+        self.client.force_login(self.user)
+        self._start_session()
+
+        wrong_card_id = self.client.session['session_cards'][1]
+        response = self.client.post(
+            reverse('flashcards:study'),
+            {'card_id': wrong_card_id, 'is_correct': '1'},
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(CardReview.objects.count(), 0)
+        self.assertEqual(self.client.session['session_score'], 0)
+        self.assertEqual(self.client.session['session_index'], 0)
