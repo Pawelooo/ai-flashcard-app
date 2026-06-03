@@ -237,20 +237,20 @@ Phase 3 adds one `issubset()` check per request to `study_card` — negligible o
 
 #### Automated
 
-- [x] 2.1 `uv run python manage.py test flashcards.tests.SessionHardeningTests.test_cross_card_post_rejected_no_db_write` passes
+- [x] 2.1 `uv run python manage.py test flashcards.tests.SessionHardeningTests.test_cross_card_post_rejected_no_db_write` passes — 22673f8
 
 #### Manual
 
-- [x] 2.2 Code review: test uses session_cards[1] (not session_cards[0]) as the wrong-index card ID
+- [x] 2.2 Code review: test uses session_cards[1] (not session_cards[0]) as the wrong-index card ID — 22673f8
 
 ### Phase 3: Partial Session Fix + Tests (Risk #3)
 
 #### Automated
 
-- [ ] 3.1 4 Phase 3 tests added before view fix: missing_index and missing_score tests fail with KeyError
-- [ ] 3.2 View fix applied; `uv run python manage.py test flashcards` — all 19 tests pass
+- [x] 3.1 4 Phase 3 tests added before view fix: missing_index and missing_score tests fail with KeyError
+- [x] 3.2 View fix applied; `uv run python manage.py test flashcards` — all 20 tests pass
 
 #### Manual
 
-- [ ] 3.3 Code review: expanded guard in study_card uses required.issubset() matching session_results pattern
-- [ ] 3.4 Code review: test_partial_session_missing_score_post asserts CardReview.objects.count() == 0
+- [x] 3.3 Code review: expanded guard in study_card uses required.issubset() matching session_results pattern
+- [x] 3.4 Code review: test_partial_session_missing_score_post asserts CardReview.objects.count() == 0

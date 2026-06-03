@@ -1,5 +1,4 @@
 import random
-from datetime import timedelta
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -74,6 +73,8 @@ def session_results(request):
         'missed_cards': missed_cards,
         'topic_id': topic_id,
     })
+    if wrong_ids:
+        request.session['last_wrong_ids'] = wrong_ids
     for key in _SESSION_KEYS:
         request.session.pop(key, None)
     return response
@@ -98,24 +99,10 @@ def study_review(request):
     if request.method != 'POST':
         return HttpResponseNotAllowed(['POST'])
 
-    try:
-        latest = CardReview.objects.filter(user=request.user).latest('reviewed_at')
-    except CardReview.DoesNotExist:
-        messages.warning(request, 'Brak historii sesji — najpierw ukończ sesję.')
-        return redirect('flashcards:topics')
-
-    window_start = latest.reviewed_at - timedelta(hours=2)
-    wrong_ids = list(
-        CardReview.objects.filter(
-            user=request.user,
-            reviewed_at__gte=window_start,
-            is_correct=False,
-            card__isnull=False,
-        ).values_list('card_id', flat=True).distinct()
-    )
+    wrong_ids = request.session.pop('last_wrong_ids', None)
 
     if not wrong_ids:
-        messages.info(request, 'Brak błędnych kart z ostatniej sesji.')
+        messages.warning(request, 'Brak błędnych kart — najpierw ukończ sesję.')
         return redirect('flashcards:topics')
 
     random.shuffle(wrong_ids)
@@ -129,7 +116,8 @@ def study_review(request):
 
 @login_required
 def study_card(request):
-    if 'session_cards' not in request.session:
+    required = {'session_cards', 'session_index', 'session_score', 'session_wrong_ids'}
+    if not required.issubset(request.session.keys()):
         return redirect('flashcards:topics')
 
     card_ids = request.session['session_cards']
