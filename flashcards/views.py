@@ -88,6 +88,9 @@ class CardListView(LoginRequiredMixin, ListView):
     context_object_name = 'cards'
     ordering = ['-created_at']
 
+    def get_queryset(self):
+        return super().get_queryset().select_related('topic', 'created_by')
+
 
 class CardCreateView(LoginRequiredMixin, CreateView):
     model = Card
@@ -103,6 +106,7 @@ class CardCreateView(LoginRequiredMixin, CreateView):
 class CardEditPermissionMixin:
     def get_object(self, queryset=None):
         obj = super().get_object(queryset)
+        # None != any User, so cards without an owner are staff-only
         if obj.created_by != self.request.user and not self.request.user.is_staff:
             raise PermissionDenied
         return obj
@@ -113,6 +117,7 @@ class CardUpdateView(LoginRequiredMixin, CardEditPermissionMixin, UpdateView):
     form_class = CardForm
     template_name = 'flashcards/card_form.html'
 
+    # success_url can't be a class attribute here — URL requires self.object.pk
     def get_success_url(self):
         return reverse_lazy('flashcards:card_detail', kwargs={'pk': self.object.pk})
 

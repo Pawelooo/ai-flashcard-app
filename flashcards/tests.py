@@ -399,3 +399,180 @@ class SessionHardeningTests(TestCase):
         response = self.client.get(reverse('flashcards:study_results'))
         self.assertEqual(response.status_code, 302)
         self.assertIn('topics', response['Location'])
+
+
+class CardPermissionTests(TestCase):
+
+    def setUp(self):
+        self.owner = User.objects.create_user(username='owner', password='pass')
+        self.other = User.objects.create_user(username='other', password='pass')
+        self.staff = User.objects.create_user(username='staff', password='pass', is_staff=True)
+        self.topic = Topic.objects.create(name='Perm Topic', slug='perm-topic')
+        self.card = Card.objects.create(
+            topic=self.topic, question='Owner Q', answer='Owner A', created_by=self.owner,
+        )
+        self.orphan = Card.objects.create(
+            topic=self.topic, question='Orphan Q', answer='Orphan A', created_by=None,
+        )
+
+    def test_owner_can_get_edit(self):
+        self.client.force_login(self.owner)
+        response = self.client.get(reverse('flashcards:card_edit', args=[self.card.pk]))
+        self.assertEqual(response.status_code, 200)
+
+    def test_owner_can_post_edit(self):
+        self.client.force_login(self.owner)
+        response = self.client.post(
+            reverse('flashcards:card_edit', args=[self.card.pk]),
+            {'topic': self.topic.pk, 'question': 'Updated Q', 'answer': 'Updated A'},
+        )
+        self.assertEqual(response.status_code, 302)
+        self.card.refresh_from_db()
+        self.assertEqual(self.card.question, 'Updated Q')
+
+    def test_owner_can_get_delete(self):
+        self.client.force_login(self.owner)
+        response = self.client.get(reverse('flashcards:card_delete', args=[self.card.pk]))
+        self.assertEqual(response.status_code, 200)
+
+    def test_owner_can_post_delete(self):
+        self.client.force_login(self.owner)
+        response = self.client.post(reverse('flashcards:card_delete', args=[self.card.pk]))
+        self.assertEqual(response.status_code, 302)
+        self.assertFalse(Card.objects.filter(pk=self.card.pk).exists())
+
+    def test_non_owner_edit_returns_403(self):
+        self.client.force_login(self.other)
+        response = self.client.get(reverse('flashcards:card_edit', args=[self.card.pk]))
+        self.assertEqual(response.status_code, 403)
+
+    def test_non_owner_delete_returns_403(self):
+        self.client.force_login(self.other)
+        response = self.client.get(reverse('flashcards:card_delete', args=[self.card.pk]))
+        self.assertEqual(response.status_code, 403)
+
+    def test_staff_can_edit_others_card(self):
+        self.client.force_login(self.staff)
+        response = self.client.get(reverse('flashcards:card_edit', args=[self.card.pk]))
+        self.assertEqual(response.status_code, 200)
+
+    def test_staff_can_delete_others_card(self):
+        self.client.force_login(self.staff)
+        response = self.client.get(reverse('flashcards:card_delete', args=[self.card.pk]))
+        self.assertEqual(response.status_code, 200)
+
+    def test_non_staff_gets_403_on_orphan_edit(self):
+        self.client.force_login(self.other)
+        response = self.client.get(reverse('flashcards:card_edit', args=[self.orphan.pk]))
+        self.assertEqual(response.status_code, 403)
+
+    def test_non_staff_gets_403_on_orphan_delete(self):
+        self.client.force_login(self.other)
+        response = self.client.get(reverse('flashcards:card_delete', args=[self.orphan.pk]))
+        self.assertEqual(response.status_code, 403)
+
+    def test_staff_can_edit_orphan(self):
+        self.client.force_login(self.staff)
+        response = self.client.get(reverse('flashcards:card_edit', args=[self.orphan.pk]))
+        self.assertEqual(response.status_code, 200)
+
+    def test_staff_can_delete_orphan(self):
+        self.client.force_login(self.staff)
+        response = self.client.get(reverse('flashcards:card_delete', args=[self.orphan.pk]))
+        self.assertEqual(response.status_code, 200)
+
+
+class CardDetailViewTests(TestCase):
+
+    def setUp(self):
+        self.owner = User.objects.create_user(username='det_owner', password='pass')
+        self.other = User.objects.create_user(username='det_other', password='pass')
+        self.staff = User.objects.create_user(username='det_staff', password='pass', is_staff=True)
+        self.topic = Topic.objects.create(name='Detail Topic', slug='detail-topic')
+        self.card = Card.objects.create(
+            topic=self.topic, question='Detail Q', answer='Detail A', created_by=self.owner,
+        )
+
+    def test_authenticated_user_gets_200(self):
+        self.client.force_login(self.other)
+        response = self.client.get(reverse('flashcards:card_detail', args=[self.card.pk]))
+        self.assertEqual(response.status_code, 200)
+
+    def test_unauthenticated_user_is_redirected(self):
+        response = self.client.get(reverse('flashcards:card_detail', args=[self.card.pk]))
+        self.assertEqual(response.status_code, 302)
+        self.assertIn('/accounts/login/', response['Location'])
+
+    def test_can_edit_true_for_owner(self):
+        self.client.force_login(self.owner)
+        response = self.client.get(reverse('flashcards:card_detail', args=[self.card.pk]))
+        self.assertTrue(response.context['can_edit'])
+
+    def test_can_edit_true_for_staff(self):
+        self.client.force_login(self.staff)
+        response = self.client.get(reverse('flashcards:card_detail', args=[self.card.pk]))
+        self.assertTrue(response.context['can_edit'])
+
+    def test_can_edit_false_for_non_owner(self):
+        self.client.force_login(self.other)
+        response = self.client.get(reverse('flashcards:card_detail', args=[self.card.pk]))
+        self.assertFalse(response.context['can_edit'])
+
+
+class CardUpdateViewTests(TestCase):
+
+    def setUp(self):
+        self.owner = User.objects.create_user(username='upd_owner', password='pass')
+        self.topic = Topic.objects.create(name='Update Topic', slug='update-topic')
+        self.card = Card.objects.create(
+            topic=self.topic, question='Original Q', answer='Original A', created_by=self.owner,
+        )
+
+    def test_get_prefills_form_with_existing_data(self):
+        self.client.force_login(self.owner)
+        response = self.client.get(reverse('flashcards:card_edit', args=[self.card.pk]))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['form'].initial.get('question') or
+                         response.context['form']['question'].value(), 'Original Q')
+
+    def test_valid_post_updates_and_redirects_to_detail(self):
+        self.client.force_login(self.owner)
+        response = self.client.post(
+            reverse('flashcards:card_edit', args=[self.card.pk]),
+            {'topic': self.topic.pk, 'question': 'New Q', 'answer': 'New A'},
+        )
+        self.assertRedirects(
+            response, reverse('flashcards:card_detail', args=[self.card.pk])
+        )
+        self.card.refresh_from_db()
+        self.assertEqual(self.card.question, 'New Q')
+
+    def test_invalid_post_returns_200_with_form_errors(self):
+        self.client.force_login(self.owner)
+        response = self.client.post(
+            reverse('flashcards:card_edit', args=[self.card.pk]),
+            {'topic': self.topic.pk, 'question': '', 'answer': 'A'},
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.context['form'].errors)
+
+
+class CardDeleteViewTests(TestCase):
+
+    def setUp(self):
+        self.owner = User.objects.create_user(username='del_owner', password='pass')
+        self.topic = Topic.objects.create(name='Delete Topic', slug='delete-topic')
+        self.card = Card.objects.create(
+            topic=self.topic, question='Delete Q', answer='Delete A', created_by=self.owner,
+        )
+
+    def test_post_deletes_card_and_redirects_to_list(self):
+        self.client.force_login(self.owner)
+        response = self.client.post(reverse('flashcards:card_delete', args=[self.card.pk]))
+        self.assertRedirects(response, reverse('flashcards:card_list'))
+
+    def test_card_no_longer_exists_after_delete(self):
+        self.client.force_login(self.owner)
+        card_pk = self.card.pk
+        self.client.post(reverse('flashcards:card_delete', args=[card_pk]))
+        self.assertFalse(Card.objects.filter(pk=card_pk).exists())
