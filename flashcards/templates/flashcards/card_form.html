@@ -1,12 +1,12 @@
 {% extends 'base.html' %}
-{% block title %}Dodaj fiszkę — NaukaAI{% endblock %}
+{% block title %}{% if object %}Edytuj fiszkę{% else %}Dodaj fiszkę{% endif %} — NaukaAI{% endblock %}
 
 {% block content %}
 <div class="row justify-content-center">
   <div class="col-md-6">
     <div class="card shadow-sm">
       <div class="card-body p-4">
-        <h2 class="card-title mb-4 fw-bold">Nowa fiszka</h2>
+        <h2 class="card-title mb-4 fw-bold">{% if object %}Edytuj fiszkę{% else %}Nowa fiszka{% endif %}</h2>
         <form method="post">
           {% csrf_token %}
           {% for field in form %}

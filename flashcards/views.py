@@ -6,7 +6,8 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponseNotAllowed
 from django.shortcuts import get_object_or_404, redirect, render
-from django.views.generic import CreateView, DetailView, ListView
+from django.core.exceptions import PermissionDenied
+from django.views.generic import CreateView, DeleteView, DetailView, ListView, UpdateView
 from django.urls import reverse_lazy
 
 from .models import Card, CardReview, Topic
@@ -97,6 +98,29 @@ class CardCreateView(LoginRequiredMixin, CreateView):
     def form_valid(self, form):
         form.instance.created_by = self.request.user
         return super().form_valid(form)
+
+
+class CardEditPermissionMixin:
+    def get_object(self, queryset=None):
+        obj = super().get_object(queryset)
+        if obj.created_by != self.request.user and not self.request.user.is_staff:
+            raise PermissionDenied
+        return obj
+
+
+class CardUpdateView(LoginRequiredMixin, CardEditPermissionMixin, UpdateView):
+    model = Card
+    form_class = CardForm
+    template_name = 'flashcards/card_form.html'
+
+    def get_success_url(self):
+        return reverse_lazy('flashcards:card_detail', kwargs={'pk': self.object.pk})
+
+
+class CardDeleteView(LoginRequiredMixin, CardEditPermissionMixin, DeleteView):
+    model = Card
+    template_name = 'flashcards/card_delete_confirm.html'
+    success_url = reverse_lazy('flashcards:card_list')
 
 
 class CardDetailView(LoginRequiredMixin, DetailView):

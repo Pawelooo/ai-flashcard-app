@@ -295,26 +295,26 @@ Add a permission mixin, `CardUpdateView`, `CardDeleteView`, their URLs, and temp
 
 #### Automated
 
-- [x] 2.1 `uv run python manage.py test flashcards` passes
+- [x] 2.1 `uv run python manage.py test flashcards` passes — a1bb705
 
 #### Manual
 
-- [x] 2.2 Clicking a card in the list navigates to `/flashcards/<pk>/`
-- [x] 2.3 Detail page shows question, answer, and topic
-- [x] 2.4 Owner sees Edit and Delete buttons on detail page
-- [x] 2.5 Non-owner non-staff sees no Edit or Delete buttons
-- [x] 2.6 Staff sees Edit and Delete on orphaned (null-owner) cards
+- [x] 2.2 Clicking a card in the list navigates to `/flashcards/<pk>/` — a1bb705
+- [x] 2.3 Detail page shows question, answer, and topic — a1bb705
+- [x] 2.4 Owner sees Edit and Delete buttons on detail page — a1bb705
+- [x] 2.5 Non-owner non-staff sees no Edit or Delete buttons — a1bb705
+- [x] 2.6 Staff sees Edit and Delete on orphaned (null-owner) cards — a1bb705
 
 ### Phase 3: Update & Delete
 
 #### Automated
 
-- [ ] 3.1 `uv run python manage.py test flashcards` passes
+- [x] 3.1 `uv run python manage.py test flashcards` passes
 
 #### Manual
 
-- [ ] 3.2 Edit pre-fills form; save redirects to detail with updated content
-- [ ] 3.3 Delete shows confirmation page; confirm removes card and redirects to list
-- [ ] 3.4 Non-owner direct URL to `/edit/` returns 403
-- [ ] 3.5 Non-owner direct URL to `/delete/` returns 403
-- [ ] 3.6 Staff can edit/delete orphaned (null-owner) cards
+- [x] 3.2 Edit pre-fills form; save redirects to detail with updated content
+- [x] 3.3 Delete shows confirmation page; confirm removes card and redirects to list
+- [x] 3.4 Non-owner direct URL to `/edit/` returns 403
+- [x] 3.5 Non-owner direct URL to `/delete/` returns 403
+- [x] 3.6 Staff can edit/delete orphaned (null-owner) cards

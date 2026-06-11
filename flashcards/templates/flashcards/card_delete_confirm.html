@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% block title %}Usuń fiszkę — NaukaAI{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-6">
+    <div class="card shadow-sm border-danger">
+      <div class="card-body p-4">
+        <h2 class="card-title mb-4 fw-bold text-danger">Usuń fiszkę</h2>
+        <p class="mb-1 text-muted">Czy na pewno chcesz usunąć tę fiszkę?</p>
+        <blockquote class="blockquote mt-3 mb-4">
+          <p class="fw-semibold">{{ object.question }}</p>
+        </blockquote>
+        <form method="post">
+          {% csrf_token %}
+          <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-danger">
+              <i class="bi bi-trash"></i> Usuń
+            </button>
+            <a href="{% url 'flashcards:card_detail' object.pk %}" class="btn btn-outline-secondary">
+              Anuluj
+            </a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
