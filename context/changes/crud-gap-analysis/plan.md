@@ -309,12 +309,12 @@ Add a permission mixin, `CardUpdateView`, `CardDeleteView`, their URLs, and temp
 
 #### Automated
 
-- [x] 3.1 `uv run python manage.py test flashcards` passes
+- [x] 3.1 `uv run python manage.py test flashcards` passes — 1682588
 
 #### Manual
 
-- [x] 3.2 Edit pre-fills form; save redirects to detail with updated content
-- [x] 3.3 Delete shows confirmation page; confirm removes card and redirects to list
-- [x] 3.4 Non-owner direct URL to `/edit/` returns 403
-- [x] 3.5 Non-owner direct URL to `/delete/` returns 403
-- [x] 3.6 Staff can edit/delete orphaned (null-owner) cards
+- [x] 3.2 Edit pre-fills form; save redirects to detail with updated content — 1682588
+- [x] 3.3 Delete shows confirmation page; confirm removes card and redirects to list — 1682588
+- [x] 3.4 Non-owner direct URL to `/edit/` returns 403 — 1682588
+- [x] 3.5 Non-owner direct URL to `/delete/` returns 403 — 1682588
+- [x] 3.6 Staff can edit/delete orphaned (null-owner) cards — 1682588

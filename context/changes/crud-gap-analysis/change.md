@@ -1,7 +1,7 @@
 ---
 change_id: crud-gap-analysis
 title: CRUD Gap Analysis
-status: implementing
+status: implemented
 created: 2026-06-11
 updated: 2026-06-11
 type: research
