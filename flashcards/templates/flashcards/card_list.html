@@ -13,12 +13,14 @@
 <div class="row g-3">
   {% for card in cards %}
   <div class="col-md-6">
-    <div class="card shadow-sm h-100">
-      <div class="card-body">
-        <p class="fw-semibold mb-1">{{ card.question }}</p>
-        <p class="text-muted small mb-0">{{ card.answer|truncatechars:120 }}</p>
+    <a href="{% url 'flashcards:card_detail' card.pk %}" class="text-decoration-none">
+      <div class="card shadow-sm h-100">
+        <div class="card-body">
+          <p class="fw-semibold mb-1">{{ card.question }}</p>
+          <p class="text-muted small mb-0">{{ card.answer|truncatechars:120 }}</p>
+        </div>
       </div>
-    </div>
+    </a>
   </div>
   {% endfor %}
 </div>

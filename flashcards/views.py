@@ -6,7 +6,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponseNotAllowed
 from django.shortcuts import get_object_or_404, redirect, render
-from django.views.generic import CreateView, ListView
+from django.views.generic import CreateView, DetailView, ListView
 from django.urls import reverse_lazy
 
 from .models import Card, CardReview, Topic
@@ -97,6 +97,20 @@ class CardCreateView(LoginRequiredMixin, CreateView):
     def form_valid(self, form):
         form.instance.created_by = self.request.user
         return super().form_valid(form)
+
+
+class CardDetailView(LoginRequiredMixin, DetailView):
+    model = Card
+    template_name = 'flashcards/card_detail.html'
+    context_object_name = 'card'
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        card = self.object
+        ctx['can_edit'] = (
+            card.created_by == self.request.user or self.request.user.is_staff
+        )
+        return ctx
 
 
 @login_required

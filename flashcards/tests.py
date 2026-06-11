@@ -1,9 +1,7 @@
-from datetime import timedelta
 
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django.urls import reverse
-from django.utils import timezone
 
 from .models import Card, CardReview, Topic
 

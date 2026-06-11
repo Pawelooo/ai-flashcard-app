@@ -281,29 +281,29 @@ Add a permission mixin, `CardUpdateView`, `CardDeleteView`, their URLs, and temp
 
 #### Automated
 
-- [x] 1.1 Migration generates cleanly (`makemigrations --check` exits 0)
-- [x] 1.2 Migration applies cleanly (`migrate` exits 0)
-- [x] 1.3 `uv run python manage.py test flashcards` passes
+- [x] 1.1 Migration generates cleanly (`makemigrations --check` exits 0) — bba204b
+- [x] 1.2 Migration applies cleanly (`migrate` exits 0) — bba204b
+- [x] 1.3 `uv run python manage.py test flashcards` passes — bba204b
 
 #### Manual
 
-- [x] 1.4 Topic dropdown visible at `/flashcards/create/`
-- [x] 1.5 Card created with topic appears in a study session for that topic
-- [x] 1.6 `Card.created_by` is set to the creating user after creation
+- [x] 1.4 Topic dropdown visible at `/flashcards/create/` — bba204b
+- [x] 1.5 Card created with topic appears in a study session for that topic — bba204b
+- [x] 1.6 `Card.created_by` is set to the creating user after creation — bba204b
 
 ### Phase 2: Card Detail View
 
 #### Automated
 
-- [ ] 2.1 `uv run python manage.py test flashcards` passes
+- [x] 2.1 `uv run python manage.py test flashcards` passes
 
 #### Manual
 
-- [ ] 2.2 Clicking a card in the list navigates to `/flashcards/<pk>/`
-- [ ] 2.3 Detail page shows question, answer, and topic
-- [ ] 2.4 Owner sees Edit and Delete buttons on detail page
-- [ ] 2.5 Non-owner non-staff sees no Edit or Delete buttons
-- [ ] 2.6 Staff sees Edit and Delete on orphaned (null-owner) cards
+- [x] 2.2 Clicking a card in the list navigates to `/flashcards/<pk>/`
+- [x] 2.3 Detail page shows question, answer, and topic
+- [x] 2.4 Owner sees Edit and Delete buttons on detail page
+- [x] 2.5 Non-owner non-staff sees no Edit or Delete buttons
+- [x] 2.6 Staff sees Edit and Delete on orphaned (null-owner) cards
 
 ### Phase 3: Update & Delete
 
