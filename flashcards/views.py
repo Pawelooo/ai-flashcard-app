@@ -1,3 +1,4 @@
+import logging
 import random
 
 from django.contrib import messages
@@ -93,6 +94,10 @@ class CardCreateView(LoginRequiredMixin, CreateView):
     template_name = 'flashcards/card_form.html'
     success_url = reverse_lazy('flashcards:card_list')
 
+    def form_valid(self, form):
+        form.instance.created_by = self.request.user
+        return super().form_valid(form)
+
 
 @login_required
 def study_review(request):
@@ -127,6 +132,7 @@ def study_card(request):
         try:
             card_id = int(request.POST.get('card_id', ''))
         except ValueError:
+            logging.warning("Invalid card_id in POST: %r", request.POST.get('card_id'))
             return redirect('flashcards:study')
         if card_id != card_ids[index]:
             return redirect('flashcards:study')

@@ -7,7 +7,7 @@ Run with:
 """
 
 from django.contrib.auth.models import User
-from django.test import RequestFactory, TestCase
+from django.core.management.base import BaseCommand
 from django.test import Client
 from django.urls import reverse
 from django.utils import timezone
@@ -193,21 +193,6 @@ def run_checks():
             if not ok:
                 print(f"  - {label}")
     return passed == total
-
-
-class Command:
-    help = "Verify all Phase 1 and Phase 2 manual checks"
-
-    def handle(self, *args, **options):
-        from django.test.utils import setup_test_environment
-        setup_test_environment()
-        ok = run_checks()
-        import sys
-        sys.exit(0 if ok else 1)
-
-
-# Make this importable as a management command
-from django.core.management.base import BaseCommand
 
 
 class Command(BaseCommand):

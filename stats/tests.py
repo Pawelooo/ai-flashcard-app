@@ -198,7 +198,6 @@ class LeaderboardHTMLTests(TestCase):
         response = self.client.get('/stats/leaderboard/')
         content = response.content.decode()
         # The active class block wraps the Ranking link on this path
-        ranking_section = content[content.rfind('bi-trophy'):]
         self.assertIn('bg-primary bg-opacity-25', content[:content.find('bi-trophy') + 500])
 
 

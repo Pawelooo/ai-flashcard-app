@@ -1,4 +1,6 @@
+import logging
 import os
+import socket
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -22,11 +24,10 @@ if _fly_app:
         if ':' in _fly_private_ip:
             ALLOWED_HOSTS.append(f'[{_fly_private_ip}]')
 
-import socket
 try:
     ALLOWED_HOSTS.append(socket.gethostbyname(socket.gethostname()))
-except Exception:
-    pass
+except Exception as exc:
+    logging.warning("Could not resolve hostname for ALLOWED_HOSTS: %s", exc)
 
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 USE_X_FORWARDED_HOST = True
