@@ -364,7 +364,7 @@ single `cast()` call with zero runtime overhead — no dict copying or object co
 
 #### Automated
 
-- [x] 2.1 Full suite passes: `uv run python manage.py test`
+- [x] 2.1 Full suite passes: `uv run python manage.py test` — 18a9587
 
 #### Manual
 
@@ -374,7 +374,7 @@ single `cast()` call with zero runtime overhead — no dict copying or object co
 
 #### Automated
 
-- [ ] 3.1 Full suite passes: `uv run python manage.py test`
+- [x] 3.1 Full suite passes: `uv run python manage.py test`
 
 #### Manual
 

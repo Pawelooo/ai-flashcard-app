@@ -48,11 +48,11 @@ def session_start(request):
         return redirect('flashcards:topics')
 
     random.shuffle(card_ids)
-    request.session['session_topic_id'] = topic.pk
-    request.session['session_cards'] = card_ids
-    request.session['session_index'] = 0
-    request.session['session_score'] = 0
-    request.session['session_wrong_ids'] = []
+    request.session[SK.TOPIC_ID] = topic.pk
+    request.session[SK.CARDS] = card_ids
+    request.session[SK.INDEX] = 0
+    request.session[SK.SCORE] = 0
+    request.session[SK.WRONG_IDS] = []
     return redirect('flashcards:study')
 
 
