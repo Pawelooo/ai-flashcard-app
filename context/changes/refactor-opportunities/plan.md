@@ -368,7 +368,7 @@ single `cast()` call with zero runtime overhead — no dict copying or object co
 
 #### Manual
 
-- [ ] 2.2 Visit /flashcards/topics/ with active session → session cleared
+- [x] 2.2 Visit /flashcards/topics/ with active session → session cleared
 
 ### Phase 3: Migrate session_start
 
@@ -378,7 +378,7 @@ single `cast()` call with zero runtime overhead — no dict copying or object co
 
 #### Manual
 
-- [ ] 3.2 Start a study session → study card renders with first card
+- [x] 3.2 Start a study session → study card renders with first card
 
 ### Phase 4: Migrate session_results
 
@@ -389,16 +389,16 @@ single `cast()` call with zero runtime overhead — no dict copying or object co
 
 #### Manual
 
-- [ ] 4.3 Complete a study session → results page renders correctly
+- [x] 4.3 Complete a study session → results page renders correctly
 
 ### Phase 5: Migrate study_review + study_card
 
 #### Automated
 
-- [x] 5.1 Full suite passes: `uv run python manage.py test`
-- [x] 5.2 No bare string session key literals remain: `grep -n '"session_' flashcards/views.py flashcards/tests.py` → empty
-- [x] 5.3 Module import verified: `uv run python -c "from flashcards.session import SK, get_session, SessionState; print('ok')"`
+- [x] 5.1 Full suite passes: `uv run python manage.py test` — 286aad9
+- [x] 5.2 No bare string session key literals remain: `grep -n '"session_' flashcards/views.py flashcards/tests.py` → empty — 286aad9
+- [x] 5.3 Module import verified: `uv run python -c "from flashcards.session import SK, get_session, SessionState; print('ok')"` — 286aad9
 
 #### Manual
 
-- [ ] 5.4 Complete full spaced-repetition cycle: topics → start → study → results → study again → results
+- [x] 5.4 Complete full spaced-repetition cycle: topics → start → study → results → study again → results
