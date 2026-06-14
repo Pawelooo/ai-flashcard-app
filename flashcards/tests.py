@@ -127,12 +127,12 @@ class SpacedRepetitionTests(TestCase):
         wrong_cards = self.cards[:2]
 
         session = self.client.session
-        session['last_wrong_ids'] = [card.pk for card in wrong_cards]
+        session[SK.LAST_WRONG_IDS] = [card.pk for card in wrong_cards]
         session.save()
 
         response = self._post_review()
         self.assertRedirects(response, reverse('flashcards:study'))
-        self.assertEqual(len(self.client.session['session_cards']), 2)
+        self.assertEqual(len(self.client.session[SK.CARDS]), 2)
 
         # 1.3: first study GET must show "Karta 1 z 2" (N = missed-card count)
         response = self.client.get(reverse('flashcards:study'))
@@ -155,11 +155,11 @@ class SpacedRepetitionTests(TestCase):
     def test_review_results_hides_study_again_button(self):
         self.client.force_login(self.user)
         session = self.client.session
-        session['session_topic_id'] = None
-        session['session_cards'] = [self.cards[0].pk]
-        session['session_index'] = len(self.cards[:1])
-        session['session_score'] = 0
-        session['session_wrong_ids'] = []
+        session[SK.TOPIC_ID] = None
+        session[SK.CARDS] = [self.cards[0].pk]
+        session[SK.INDEX] = len(self.cards[:1])
+        session[SK.SCORE] = 0
+        session[SK.WRONG_IDS] = []
         session.save()
 
         response = self.client.get(reverse('flashcards:study_results'))
@@ -231,11 +231,11 @@ class SpacedRepetitionTests(TestCase):
 
         # 1.6: Wybierz temat visible on review-session results too
         session = self.client.session
-        session['session_topic_id'] = None
-        session['session_cards'] = [self.cards[0].pk]
-        session['session_index'] = 1
-        session['session_score'] = 1
-        session['session_wrong_ids'] = []
+        session[SK.TOPIC_ID] = None
+        session[SK.CARDS] = [self.cards[0].pk]
+        session[SK.INDEX] = 1
+        session[SK.SCORE] = 1
+        session[SK.WRONG_IDS] = []
         session.save()
 
         response = self.client.get(reverse('flashcards:study_results'))
@@ -340,26 +340,26 @@ class SessionHardeningTests(TestCase):
         )
         self.assertEqual(response.status_code, 302)
         self.assertFalse(CardReview.objects.last().is_correct)
-        self.assertEqual(self.client.session['session_score'], 0)
+        self.assertEqual(self.client.session[SK.SCORE], 0)
 
     def test_cross_card_post_rejected_no_db_write(self):
         self.client.force_login(self.user)
         self._start_session()
 
-        wrong_card_id = self.client.session['session_cards'][1]
+        wrong_card_id = self.client.session[SK.CARDS][1]
         response = self.client.post(
             reverse('flashcards:study'),
             {'card_id': wrong_card_id, 'is_correct': '1'},
         )
         self.assertEqual(response.status_code, 302)
         self.assertEqual(CardReview.objects.count(), 0)
-        self.assertEqual(self.client.session['session_score'], 0)
-        self.assertEqual(self.client.session['session_index'], 0)
+        self.assertEqual(self.client.session[SK.SCORE], 0)
+        self.assertEqual(self.client.session[SK.INDEX], 0)
 
     def test_partial_session_missing_index_gets_redirect_not_500(self):
         self.client.force_login(self.user)
         session = self.client.session
-        session['session_cards'] = [self.cards[0].pk]
+        session[SK.CARDS] = [self.cards[0].pk]
         session.save()
         response = self.client.get(reverse('flashcards:study'))
         self.assertEqual(response.status_code, 302)
@@ -367,9 +367,9 @@ class SessionHardeningTests(TestCase):
     def test_partial_session_missing_score_post_gets_redirect_not_500(self):
         self.client.force_login(self.user)
         session = self.client.session
-        session['session_cards'] = [self.cards[0].pk]
-        session['session_index'] = 0
-        session['session_wrong_ids'] = []
+        session[SK.CARDS] = [self.cards[0].pk]
+        session[SK.INDEX] = 0
+        session[SK.WRONG_IDS] = []
         session.save()
         response = self.client.post(
             reverse('flashcards:study'),
@@ -381,10 +381,10 @@ class SessionHardeningTests(TestCase):
     def test_session_index_out_of_bounds_get_redirects_to_results(self):
         self.client.force_login(self.user)
         session = self.client.session
-        session['session_cards'] = [self.cards[0].pk]
-        session['session_index'] = 1
-        session['session_score'] = 0
-        session['session_wrong_ids'] = []
+        session[SK.CARDS] = [self.cards[0].pk]
+        session[SK.INDEX] = 1
+        session[SK.SCORE] = 0
+        session[SK.WRONG_IDS] = []
         session.save()
         response = self.client.get(reverse('flashcards:study'))
         self.assertEqual(response.status_code, 302)

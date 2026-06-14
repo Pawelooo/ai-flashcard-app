@@ -384,8 +384,8 @@ single `cast()` call with zero runtime overhead — no dict copying or object co
 
 #### Automated
 
-- [x] 4.1 Full suite passes: `uv run python manage.py test`
-- [x] 4.2 _SESSION_KEYS removed: `grep -rn "_SESSION_KEYS" flashcards/` → no output
+- [x] 4.1 Full suite passes: `uv run python manage.py test` — 49e5ddd
+- [x] 4.2 _SESSION_KEYS removed: `grep -rn "_SESSION_KEYS" flashcards/` → no output — 49e5ddd
 
 #### Manual
 
@@ -395,9 +395,9 @@ single `cast()` call with zero runtime overhead — no dict copying or object co
 
 #### Automated
 
-- [ ] 5.1 Full suite passes: `uv run python manage.py test`
-- [ ] 5.2 No bare string session key literals remain: `grep -n '"session_' flashcards/views.py flashcards/tests.py` → empty
-- [ ] 5.3 Module import verified: `uv run python -c "from flashcards.session import SK, get_session, SessionState; print('ok')"`
+- [x] 5.1 Full suite passes: `uv run python manage.py test`
+- [x] 5.2 No bare string session key literals remain: `grep -n '"session_' flashcards/views.py flashcards/tests.py` → empty
+- [x] 5.3 Module import verified: `uv run python -c "from flashcards.session import SK, get_session, SessionState; print('ok')"`
 
 #### Manual
 

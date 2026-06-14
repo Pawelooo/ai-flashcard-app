@@ -141,29 +141,30 @@ def study_review(request):
     if request.method != 'POST':
         return HttpResponseNotAllowed(['POST'])
 
-    wrong_ids = request.session.pop('last_wrong_ids', None)
+    wrong_ids = request.session.pop(SK.LAST_WRONG_IDS, None)
 
     if not wrong_ids:
         messages.warning(request, 'Brak błędnych kart — najpierw ukończ sesję.')
         return redirect('flashcards:topics')
 
     random.shuffle(wrong_ids)
-    request.session['session_topic_id'] = None
-    request.session['session_cards'] = wrong_ids
-    request.session['session_index'] = 0
-    request.session['session_score'] = 0
-    request.session['session_wrong_ids'] = []
+    request.session[SK.TOPIC_ID] = None
+    request.session[SK.CARDS] = wrong_ids
+    request.session[SK.INDEX] = 0
+    request.session[SK.SCORE] = 0
+    request.session[SK.WRONG_IDS] = []
     return redirect('flashcards:study')
 
 
 @login_required
 def study_card(request):
-    required = {'session_cards', 'session_index', 'session_score', 'session_wrong_ids'}
+    required = {SK.CARDS, SK.INDEX, SK.SCORE, SK.WRONG_IDS}
     if not required.issubset(request.session.keys()):
         return redirect('flashcards:topics')
 
-    card_ids = request.session['session_cards']
-    index = request.session['session_index']
+    state = get_session(request)
+    card_ids = state[SK.CARDS]
+    index = state[SK.INDEX]
 
     if request.method == 'POST':
         try:
@@ -178,13 +179,13 @@ def study_card(request):
         CardReview.objects.create(user=request.user, card=card, is_correct=is_correct)
 
         if is_correct:
-            request.session['session_score'] += 1
+            request.session[SK.SCORE] += 1
         else:
-            wrong = request.session['session_wrong_ids']
+            wrong = state[SK.WRONG_IDS]
             wrong.append(card_id)
-            request.session['session_wrong_ids'] = wrong
+            request.session[SK.WRONG_IDS] = wrong
 
-        request.session['session_index'] = index + 1
+        request.session[SK.INDEX] = index + 1
 
         if index + 1 >= len(card_ids):
             return redirect('flashcards:study_results')
