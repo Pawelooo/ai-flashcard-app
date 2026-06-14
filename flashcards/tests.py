@@ -52,7 +52,7 @@ class StudySessionTests(TestCase):
 
         # session keys cleared after results render
         session = self.client.session
-        self.assertNotIn('session_cards', session)
+        self.assertNotIn(SK.CARDS, session)
 
     def test_empty_deck_redirects(self):
         self.client.force_login(self.user)
@@ -393,9 +393,9 @@ class SessionHardeningTests(TestCase):
     def test_session_results_partial_keys_redirects(self):
         self.client.force_login(self.user)
         session = self.client.session
-        session['session_cards'] = [self.cards[0].pk]
-        session['session_score'] = 1
-        session['session_wrong_ids'] = []
+        session[SK.CARDS] = [self.cards[0].pk]
+        session[SK.SCORE] = 1
+        session[SK.WRONG_IDS] = []
         session.save()
         response = self.client.get(reverse('flashcards:study_results'))
         self.assertEqual(response.status_code, 302)

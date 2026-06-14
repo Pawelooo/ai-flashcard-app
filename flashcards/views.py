@@ -12,15 +12,7 @@ from django.urls import reverse_lazy
 
 from .models import Card, CardReview, Topic
 from .forms import CardForm
-from .session import SK
-
-_SESSION_KEYS = [
-    'session_topic_id',
-    'session_cards',
-    'session_index',
-    'session_score',
-    'session_wrong_ids',
-]
+from .session import SK, get_session
 
 
 class TopicsListView(LoginRequiredMixin, ListView):
@@ -58,14 +50,15 @@ def session_start(request):
 
 @login_required
 def session_results(request):
-    required = {'session_cards', 'session_score', 'session_wrong_ids', 'session_topic_id'}
+    required = {SK.CARDS, SK.SCORE, SK.WRONG_IDS, SK.TOPIC_ID}
     if not required.issubset(request.session.keys()):
         return redirect('flashcards:topics')
 
-    score = request.session['session_score']
-    total = len(request.session['session_cards'])
-    wrong_ids = request.session['session_wrong_ids']
-    topic_id = request.session['session_topic_id']
+    state = get_session(request)
+    score = state[SK.SCORE]
+    total = len(state[SK.CARDS])
+    wrong_ids = state[SK.WRONG_IDS]
+    topic_id = state[SK.TOPIC_ID]
     missed_cards = Card.objects.filter(pk__in=wrong_ids)
     percent = round(score / total * 100) if total else 0
 
@@ -77,8 +70,8 @@ def session_results(request):
         'topic_id': topic_id,
     })
     if wrong_ids:
-        request.session['last_wrong_ids'] = wrong_ids
-    for key in _SESSION_KEYS:
+        request.session[SK.LAST_WRONG_IDS] = wrong_ids
+    for key in SK.ALL:
         request.session.pop(key, None)
     return response
 

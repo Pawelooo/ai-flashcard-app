@@ -374,7 +374,7 @@ single `cast()` call with zero runtime overhead — no dict copying or object co
 
 #### Automated
 
-- [x] 3.1 Full suite passes: `uv run python manage.py test`
+- [x] 3.1 Full suite passes: `uv run python manage.py test` — 8913741
 
 #### Manual
 
@@ -384,8 +384,8 @@ single `cast()` call with zero runtime overhead — no dict copying or object co
 
 #### Automated
 
-- [ ] 4.1 Full suite passes: `uv run python manage.py test`
-- [ ] 4.2 _SESSION_KEYS removed: `grep -rn "_SESSION_KEYS" flashcards/` → no output
+- [x] 4.1 Full suite passes: `uv run python manage.py test`
+- [x] 4.2 _SESSION_KEYS removed: `grep -rn "_SESSION_KEYS" flashcards/` → no output
 
 #### Manual
 
