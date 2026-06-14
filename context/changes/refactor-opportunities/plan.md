@@ -357,14 +357,14 @@ single `cast()` call with zero runtime overhead — no dict copying or object co
 
 #### Automated
 
-- [x] 1.1 Module importable: `uv run python -c "from flashcards.session import SK, SessionState, get_session; print('ok')"`
-- [x] 1.2 Full suite passes unchanged: `uv run python manage.py test`
+- [x] 1.1 Module importable: `uv run python -c "from flashcards.session import SK, SessionState, get_session; print('ok')"` — e9d6570
+- [x] 1.2 Full suite passes unchanged: `uv run python manage.py test` — e9d6570
 
 ### Phase 2: Migrate TopicsListView
 
 #### Automated
 
-- [ ] 2.1 Full suite passes: `uv run python manage.py test`
+- [x] 2.1 Full suite passes: `uv run python manage.py test`
 
 #### Manual
 

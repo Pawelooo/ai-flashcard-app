@@ -4,6 +4,7 @@ from django.test import TestCase
 from django.urls import reverse
 
 from .models import Card, CardReview, Topic
+from .session import SK
 
 
 class StudySessionTests(TestCase):
@@ -77,20 +78,20 @@ class StudySessionTests(TestCase):
     def test_visiting_topics_clears_session(self):
         self.client.force_login(self.user)
         session = self.client.session
-        session['session_cards'] = [1, 2, 3]
-        session['session_index'] = 1
-        session['session_score'] = 1
-        session['session_wrong_ids'] = []
-        session['session_topic_id'] = self.topic.pk
+        session[SK.CARDS] = [1, 2, 3]
+        session[SK.INDEX] = 1
+        session[SK.SCORE] = 1
+        session[SK.WRONG_IDS] = []
+        session[SK.TOPIC_ID] = self.topic.pk
         session.save()
 
         self.client.get(reverse('flashcards:topics'))
         session = self.client.session
-        self.assertNotIn('session_cards', session)
-        self.assertNotIn('session_index', session)
-        self.assertNotIn('session_score', session)
-        self.assertNotIn('session_wrong_ids', session)
-        self.assertNotIn('session_topic_id', session)
+        self.assertNotIn(SK.CARDS, session)
+        self.assertNotIn(SK.INDEX, session)
+        self.assertNotIn(SK.SCORE, session)
+        self.assertNotIn(SK.WRONG_IDS, session)
+        self.assertNotIn(SK.TOPIC_ID, session)
 
 
 class SpacedRepetitionTests(TestCase):

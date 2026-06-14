@@ -12,6 +12,7 @@ from django.urls import reverse_lazy
 
 from .models import Card, CardReview, Topic
 from .forms import CardForm
+from .session import SK
 
 _SESSION_KEYS = [
     'session_topic_id',
@@ -29,7 +30,7 @@ class TopicsListView(LoginRequiredMixin, ListView):
     ordering = ['name']
 
     def get(self, request, *args, **kwargs):
-        for key in _SESSION_KEYS:
+        for key in SK.ALL:
             request.session.pop(key, None)
         return super().get(request, *args, **kwargs)
 
