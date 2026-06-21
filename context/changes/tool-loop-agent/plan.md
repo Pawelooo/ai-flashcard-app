@@ -310,22 +310,22 @@ Create `src/main.ts` as the demo entrypoint that mirrors `main.py` — reviews t
 
 #### Automated
 
-- [x] 4.1 `npx tsc --noEmit` exits 0
-- [x] 4.2 `npx tsx src/agent.ts` exits 0
+- [x] 4.1 `npx tsc --noEmit` exits 0 — 275c4ad
+- [x] 4.2 `npx tsx src/agent.ts` exits 0 — 275c4ad
 
 #### Manual
 
-- [x] 4.3 `codeReviewerAgent` importable without errors
-- [x] 4.4 `output` typed as `ReviewResult` in IDE
+- [x] 4.3 `codeReviewerAgent` importable without errors — 275c4ad
+- [x] 4.4 `output` typed as `ReviewResult` in IDE — 275c4ad
 
 ### Phase 5: Main Entrypoint
 
 #### Automated
 
-- [ ] 5.1 `npx tsc --noEmit` exits 0
-- [ ] 5.2 `npm start` exits 0 with API key set
+- [x] 5.1 `npx tsc --noEmit` exits 0
+- [x] 5.2 `npm start` exits 0 with API key set
 
 #### Manual
 
-- [ ] 5.3 Output prints summary, score, and issues for sample code
-- [ ] 5.4 No TypeScript errors in IDE across all new files
+- [x] 5.3 Output prints summary, score, and issues for sample code
+- [x] 5.4 No TypeScript errors in IDE across all new files
