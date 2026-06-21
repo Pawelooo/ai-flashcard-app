@@ -288,23 +288,23 @@ Create `src/main.ts` as the demo entrypoint that mirrors `main.py` — reviews t
 
 #### Automated
 
-- [x] 2.1 `npx tsc --noEmit` exits 0
-- [x] 2.2 `npx tsx src/schemas/review.ts` exits 0
+- [x] 2.1 `npx tsc --noEmit` exits 0 — 577f1ca
+- [x] 2.2 `npx tsx src/schemas/review.ts` exits 0 — 577f1ca
 
 #### Manual
 
-- [x] 2.3 `ReviewResult` type visible in IDE autocomplete
+- [x] 2.3 `ReviewResult` type visible in IDE autocomplete — 577f1ca
 
 ### Phase 3: Prompts Module
 
 #### Automated
 
-- [ ] 3.1 `npx tsc --noEmit` exits 0
-- [ ] 3.2 `npx tsx src/prompts/review.ts` exits 0
+- [x] 3.1 `npx tsc --noEmit` exits 0
+- [x] 3.2 `npx tsx src/prompts/review.ts` exits 0
 
 #### Manual
 
-- [ ] 3.3 Prompt strings match `main.py` exactly
+- [x] 3.3 Prompt strings match `main.py` exactly
 
 ### Phase 4: Agent Module
 
