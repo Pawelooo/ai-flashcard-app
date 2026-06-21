@@ -322,10 +322,10 @@ Create `src/main.ts` as the demo entrypoint that mirrors `main.py` — reviews t
 
 #### Automated
 
-- [x] 5.1 `npx tsc --noEmit` exits 0
-- [x] 5.2 `npm start` exits 0 with API key set
+- [x] 5.1 `npx tsc --noEmit` exits 0 — e149430
+- [x] 5.2 `npm start` exits 0 with API key set — e149430
 
 #### Manual
 
-- [x] 5.3 Output prints summary, score, and issues for sample code
-- [x] 5.4 No TypeScript errors in IDE across all new files
+- [x] 5.3 Output prints summary, score, and issues for sample code — e149430
+- [x] 5.4 No TypeScript errors in IDE across all new files — e149430
