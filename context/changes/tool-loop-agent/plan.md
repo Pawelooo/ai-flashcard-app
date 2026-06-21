@@ -277,23 +277,23 @@ Create `src/main.ts` as the demo entrypoint that mirrors `main.py` — reviews t
 
 #### Automated
 
-- [x] 1.1 `npx tsx --version` exits 0 after npm install
-- [x] 1.2 `npx tsc --noEmit` exits 0
+- [x] 1.1 `npx tsx --version` exits 0 after npm install — 911495b
+- [x] 1.2 `npx tsc --noEmit` exits 0 — 911495b
 
 #### Manual
 
-- [x] 1.3 `npm install` completes without errors
+- [x] 1.3 `npm install` completes without errors — 911495b
 
 ### Phase 2: Schema Module
 
 #### Automated
 
-- [ ] 2.1 `npx tsc --noEmit` exits 0
-- [ ] 2.2 `npx tsx src/schemas/review.ts` exits 0
+- [x] 2.1 `npx tsc --noEmit` exits 0
+- [x] 2.2 `npx tsx src/schemas/review.ts` exits 0
 
 #### Manual
 
-- [ ] 2.3 `ReviewResult` type visible in IDE autocomplete
+- [x] 2.3 `ReviewResult` type visible in IDE autocomplete
 
 ### Phase 3: Prompts Module
 
