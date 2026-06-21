@@ -299,24 +299,24 @@ Create `src/main.ts` as the demo entrypoint that mirrors `main.py` — reviews t
 
 #### Automated
 
-- [x] 3.1 `npx tsc --noEmit` exits 0
-- [x] 3.2 `npx tsx src/prompts/review.ts` exits 0
+- [x] 3.1 `npx tsc --noEmit` exits 0 — 088f6ab
+- [x] 3.2 `npx tsx src/prompts/review.ts` exits 0 — 088f6ab
 
 #### Manual
 
-- [x] 3.3 Prompt strings match `main.py` exactly
+- [x] 3.3 Prompt strings match `main.py` exactly — 088f6ab
 
 ### Phase 4: Agent Module
 
 #### Automated
 
-- [ ] 4.1 `npx tsc --noEmit` exits 0
-- [ ] 4.2 `npx tsx src/agent.ts` exits 0
+- [x] 4.1 `npx tsc --noEmit` exits 0
+- [x] 4.2 `npx tsx src/agent.ts` exits 0
 
 #### Manual
 
-- [ ] 4.3 `codeReviewerAgent` importable without errors
-- [ ] 4.4 `output` typed as `ReviewResult` in IDE
+- [x] 4.3 `codeReviewerAgent` importable without errors
+- [x] 4.4 `output` typed as `ReviewResult` in IDE
 
 ### Phase 5: Main Entrypoint
 
