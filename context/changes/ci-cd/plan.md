@@ -324,21 +324,21 @@ Steps:
 
 #### Manual
 
-- [x] 2.3 Test PR shows full score table in PR comment
-- [x] 2.4 Retry (label trigger) updates the comment, does not duplicate it
-- [x] 2.5 Pass/fail labels are mutually exclusive after each run
-- [x] 2.6 `ai-cr:review` label is removed after retry completes
+- [x] 2.3 Test PR shows full score table in PR comment — dc0cc5c
+- [x] 2.4 Retry (label trigger) updates the comment, does not duplicate it — dc0cc5c
+- [x] 2.5 Pass/fail labels are mutually exclusive after each run — dc0cc5c
+- [x] 2.6 `ai-cr:review` label is removed after retry completes — dc0cc5c
 
 ### Phase 3: Main Workflow
 
 #### Automated
 
 - [x] 3.1 `code-review.yml` passes YAML validation — 7b199f5
-- [x] 3.2 `OPENROUTER_API_KEY` secret exists in repo settings
+- [x] 3.2 `OPENROUTER_API_KEY` secret exists in repo settings — dc0cc5c
 
 #### Manual
 
-- [x] 3.3 Workflow run appears in Actions tab on PR open
-- [x] 3.4 Synchronize event updates comment without duplication
-- [x] 3.5 Label retry triggers a second run correctly
-- [x] 3.6 Non-target label events do not trigger a workflow run
+- [x] 3.3 Workflow run appears in Actions tab on PR open — dc0cc5c
+- [x] 3.4 Synchronize event updates comment without duplication — dc0cc5c
+- [x] 3.5 Label retry triggers a second run correctly — dc0cc5c
+- [x] 3.6 Non-target label events do not trigger a workflow run — dc0cc5c
