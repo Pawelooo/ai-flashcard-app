@@ -21,6 +21,10 @@ inputs:
     required: false
     default: 'false'
     description: When 'true', fetch and include PR body in the review
+  openrouter-model:
+    required: false
+    default: 'anthropic/claude-sonnet-4-6'
+    description: OpenRouter model ID to use for the review
 
 runs:
   using: composite
@@ -69,6 +73,7 @@ runs:
       working-directory: packages/code-reviewer
       env:
         OPENROUTER_API_KEY: ${{ inputs.openrouter-api-key }}
+        OPENROUTER_MODEL: ${{ inputs.openrouter-model }}
         DIFF_FILE: /tmp/pr.diff
         PR_TITLE: ${{ inputs.pr-title }}
       run: |
