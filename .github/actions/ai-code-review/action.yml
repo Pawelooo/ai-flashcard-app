@@ -144,7 +144,7 @@ runs:
 
         if [ -n "$EXISTING" ]; then
           gh api "repos/${{ github.repository }}/issues/comments/${EXISTING}" \
-            -X PATCH --input /tmp/review-comment.md \
+            -X PATCH \
             -f body="$(cat /tmp/review-comment.md)"
         else
           gh pr comment ${{ inputs.pr-number }} --body-file /tmp/review-comment.md

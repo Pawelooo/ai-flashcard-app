@@ -319,26 +319,26 @@ Steps:
 
 #### Automated
 
-- [x] 2.1 `action.yml` passes YAML validation
-- [x] 2.2 All `gh` commands use `GITHUB_TOKEN` env var correctly
+- [x] 2.1 `action.yml` passes YAML validation — 7b199f5
+- [x] 2.2 All `gh` commands use `GITHUB_TOKEN` env var correctly — 7b199f5
 
 #### Manual
 
-- [ ] 2.3 Test PR shows full score table in PR comment
-- [ ] 2.4 Retry (label trigger) updates the comment, does not duplicate it
-- [ ] 2.5 Pass/fail labels are mutually exclusive after each run
-- [ ] 2.6 `ai-cr:review` label is removed after retry completes
+- [x] 2.3 Test PR shows full score table in PR comment
+- [x] 2.4 Retry (label trigger) updates the comment, does not duplicate it
+- [x] 2.5 Pass/fail labels are mutually exclusive after each run
+- [x] 2.6 `ai-cr:review` label is removed after retry completes
 
 ### Phase 3: Main Workflow
 
 #### Automated
 
-- [x] 3.1 `code-review.yml` passes YAML validation
-- [ ] 3.2 `OPENROUTER_API_KEY` secret exists in repo settings
+- [x] 3.1 `code-review.yml` passes YAML validation — 7b199f5
+- [x] 3.2 `OPENROUTER_API_KEY` secret exists in repo settings
 
 #### Manual
 
-- [ ] 3.3 Workflow run appears in Actions tab on PR open
-- [ ] 3.4 Synchronize event updates comment without duplication
-- [ ] 3.5 Label retry triggers a second run correctly
-- [ ] 3.6 Non-target label events do not trigger a workflow run
+- [x] 3.3 Workflow run appears in Actions tab on PR open
+- [x] 3.4 Synchronize event updates comment without duplication
+- [x] 3.5 Label retry triggers a second run correctly
+- [x] 3.6 Non-target label events do not trigger a workflow run
