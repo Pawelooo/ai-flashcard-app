@@ -7,7 +7,7 @@ import { SYSTEM_PROMPT } from './prompts/review';
 const openrouter = createOpenRouter({ apiKey: process.env.OPENROUTER_API_KEY });
 
 export const codeReviewerAgent = new ToolLoopAgent({
-  model: openrouter('openai/gpt-4o-mini'),
+  model: openrouter('anthropic/claude-sonnet-4-6', { maxTokens: 2048 }),
   instructions: SYSTEM_PROMPT,
   output: Output.object({ schema: reviewResultSchema }),
 });
