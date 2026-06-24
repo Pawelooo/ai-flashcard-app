@@ -14,12 +14,9 @@ inputs:
   pr-title:
     required: true
     description: Pull request title
-  base-sha:
+  base-ref:
     required: true
-    description: Base SHA for git diff (merge-base)
-  head-sha:
-    required: true
-    description: Head SHA for git diff
+    description: Base branch name for git diff (e.g. master)
   include-description:
     required: false
     default: 'false'
@@ -50,7 +47,8 @@ runs:
     - name: Get PR diff
       shell: bash
       run: |
-        git diff ${{ inputs.base-sha }}...${{ inputs.head-sha }} > /tmp/pr.diff
+        git fetch origin ${{ inputs.base-ref }} --depth=1
+        git diff origin/${{ inputs.base-ref }}...HEAD > /tmp/pr.diff
         if [ ! -s /tmp/pr.diff ]; then
           echo "DIFF_EMPTY=true" >> "$GITHUB_ENV"
         fi
