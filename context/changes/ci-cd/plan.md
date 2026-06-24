@@ -306,21 +306,21 @@ Steps:
 
 #### Automated
 
-- [x] 1.1 `npm install` exits 0 with no peer-dependency errors after package.json update
-- [x] 1.2 `OPENROUTER_API_KEY=<key> DIFF_FILE=<path> PR_TITLE="test" npx tsx src/main.ts` exits 0 and prints valid JSON
-- [x] 1.3 Printed JSON contains `criteria` (6 scores), `aggregate_score`, `summary`, `issues`
+- [x] 1.1 `npm install` exits 0 with no peer-dependency errors after package.json update — 74ce21d
+- [x] 1.2 `OPENROUTER_API_KEY=<key> DIFF_FILE=<path> PR_TITLE="test" npx tsx src/main.ts` exits 0 and prints valid JSON — 74ce21d
+- [x] 1.3 Printed JSON contains `criteria` (6 scores), `aggregate_score`, `summary`, `issues` — 74ce21d
 
 #### Manual
 
-- [x] 1.4 Per-criterion scores are plausible for a real diff
-- [x] 1.5 `summary` is coherent; no extra stdout lines around the JSON
+- [x] 1.4 Per-criterion scores are plausible for a real diff — 74ce21d
+- [x] 1.5 `summary` is coherent; no extra stdout lines around the JSON — 74ce21d
 
 ### Phase 2: Composite Action
 
 #### Automated
 
-- [ ] 2.1 `action.yml` passes YAML validation
-- [ ] 2.2 All `gh` commands use `GITHUB_TOKEN` env var correctly
+- [x] 2.1 `action.yml` passes YAML validation
+- [x] 2.2 All `gh` commands use `GITHUB_TOKEN` env var correctly
 
 #### Manual
 
@@ -333,7 +333,7 @@ Steps:
 
 #### Automated
 
-- [ ] 3.1 `code-review.yml` passes YAML validation
+- [x] 3.1 `code-review.yml` passes YAML validation
 - [ ] 3.2 `OPENROUTER_API_KEY` secret exists in repo settings
 
 #### Manual

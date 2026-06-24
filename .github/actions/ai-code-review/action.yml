@@ -1,0 +1,185 @@
+name: AI Code Review
+description: Reviews a PR diff using Claude via OpenRouter and posts a structured comment with scores.
+
+inputs:
+  openrouter-api-key:
+    required: true
+    description: OpenRouter API key for model calls
+  github-token:
+    required: true
+    description: GitHub token for PR comments and label management
+  pr-number:
+    required: true
+    description: Pull request number
+  pr-title:
+    required: true
+    description: Pull request title
+  base-sha:
+    required: true
+    description: Base SHA for git diff (merge-base)
+  head-sha:
+    required: true
+    description: Head SHA for git diff
+  include-description:
+    required: false
+    default: 'false'
+    description: When 'true', fetch and include PR body in the review
+
+runs:
+  using: composite
+  steps:
+    - name: Setup Node 20
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+
+    - name: Install dependencies
+      shell: bash
+      working-directory: packages/code-reviewer
+      run: npm ci
+
+    - name: Create labels (idempotent)
+      shell: bash
+      env:
+        GITHUB_TOKEN: ${{ inputs.github-token }}
+      run: |
+        gh label create "ai-cr:passed" --color "0e8a16" --description "AI code review passed" --force
+        gh label create "ai-cr:failed" --color "d93f0b" --description "AI code review failed" --force
+        gh label create "ai-cr:review" --color "0075ca" --description "Trigger AI code review retry" --force
+
+    - name: Get PR diff
+      shell: bash
+      run: |
+        git diff ${{ inputs.base-sha }}...${{ inputs.head-sha }} > /tmp/pr.diff
+        if [ ! -s /tmp/pr.diff ]; then
+          echo "DIFF_EMPTY=true" >> "$GITHUB_ENV"
+        fi
+
+    - name: Get PR description
+      shell: bash
+      if: inputs.include-description == 'true'
+      env:
+        GITHUB_TOKEN: ${{ inputs.github-token }}
+      run: |
+        DESC=$(gh pr view ${{ inputs.pr-number }} --json body --jq '.body // ""')
+        echo "PR_DESCRIPTION=$DESC" >> "$GITHUB_ENV"
+
+    - name: Run AI reviewer
+      id: reviewer
+      shell: bash
+      if: env.DIFF_EMPTY != 'true'
+      working-directory: packages/code-reviewer
+      env:
+        OPENROUTER_API_KEY: ${{ inputs.openrouter-api-key }}
+        DIFF_FILE: /tmp/pr.diff
+        PR_TITLE: ${{ inputs.pr-title }}
+      run: |
+        REVIEW_JSON=$(npx tsx src/main.ts)
+        echo "review_json=$REVIEW_JSON" >> "$GITHUB_OUTPUT"
+
+    - name: Post comment and manage labels
+      shell: bash
+      if: env.DIFF_EMPTY != 'true'
+      env:
+        GITHUB_TOKEN: ${{ inputs.github-token }}
+        REVIEW_JSON: ${{ steps.reviewer.outputs.review_json }}
+      run: |
+        AGGREGATE=$(echo "$REVIEW_JSON" | jq '.aggregate_score')
+        SUMMARY=$(echo "$REVIEW_JSON" | jq -r '.summary')
+
+        PASSED=$(echo "$AGGREGATE" | awk '{print ($1 >= 7) ? "true" : "false"}')
+        if [ "$PASSED" = "true" ]; then
+          VERDICT="✅ PASSED"
+          ADD_LABEL="ai-cr:passed"
+          REMOVE_LABEL="ai-cr:failed"
+        else
+          VERDICT="❌ FAILED"
+          ADD_LABEL="ai-cr:failed"
+          REMOVE_LABEL="ai-cr:passed"
+        fi
+
+        IC=$(echo "$REVIEW_JSON" | jq -r '.criteria.implementation_correctness.score')
+        IC_R=$(echo "$REVIEW_JSON" | jq -r '.criteria.implementation_correctness.rationale')
+        ID=$(echo "$REVIEW_JSON" | jq -r '.criteria.idiomaticity.score')
+        ID_R=$(echo "$REVIEW_JSON" | jq -r '.criteria.idiomaticity.rationale')
+        CM=$(echo "$REVIEW_JSON" | jq -r '.criteria.complexity.score')
+        CM_R=$(echo "$REVIEW_JSON" | jq -r '.criteria.complexity.rationale')
+        TC=$(echo "$REVIEW_JSON" | jq -r '.criteria.test_coverage.score')
+        TC_R=$(echo "$REVIEW_JSON" | jq -r '.criteria.test_coverage.rationale')
+        DC=$(echo "$REVIEW_JSON" | jq -r '.criteria.documentation.score')
+        DC_R=$(echo "$REVIEW_JSON" | jq -r '.criteria.documentation.rationale')
+        SS=$(echo "$REVIEW_JSON" | jq -r '.criteria.security_and_safety.score')
+        SS_R=$(echo "$REVIEW_JSON" | jq -r '.criteria.security_and_safety.rationale')
+
+        ISSUES_MD=$(echo "$REVIEW_JSON" | jq -r \
+          '.issues | if length == 0 then "_No issues found._" else map("- " + .) | join("\n") end')
+
+        cat > /tmp/review-comment.md << COMMENT
+        <!-- ai-code-review -->
+        ## AI Code Review — ${VERDICT}
+
+        **Aggregate score: ${AGGREGATE} / 10**
+
+        | Criterion | Score | Rationale |
+        |-----------|-------|-----------|
+        | Implementation correctness | ${IC} / 10 | ${IC_R} |
+        | Idiomaticity | ${ID} / 10 | ${ID_R} |
+        | Complexity | ${CM} / 10 | ${CM_R} |
+        | Test coverage | ${TC} / 10 | ${TC_R} |
+        | Documentation | ${DC} / 10 | ${DC_R} |
+        | Security & safety | ${SS} / 10 | ${SS_R} |
+
+        ### Summary
+
+        ${SUMMARY}
+
+        ### Issues
+
+        ${ISSUES_MD}
+
+        ---
+        _To re-trigger this review, add the \`ai-cr:review\` label._
+        COMMENT
+
+        EXISTING=$(gh api "repos/${{ github.repository }}/issues/${{ inputs.pr-number }}/comments" \
+          --jq '.[] | select(.body | contains("<!-- ai-code-review -->")) | .id' | head -1)
+
+        if [ -n "$EXISTING" ]; then
+          gh api "repos/${{ github.repository }}/issues/comments/${EXISTING}" \
+            -X PATCH --input /tmp/review-comment.md \
+            -f body="$(cat /tmp/review-comment.md)"
+        else
+          gh pr comment ${{ inputs.pr-number }} --body-file /tmp/review-comment.md
+        fi
+
+        gh pr edit ${{ inputs.pr-number }} --remove-label "$REMOVE_LABEL" 2>/dev/null || true
+        gh pr edit ${{ inputs.pr-number }} --add-label "$ADD_LABEL"
+
+    - name: Post empty diff comment
+      shell: bash
+      if: env.DIFF_EMPTY == 'true'
+      env:
+        GITHUB_TOKEN: ${{ inputs.github-token }}
+      run: |
+        BODY="<!-- ai-code-review -->
+        ## AI Code Review
+
+        No changes to review in this PR."
+
+        EXISTING=$(gh api "repos/${{ github.repository }}/issues/${{ inputs.pr-number }}/comments" \
+          --jq '.[] | select(.body | contains("<!-- ai-code-review -->")) | .id' | head -1)
+
+        if [ -n "$EXISTING" ]; then
+          gh api "repos/${{ github.repository }}/issues/comments/${EXISTING}" \
+            -X PATCH -f body="$BODY"
+        else
+          gh pr comment ${{ inputs.pr-number }} --body "$BODY"
+        fi
+
+    - name: Remove retry label
+      shell: bash
+      if: always()
+      env:
+        GITHUB_TOKEN: ${{ inputs.github-token }}
+      run: |
+        gh pr edit ${{ inputs.pr-number }} --remove-label "ai-cr:review" 2>/dev/null || true
