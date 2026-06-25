@@ -380,12 +380,12 @@ The `prompts` section is required by promptfoo even though `evals/provider.ts` i
 
 #### Automated
 
-- [x] 4.1 `npm run eval` exits 0
-- [x] 4.2 CLI shows results table with 3 model columns and 1 test row
-- [x] 4.3 At least one model shows `aggregate_score ≤ 6`
+- [x] 4.1 `npm run eval` exits 0 — bee9801
+- [x] 4.2 CLI shows results table with 3 model columns and 1 test row — bee9801
+- [x] 4.3 At least one model shows `aggregate_score ≤ 6` — bee9801
 
 #### Manual
 
-- [x] 4.4 HTML report shows per-criterion scores and rationales for all three models
-- [x] 4.5 LLM-as-a-judge pass/fail is recorded per model
-- [x] 4.6 `npm start` with the fixture diff still emits valid JSON after all changes
+- [x] 4.4 HTML report shows per-criterion scores and rationales for all three models — bee9801
+- [x] 4.5 LLM-as-a-judge pass/fail is recorded per model — bee9801
+- [x] 4.6 `npm start` with the fixture diff still emits valid JSON after all changes — bee9801
