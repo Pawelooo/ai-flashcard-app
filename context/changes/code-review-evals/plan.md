@@ -346,24 +346,24 @@ The `prompts` section is required by promptfoo even though `evals/provider.ts` i
 
 #### Automated
 
-- [x] 1.1 `npm install` exits 0 after adding promptfoo devDependency
-- [x] 1.2 `npx promptfoo --version` prints a version string
-- [x] 1.3 `evals/fixtures/` directory exists
+- [x] 1.1 `npm install` exits 0 after adding promptfoo devDependency — d086fc1
+- [x] 1.2 `npx promptfoo --version` prints a version string — d086fc1
+- [x] 1.3 `evals/fixtures/` directory exists — d086fc1
 
 #### Manual
 
-- [x] 1.4 No peer-dependency warnings incompatible with ai@^6 or zod@^4
+- [x] 1.4 No peer-dependency warnings incompatible with ai@^6 or zod@^4 — d086fc1
 
 ### Phase 2: Author Django diff fixture
 
 #### Automated
 
-- [ ] 2.1 `git apply --check packages/code-reviewer/evals/fixtures/django-card-stats.diff` exits 0
+- [x] 2.1 `git apply --check packages/code-reviewer/evals/fixtures/django-card-stats.diff` exits 0
 
 #### Manual
 
-- [ ] 2.2 Three flaws are identifiable on a plain reading of the diff
-- [ ] 2.3 Surrounding code looks idiomatic Django
+- [x] 2.2 Three flaws are identifiable on a plain reading of the diff
+- [x] 2.3 Surrounding code looks idiomatic Django
 
 ### Phase 3: Extend agent factory and write eval provider
 
