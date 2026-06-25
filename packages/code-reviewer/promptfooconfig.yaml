@@ -1,0 +1,36 @@
+description: "Code review prompt — 3 models on a Django diff with 3 known flaws"
+
+providers:
+  - id: file://evals/provider.ts
+    label: claude-sonnet-4-6
+    config:
+      model: anthropic/claude-sonnet-4-6
+  - id: file://evals/provider.ts
+    label: glm-5-1
+    config:
+      model: z-ai/glm-5.1
+  - id: file://evals/provider.ts
+    label: deepseek-v4-flash
+    config:
+      model: deepseek/deepseek-v4-flash
+
+prompts:
+  - "{{PR_TITLE}}"
+
+tests:
+  - description: "UserCardStatsView — 3 known flaws: auth missing, DoesNotExist unhandled, count()>0 vs exists()"
+    vars:
+      PR_TITLE: "Add user card statistics view"
+      PR_DESCRIPTION: ""
+      diff_file: "evals/fixtures/django-card-stats.diff"
+    assert:
+      - type: javascript
+        value: "JSON.parse(output).aggregate_score <= 6"
+        description: "Reviewer must score this flawed diff at or below 6"
+      - type: llm-rubric
+        value: |
+          The code review output must identify all three of the following issues:
+          1. The view is not protected by authentication (missing LoginRequiredMixin or @login_required).
+          2. The query .latest('reviewed_at') will raise DoesNotExist when the user has no reviews.
+          3. The use of .count() > 0 for a boolean check is flagged as inefficient or non-idiomatic — acceptable phrasings include mentioning .exists(), noting redundant count queries, or flagging has_reviews as an unnecessary boolean count when total_reviews is already available.
+        provider: openrouter:anthropic/claude-sonnet-4-6

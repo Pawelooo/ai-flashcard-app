@@ -369,23 +369,23 @@ The `prompts` section is required by promptfoo even though `evals/provider.ts` i
 
 #### Automated
 
-- [x] 3.1 `npx tsc --noEmit` exits 0 after agent.ts and provider.ts changes
-- [x] 3.2 Provider file loads without error (no import-time crash)
+- [x] 3.1 `npx tsc --noEmit` exits 0 after agent.ts and provider.ts changes — bcc8a99
+- [x] 3.2 Provider file loads without error (no import-time crash) — bcc8a99
 
 #### Manual
 
-- [x] 3.3 `npm start` with a real diff still emits valid JSON (CI path unaffected)
+- [x] 3.3 `npm start` with a real diff still emits valid JSON (CI path unaffected) — bcc8a99
 
 ### Phase 4: Write promptfooconfig.yaml and verify end-to-end
 
 #### Automated
 
-- [ ] 4.1 `npm run eval` exits 0
-- [ ] 4.2 CLI shows results table with 3 model columns and 1 test row
-- [ ] 4.3 At least one model shows `aggregate_score ≤ 6`
+- [x] 4.1 `npm run eval` exits 0
+- [x] 4.2 CLI shows results table with 3 model columns and 1 test row
+- [x] 4.3 At least one model shows `aggregate_score ≤ 6`
 
 #### Manual
 
-- [ ] 4.4 HTML report shows per-criterion scores and rationales for all three models
-- [ ] 4.5 LLM-as-a-judge pass/fail is recorded per model
-- [ ] 4.6 `npm start` with the fixture diff still emits valid JSON after all changes
+- [x] 4.4 HTML report shows per-criterion scores and rationales for all three models
+- [x] 4.5 LLM-as-a-judge pass/fail is recorded per model
+- [x] 4.6 `npm start` with the fixture diff still emits valid JSON after all changes
