@@ -358,23 +358,23 @@ The `prompts` section is required by promptfoo even though `evals/provider.ts` i
 
 #### Automated
 
-- [x] 2.1 `git apply --check packages/code-reviewer/evals/fixtures/django-card-stats.diff` exits 0
+- [x] 2.1 `git apply --check packages/code-reviewer/evals/fixtures/django-card-stats.diff` exits 0 — 2ccf409
 
 #### Manual
 
-- [x] 2.2 Three flaws are identifiable on a plain reading of the diff
-- [x] 2.3 Surrounding code looks idiomatic Django
+- [x] 2.2 Three flaws are identifiable on a plain reading of the diff — 2ccf409
+- [x] 2.3 Surrounding code looks idiomatic Django — 2ccf409
 
 ### Phase 3: Extend agent factory and write eval provider
 
 #### Automated
 
-- [ ] 3.1 `npx tsc --noEmit` exits 0 after agent.ts and provider.ts changes
-- [ ] 3.2 Provider file loads without error (no import-time crash)
+- [x] 3.1 `npx tsc --noEmit` exits 0 after agent.ts and provider.ts changes
+- [x] 3.2 Provider file loads without error (no import-time crash)
 
 #### Manual
 
-- [ ] 3.3 `npm start` with a real diff still emits valid JSON (CI path unaffected)
+- [x] 3.3 `npm start` with a real diff still emits valid JSON (CI path unaffected)
 
 ### Phase 4: Write promptfooconfig.yaml and verify end-to-end
 
