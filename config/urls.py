@@ -17,6 +17,7 @@ Including another URLconf
 from django.contrib import admin
 from django.contrib.auth import views as auth_views
 from django.contrib.auth.forms import UserCreationForm
+from django.db import connection as db_connection
 from django.http import HttpResponse
 from django.urls import include, path
 from django.views.generic import CreateView, TemplateView
@@ -43,9 +44,17 @@ class HomeView(TemplateView):
         return super().dispatch(request, *args, **kwargs)
 
 
+def _healthz(request):
+    try:
+        db_connection.ensure_connection()
+    except Exception:
+        return HttpResponse('db error', status=503)
+    return HttpResponse('ok')
+
+
 urlpatterns = [
     path('', HomeView.as_view(), name='home'),
-    path('healthz/', lambda request: HttpResponse('ok'), name='healthz'),
+    path('healthz/', lambda request: _healthz(request), name='healthz'),
     path('admin/', admin.site.urls),
     path('accounts/login/', auth_views.LoginView.as_view(), name='login'),
     path('accounts/logout/', auth_views.LogoutView.as_view(), name='logout'),

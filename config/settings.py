@@ -33,6 +33,7 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 USE_X_FORWARDED_HOST = True
 
 CSRF_TRUSTED_ORIGINS = [o for o in os.environ.get('CSRF_TRUSTED_ORIGINS', '').split(',') if o]
+# When adding a custom domain, update fly secrets: CSRF_TRUSTED_ORIGINS="https://yourdomain.com,https://www.yourdomain.com"
 
 INSTALLED_APPS = [
     'flashcards',
@@ -82,7 +83,7 @@ WSGI_APPLICATION = 'config.wsgi.application'
 DATABASES = {
     'default': dj_database_url.config(
         default=f'sqlite:///{BASE_DIR / "db.sqlite3"}',
-        conn_max_age=0,
+        conn_max_age=0,          # Supavisor transaction mode (port 6543) manages pooling server-side
         conn_health_checks=True,
     )
 }

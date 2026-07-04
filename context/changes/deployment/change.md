@@ -1,7 +1,7 @@
 ---
 id: deployment
 title: Deploy — Fly.io + Cloudflare Integration
-status: implemented
+status: impl_reviewed
 created: 2026-06-27
 updated: 2026-07-04
 ---

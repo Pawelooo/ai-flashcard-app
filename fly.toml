@@ -1,8 +1,9 @@
 app = 'naukaai'
-primary_region = 'arn'
+primary_region = 'waw'
 console_command = '/app/manage.py shell'
 
 [build]
+  dockerfile = "Dockerfile"
 
 [deploy]
   release_command = 'uv run python manage.py migrate --noinput'

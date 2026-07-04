@@ -113,7 +113,7 @@ The Django project is infrastructure-incomplete: no Dockerfile, no `fly.toml`, n
 
   SECRET_KEY = os.environ['SECRET_KEY']          # required — no default
   DEBUG = os.environ.get('DEBUG', '0') == '1'
-  ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '').split(',')
+  ALLOWED_HOSTS = [h for h in os.environ.get('ALLOWED_HOSTS', '').split(',') if h]
 
   # Fly.io auto-injects FLY_APP_NAME; append .fly.dev subdomain
   _fly_app = os.environ.get('FLY_APP_NAME')
@@ -124,7 +124,7 @@ The Django project is infrastructure-incomplete: no Dockerfile, no `fly.toml`, n
   SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
   USE_X_FORWARDED_HOST = True
 
-  CSRF_TRUSTED_ORIGINS = os.environ.get('CSRF_TRUSTED_ORIGINS', '').split(',')
+  CSRF_TRUSTED_ORIGINS = [o for o in os.environ.get('CSRF_TRUSTED_ORIGINS', '').split(',') if o]
 
   # Static files
   STATIC_URL = '/static/'

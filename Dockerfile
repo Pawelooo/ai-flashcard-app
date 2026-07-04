@@ -13,17 +13,20 @@ RUN uv sync --frozen --no-dev
 
 COPY . .
 
-ENV SECRET_KEY=placeholder-for-build \
-    DJANGO_SETTINGS_MODULE=config.settings \
-    DATABASE_URL=sqlite:////tmp/build.db \
-    ALLOWED_HOSTS=localhost
+ENV DJANGO_SETTINGS_MODULE=config.settings
 
-RUN uv run python manage.py collectstatic --noinput
+ARG SECRET_KEY=placeholder-for-build
+ARG DATABASE_URL=sqlite:////tmp/build.db
+ARG ALLOWED_HOSTS=localhost
+
+RUN SECRET_KEY=$SECRET_KEY DATABASE_URL=$DATABASE_URL \
+    ALLOWED_HOSTS=$ALLOWED_HOSTS \
+    uv run python manage.py collectstatic --noinput
 
 EXPOSE 8080
 
 CMD ["uv", "run", "gunicorn", "config.wsgi:application", \
      "--bind", "0.0.0.0:8080", \
-     "--workers", "1", \
+     "--workers", "2", \
      "--timeout", "30", \
      "--access-logfile", "-"]
