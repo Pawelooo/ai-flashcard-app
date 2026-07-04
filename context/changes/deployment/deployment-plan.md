@@ -302,19 +302,19 @@ The Django project is infrastructure-incomplete: no Dockerfile, no `fly.toml`, n
   fly certs setup yourdomain.com   # copy the _fly-ownership TXT record value
   ```
 
-- [ ] **4.2 Add TXT record in Cloudflare** (DNS tab):
+- [x] **4.2 Add TXT record in Cloudflare** (DNS tab): — SKIPPED (brak domeny)
   | Type | Name | Content | Proxy |
   |---|---|---|---|
   | TXT | `_fly-ownership` | (value from `fly certs setup`) | DNS-only (grey) |
 
-- [ ] **4.3 Add A and AAAA records** pointing to Fly.io IPs (from Step 3.1):
+- [x] **4.3 Add A and AAAA records** pointing to Fly.io IPs (from Step 3.1): — SKIPPED (brak domeny)
   | Type | Name | Content | Proxy |
   |---|---|---|---|
   | A | `@` | `169.155.49.210` | DNS-only (grey) initially |
   | AAAA | `@` | `2a09:8280:1::11a:a155:0` | DNS-only (grey) initially |
   | CNAME | `www` | `yourdomain.com` | DNS-only (grey) initially |
 
-- [ ] **4.4 Verify cert issued** (wait 1–3 min for DNS propagation):
+- [x] **4.4 Verify cert issued** (wait 1–3 min for DNS propagation): — SKIPPED (brak domeny)
   ```powershell
   fly certs check yourdomain.com
   ```
@@ -322,43 +322,43 @@ The Django project is infrastructure-incomplete: no Dockerfile, no `fly.toml`, n
 
 ### 4B — Enable Cloudflare proxy (orange cloud)
 
-- [ ] **4.5 Set SSL/TLS mode to "Full (strict)"** in Cloudflare dashboard:
+- [x] **4.5 Set SSL/TLS mode to "Full (strict)"** in Cloudflare dashboard: — SKIPPED (brak domeny)
   SSL/TLS → Overview → select **Full (strict)**
   > Do NOT use Flexible (causes redirect loops) or Full without strict (allows MITM).
 
-- [ ] **4.6 Enable "Always Use HTTPS"**:
+- [x] **4.6 Enable "Always Use HTTPS"**: — SKIPPED (brak domeny)
   SSL/TLS → Edge Certificates → Always Use HTTPS → ON
 
-- [ ] **4.7 Turn ON proxy (orange cloud)** for A, AAAA, and www CNAME records in Cloudflare DNS tab.
+- [x] **4.7 Turn ON proxy (orange cloud)** for A, AAAA, and www CNAME records in Cloudflare DNS tab. — SKIPPED (brak domeny)
 
-- [ ] **4.8 Update Django secrets to include custom domain**:
+- [x] **4.8 Update Django secrets to include custom domain**: — SKIPPED (brak domeny)
   ```powershell
   fly secrets set `
     ALLOWED_HOSTS="yourdomain.com,www.yourdomain.com,naukaai.fly.dev" `
     CSRF_TRUSTED_ORIGINS="https://yourdomain.com,https://www.yourdomain.com"
   ```
 
-- [ ] **4.9 Redeploy** to apply new secrets:
+- [x] **4.9 Redeploy** to apply new secrets: — SKIPPED (brak domeny)
   ```powershell
   fly deploy
   ```
 
-- [ ] **4.10 Smoke test via Cloudflare proxy**:
+- [x] **4.10 Smoke test via Cloudflare proxy**: — SKIPPED (brak domeny)
   - `https://yourdomain.com/healthz/` → `ok`
   - Cloudflare dashboard → Analytics shows requests flowing through proxy
   - Django admin at `https://yourdomain.com/admin/` loads with CSS (WhiteNoise serving static)
 
 ### 4C — Edge cases & extra support steps
 
-- [ ] **4.11 If cert check stays pending >5 min**: The `_fly-ownership` TXT record may not have propagated. Verify with `dig TXT _fly-ownership.yourdomain.com` and run `fly certs check` again. Do not turn on orange cloud before certs are green.
+- [x] **4.11 If cert check stays pending >5 min**: — SKIPPED (brak domeny)
 
-- [ ] **4.12 If redirect loop on HTTPS**: Verify Cloudflare SSL mode is "Full (strict)" (not Flexible). Verify `SECURE_PROXY_SSL_HEADER` is set in Django settings. Check `fly logs` for what header the request is arriving with.
+- [x] **4.12 If redirect loop on HTTPS**: — SKIPPED (brak domeny)
 
-- [ ] **4.13 If Django returns 400 Bad Request**: `ALLOWED_HOSTS` does not include the domain. Run `fly ssh console -C "env | grep ALLOWED_HOSTS"` to confirm the secret is set correctly.
+- [x] **4.13 If Django returns 400 Bad Request**: — SKIPPED (brak domeny)
 
-- [ ] **4.14 If Django admin CSS missing**: WhiteNoise middleware is missing or in the wrong position. It must be the second item in `MIDDLEWARE` (immediately after `SecurityMiddleware`). Verify `STATIC_ROOT` and that `collectstatic` ran in the build.
+- [x] **4.14 If Django admin CSS missing**: — SKIPPED (brak domeny)
 
-- [ ] **4.15 If Supabase connection errors**: Confirm `DATABASE_URL` uses port 6543 (Supavisor pooler), not 5432 (direct). Check Supabase project is in active state and connection string credentials are correct.
+- [x] **4.15 If Supabase connection errors**: — SKIPPED (brak domeny)
 
 ---
 
