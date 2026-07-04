@@ -366,9 +366,9 @@ The Django project is infrastructure-incomplete: no Dockerfile, no `fly.toml`, n
 > Fly.io's auto-deploy uses GitHub Actions — `fly launch` generates the workflow file automatically.
 > File created: `.github/workflows/fly.yml`
 
-- [x] **5.1 Let `fly launch` generate the workflow** — when prompted during `fly launch --no-deploy`, answer **Yes** to "Do you want to set up GitHub Actions deployment?". Fly auto-generates `.github/workflows/fly.yml`.
+- [x] **5.1 Let `fly launch` generate the workflow** — when prompted during `fly launch --no-deploy`, answer **Yes** to "Do you want to set up GitHub Actions deployment?". Fly auto-generates `.github/workflows/fly.yml`. — f9c4009
 
-- [x] **5.2 Edit `.github/workflows/fly.yml`** — confirm it targets `master`:
+- [x] **5.2 Edit `.github/workflows/fly.yml`** — confirm it targets `master`: — f9c4009
   ```yaml
   name: Fly Deploy
   on:
@@ -388,23 +388,23 @@ The Django project is infrastructure-incomplete: no Dockerfile, no `fly.toml`, n
             FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
   ```
 
-- [x] **5.3 Add `FLY_API_TOKEN` to GitHub repository secrets**:
+- [x] **5.3 Add `FLY_API_TOKEN` to GitHub repository secrets**: — f9c4009
   1. Generate token: `fly tokens create deploy -x 999999h`
   2. GitHub repo → Settings → Secrets and variables →do Actions → New repository secret → `FLY_API_TOKEN`
 
-- [ ] **5.4 Test**: Push a trivial change to `master`, confirm green Actions run and `fly status` shows a new version.
+- [x] **5.4 Test**: Push a trivial change to `master`, confirm green Actions run and `fly status` shows a new version. — f9c4009
 
 ---
 
 ## Phase 6 — End-to-End Verification
 
-- [ ] `https://yourdomain.com/healthz/` returns `ok` (HTTP 200)
-- [ ] `https://yourdomain.com/admin/` loads Django admin with CSS
-- [ ] Cloudflare Analytics shows traffic (proxy is active, not DNS-only)
-- [ ] `fly certs check yourdomain.com` shows RSA and ECDSA as green
-- [ ] `fly logs` shows no OOM kills or health check failures
-- [ ] GitHub Actions deploy succeeds on push to `master`
-- [ ] Cloudflare SSL shows "Full (strict)" in dashboard
+- [x] `https://naukaai.fly.dev/healthz/` returns `ok` (HTTP 200)
+- [x] `https://naukaai.fly.dev/admin/` loads Django admin with CSS
+- [x] Cloudflare Analytics shows traffic (proxy is active, not DNS-only) — SKIPPED (Phase 4 skipped, no custom domain)
+- [x] `fly certs check yourdomain.com` shows RSA and ECDSA as green — SKIPPED (Phase 4 skipped, no custom domain)
+- [x] `fly logs` shows no OOM kills or health check failures
+- [x] GitHub Actions deploy succeeds on push to `master`
+- [x] Cloudflare SSL shows "Full (strict)" in dashboard — SKIPPED (Phase 4 skipped, no custom domain)
 
 ---
 
