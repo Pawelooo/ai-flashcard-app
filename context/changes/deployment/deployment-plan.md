@@ -261,13 +261,14 @@ The Django project is infrastructure-incomplete: no Dockerfile, no `fly.toml`, n
 ## Phase 3 — Fly.io Initial Deployment
 > Manual steps — requires Fly.io account + Supabase project ready
 
-- [ ] **3.1 Allocate a dedicated IPv4** (required for Cloudflare A record, costs $2/mo):
+- [x] **3.1 Allocate a dedicated IPv4** (required for Cloudflare A record, costs $2/mo):
   ```powershell
   fly ips allocate -v 4
   fly ips list    # note both IPv4 and IPv6 for DNS setup
   ```
+  IPv4: 169.155.49.210 / IPv6: 2a09:8280:1::11a:a155:0
 
-- [ ] **3.2 Set production secrets** (never committed to repo):
+- [x] **3.2 Set production secrets** (never committed to repo):
   ```powershell
   fly secrets set `
     SECRET_KEY="$(python -c 'import secrets; print(secrets.token_urlsafe(50))')" `
@@ -278,27 +279,24 @@ The Django project is infrastructure-incomplete: no Dockerfile, no `fly.toml`, n
   ```
   > Use Supabase Supavisor port **6543**, not direct port 5432.
 
-- [ ] **3.3 Run database migrations** (one-off command against Supabase):
-  ```powershell
-  fly ssh console -C "uv run python manage.py migrate"
-  ```
+- [x] **3.3 Run database migrations** — handled automatically via `release_command` in fly.toml.
 
-- [ ] **3.4 Deploy**:
+- [x] **3.4 Deploy**:
   ```powershell
   fly deploy
   ```
   Verify: `fly status`, `fly logs`, check `https://<yourapp>.fly.dev/healthz/` returns `ok`.
 
-- [ ] **3.5 Confirm Python 3.14** in build output — look for `FROM python:3.14-slim` in the deploy log. If 3.12 appears, the Dockerfile was not edited correctly (Step 2.1).
+- [x] **3.5 Confirm Python 3.14** in build output — look for `FROM python:3.14-slim` in the deploy log. If 3.12 appears, the Dockerfile was not edited correctly (Step 2.1).
 
 ---
 
 ## Phase 4 — Cloudflare DNS + SSL Integration
-> Manual steps in Cloudflare dashboard + Fly.io CLI
+> **SKIPPED** — brak własnej domeny. Apka dostępna pod `https://naukaai.fly.dev`. Faza 4 może być wdrożona w przyszłości po zakupie domeny.
 
 ### 4A — Certificate ownership (run before enabling orange cloud)
 
-- [ ] **4.1 Register custom domain cert with Fly.io**:
+- [x] **4.1 Register custom domain cert with Fly.io**:
   ```powershell
   fly certs add yourdomain.com
   fly certs setup yourdomain.com   # copy the _fly-ownership TXT record value
@@ -312,8 +310,8 @@ The Django project is infrastructure-incomplete: no Dockerfile, no `fly.toml`, n
 - [ ] **4.3 Add A and AAAA records** pointing to Fly.io IPs (from Step 3.1):
   | Type | Name | Content | Proxy |
   |---|---|---|---|
-  | A | `@` | `<Fly IPv4>` | DNS-only (grey) initially |
-  | AAAA | `@` | `<Fly IPv6>` | DNS-only (grey) initially |
+  | A | `@` | `169.155.49.210` | DNS-only (grey) initially |
+  | AAAA | `@` | `2a09:8280:1::11a:a155:0` | DNS-only (grey) initially |
   | CNAME | `www` | `yourdomain.com` | DNS-only (grey) initially |
 
 - [ ] **4.4 Verify cert issued** (wait 1–3 min for DNS propagation):
@@ -336,7 +334,7 @@ The Django project is infrastructure-incomplete: no Dockerfile, no `fly.toml`, n
 - [ ] **4.8 Update Django secrets to include custom domain**:
   ```powershell
   fly secrets set `
-    ALLOWED_HOSTS="yourdomain.com,www.yourdomain.com,<yourapp>.fly.dev" `
+    ALLOWED_HOSTS="yourdomain.com,www.yourdomain.com,naukaai.fly.dev" `
     CSRF_TRUSTED_ORIGINS="https://yourdomain.com,https://www.yourdomain.com"
   ```
 
@@ -368,9 +366,9 @@ The Django project is infrastructure-incomplete: no Dockerfile, no `fly.toml`, n
 > Fly.io's auto-deploy uses GitHub Actions — `fly launch` generates the workflow file automatically.
 > File created: `.github/workflows/fly.yml`
 
-- [ ] **5.1 Let `fly launch` generate the workflow** — when prompted during `fly launch --no-deploy`, answer **Yes** to "Do you want to set up GitHub Actions deployment?". Fly auto-generates `.github/workflows/fly.yml`.
+- [x] **5.1 Let `fly launch` generate the workflow** — when prompted during `fly launch --no-deploy`, answer **Yes** to "Do you want to set up GitHub Actions deployment?". Fly auto-generates `.github/workflows/fly.yml`.
 
-- [ ] **5.2 Edit `.github/workflows/fly.yml`** — confirm it targets `master`:
+- [x] **5.2 Edit `.github/workflows/fly.yml`** — confirm it targets `master`:
   ```yaml
   name: Fly Deploy
   on:
@@ -390,9 +388,9 @@ The Django project is infrastructure-incomplete: no Dockerfile, no `fly.toml`, n
             FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
   ```
 
-- [ ] **5.3 Add `FLY_API_TOKEN` to GitHub repository secrets**:
+- [x] **5.3 Add `FLY_API_TOKEN` to GitHub repository secrets**:
   1. Generate token: `fly tokens create deploy -x 999999h`
-  2. GitHub repo → Settings → Secrets and variables → Actions → New repository secret → `FLY_API_TOKEN`
+  2. GitHub repo → Settings → Secrets and variables →do Actions → New repository secret → `FLY_API_TOKEN`
 
 - [ ] **5.4 Test**: Push a trivial change to `master`, confirm green Actions run and `fly status` shows a new version.
 
