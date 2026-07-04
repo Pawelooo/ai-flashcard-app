@@ -231,7 +231,7 @@ The Django project is infrastructure-incomplete: no Dockerfile, no `fly.toml`, n
 - [x] **2.4 Edit generated `fly.toml`** — critical overrides:
   ```toml
   app = '<your-app-name>'
-  primary_region = 'waw'
+  primary_region = 'arn'
 
   [build]
     # Uses Dockerfile automatically
