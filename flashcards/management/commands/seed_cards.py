@@ -1,6 +1,8 @@
 from django.core.management.base import BaseCommand
 from flashcards.models import Card, Topic
 
+# Seed data for AI/ML flashcards used in interview preparation
+
 CARDS = [
     (
         "Co to jest gradient descent?",
