@@ -1,5 +1,5 @@
 app = 'naukaai'
-primary_region = 'waw'
+primary_region = 'arn'
 console_command = '/app/manage.py shell'
 
 [build]
