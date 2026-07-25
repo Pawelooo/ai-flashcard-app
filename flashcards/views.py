@@ -1,25 +1,37 @@
 import logging
 import random
 
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.cache import cache
+from django.core.exceptions import PermissionDenied
 from django.http import HttpResponseNotAllowed
 from django.shortcuts import get_object_or_404, redirect, render
-from django.core.exceptions import PermissionDenied
 from django.views.generic import CreateView, DeleteView, DetailView, ListView, UpdateView
 from django.urls import reverse_lazy
+from django_ratelimit.decorators import ratelimit
 
 from .models import Card, CardReview, Topic
 from .forms import CardForm
 from .session import SK, get_session
+
+_CACHE_KEY_TOPICS = 'topics_list'
 
 
 class TopicsListView(LoginRequiredMixin, ListView):
     model = Topic
     template_name = 'flashcards/topics.html'
     context_object_name = 'topics'
-    ordering = ['name']
+
+    def get_queryset(self):
+        cached = cache.get(_CACHE_KEY_TOPICS)
+        if cached is not None:
+            return cached
+        topics = list(Topic.objects.order_by('name'))
+        cache.set(_CACHE_KEY_TOPICS, topics, timeout=settings.CACHE_TTL_TOPICS)
+        return topics
 
     def get(self, request, *args, **kwargs):
         for key in SK.ALL:
@@ -28,6 +40,7 @@ class TopicsListView(LoginRequiredMixin, ListView):
 
 
 @login_required
+@ratelimit(key='user', rate='20/h', block=True, method=['POST'])
 def session_start(request):
     if request.method != 'POST':
         return HttpResponseNotAllowed(['POST'])

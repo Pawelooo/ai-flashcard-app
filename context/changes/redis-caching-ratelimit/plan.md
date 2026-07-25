@@ -217,27 +217,27 @@ Apply `@ratelimit` to `session_start` (per-user, 20/h) and wrap `LoginView` / `R
 
 #### Automated
 
-- [x] 1.1 `manage.py check` passes with REDIS_URL unset
-- [x] 1.2 `manage.py check` passes with REDIS_URL set
-- [x] 1.3 `manage.py test` passes with REDIS_URL unset
+- [x] 1.1 `manage.py check` passes with REDIS_URL unset — b7f31b9
+- [x] 1.2 `manage.py check` passes with REDIS_URL set — b7f31b9
+- [x] 1.3 `manage.py test` passes with REDIS_URL unset — b7f31b9
 
 #### Manual
 
-- [x] 1.4 `docker compose up -d` starts Redis without errors
-- [x] 1.5 Cache round-trip works in Django shell with Redis running
-- [x] 1.6 App does not raise on Redis connection failure
+- [x] 1.4 `docker compose up -d` starts Redis without errors — b7f31b9
+- [x] 1.5 Cache round-trip works in Django shell with Redis running — b7f31b9
+- [x] 1.6 App does not raise on Redis connection failure — b7f31b9
 
 ### Phase 2: Caching
 
 #### Automated
 
-- [ ] 2.1 `manage.py test` passes
+- [x] 2.1 `manage.py test` passes
 
 #### Manual
 
-- [ ] 2.2 Leaderboard served from cache on second request
-- [ ] 2.3 Topic list served from cache on second request
-- [ ] 2.4 `redis-cli KEYS "*"` shows expected keys after first load
+- [x] 2.2 Leaderboard served from cache on second request
+- [x] 2.3 Topic list served from cache on second request
+- [x] 2.4 `redis-cli KEYS "*"` shows expected keys after first load
 
 ### Phase 3: Rate Limiting
 
