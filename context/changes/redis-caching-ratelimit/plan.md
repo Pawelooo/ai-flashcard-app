@@ -231,13 +231,13 @@ Apply `@ratelimit` to `session_start` (per-user, 20/h) and wrap `LoginView` / `R
 
 #### Automated
 
-- [x] 2.1 `manage.py test` passes
+- [x] 2.1 `manage.py test` passes — 650affe
 
 #### Manual
 
-- [x] 2.2 Leaderboard served from cache on second request
-- [x] 2.3 Topic list served from cache on second request
-- [x] 2.4 `redis-cli KEYS "*"` shows expected keys after first load
+- [x] 2.2 Leaderboard served from cache on second request — 650affe
+- [x] 2.3 Topic list served from cache on second request — 650affe
+- [x] 2.4 `redis-cli KEYS "*"` shows expected keys after first load — 650affe
 
 ### Phase 3: Rate Limiting
 
