@@ -1,6 +1,7 @@
 from datetime import timedelta
 
 from django.contrib.auth import get_user_model
+from django.core.cache import cache
 from django.test import TestCase
 from django.utils import timezone
 
@@ -116,6 +117,7 @@ class StudyStatsTests(TestCase):
 
 class LeaderboardViewTests(TestCase):
     def setUp(self):
+        cache.clear()
         self.user = User.objects.create_user(username='viewer', password='pass')
 
     def _make_user(self, username):
@@ -168,6 +170,7 @@ class LeaderboardHTMLTests(TestCase):
     """Verify rendered HTML for manual-verification criteria 2.2–2.5."""
 
     def setUp(self):
+        cache.clear()
         self.user = User.objects.create_user(username='htmluser', password='pass')
         self.client.force_login(self.user)
 

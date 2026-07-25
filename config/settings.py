@@ -105,3 +105,28 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 WHITENOISE_USE_FINDERS = False
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+REDIS_URL = os.environ.get('REDIS_URL')
+
+if REDIS_URL:
+    CACHES = {
+        'default': {
+            'BACKEND': 'django_redis.cache.RedisCache',
+            'LOCATION': REDIS_URL,
+            'OPTIONS': {
+                'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+                'IGNORE_EXCEPTIONS': True,  # fail open — nie blokuj app gdy Redis niedostępny
+            },
+        }
+    }
+else:
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        }
+    }
+
+RATELIMIT_FAIL_OPEN = True  # przepuść request gdy cache niedostępny (testy, Redis down)
+
+CACHE_TTL_LEADERBOARD = 60 * 15   # 15 minut
+CACHE_TTL_TOPICS = 60 * 60 * 24   # 1 dzień
