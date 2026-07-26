@@ -243,12 +243,12 @@ Apply `@ratelimit` to `session_start` (per-user, 20/h) and wrap `LoginView` / `R
 
 #### Automated
 
-- [x] 3.1 `manage.py test` passes
-- [x] 3.2 `manage.py check` reports 0 issues
+- [x] 3.1 `manage.py test` passes — 8a618cc
+- [x] 3.2 `manage.py check` reports 0 issues — 8a618cc
 
 #### Manual
 
-- [x] 3.3 11th rapid login attempt returns HTTP 429
-- [x] 3.4 11th rapid register attempt returns HTTP 429
-- [x] 3.5 21st session_start attempt returns HTTP 429
-- [x] 3.6 Rate window resets after 1 minute (login works again)
+- [x] 3.3 11th rapid login attempt returns HTTP 429 — 8a618cc
+- [x] 3.4 11th rapid register attempt returns HTTP 429 — 8a618cc
+- [x] 3.5 21st session_start attempt returns HTTP 429 — 8a618cc
+- [x] 3.6 Rate window resets after 1 minute (login works again) — 8a618cc
