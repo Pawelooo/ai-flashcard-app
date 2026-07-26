@@ -55,6 +55,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django_ratelimit.middleware.RatelimitMiddleware',
 ]
 
 ROOT_URLCONF = 'config.urls'
@@ -127,6 +128,7 @@ else:
     }
 
 RATELIMIT_FAIL_OPEN = True  # przepuść request gdy cache niedostępny (testy, Redis down)
+RATELIMIT_VIEW = 'config.urls.handler429'  # Ratelimited dziedziczy z PermissionDenied — bez tego trafi do handler403
 
 CACHE_TTL_LEADERBOARD = 60 * 15   # 15 minut
 CACHE_TTL_TOPICS = 60 * 60 * 24   # 1 dzień

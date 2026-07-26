@@ -23,6 +23,7 @@ from django.urls import include, path
 from django.views.generic import CreateView, TemplateView
 from django.contrib.auth import login
 from django.shortcuts import redirect
+from django_ratelimit.decorators import ratelimit
 
 
 class RegisterView(CreateView):
@@ -52,13 +53,19 @@ def _healthz(request):
     return HttpResponse('ok')
 
 
+def handler429(request, exception=None):
+    return HttpResponse('Zbyt wiele prób. Poczekaj chwilę i spróbuj ponownie.', status=429)
+
+
+_rate_auth = ratelimit(key='ip', rate='10/m', block=True, method=['POST'])
+
 urlpatterns = [
     path('', HomeView.as_view(), name='home'),
     path('healthz/', lambda request: _healthz(request), name='healthz'),
     path('admin/', admin.site.urls),
-    path('accounts/login/', auth_views.LoginView.as_view(), name='login'),
+    path('accounts/login/', _rate_auth(auth_views.LoginView.as_view()), name='login'),
     path('accounts/logout/', auth_views.LogoutView.as_view(), name='logout'),
-    path('accounts/register/', RegisterView.as_view(), name='register'),
+    path('accounts/register/', _rate_auth(RegisterView.as_view()), name='register'),
     path('flashcards/', include('flashcards.urls')),
     path('stats/', include('stats.urls')),
 ]
