@@ -1,6 +1,7 @@
 
 from django.contrib.auth.models import User
-from django.test import TestCase
+from django.core.cache import cache
+from django.test import TestCase, override_settings
 from django.urls import reverse
 
 from .models import Card, CardReview, Topic
@@ -400,6 +401,40 @@ class SessionHardeningTests(TestCase):
         response = self.client.get(reverse('flashcards:study_results'))
         self.assertEqual(response.status_code, 302)
         self.assertIn('topics', response['Location'])
+
+
+@override_settings(CACHES={
+    'default': {'BACKEND': 'django.core.cache.backends.locmem.LocMemCache'},
+})
+class SessionStartRateLimitTests(TestCase):
+    """session_start is rate-limited to 20/h per user (plan Phase 3).
+
+    Forces LocMemCache so the counter works regardless of whether a local
+    Redis is reachable — django-ratelimit's counter store is the same
+    cache backend django-redis uses, and RATELIMIT_FAIL_OPEN would silently
+    let every request through if the configured Redis were unreachable.
+    """
+
+    def setUp(self):
+        cache.clear()
+        self.user = User.objects.create_user(username='ratelimituser', password='pass')
+        self.topic = Topic.objects.create(name='Rate Limit Topic', slug='rate-limit-topic')
+        Card.objects.create(topic=self.topic, question='Q', answer='A')
+        self.client.force_login(self.user)
+
+    def _start_session(self):
+        return self.client.post(
+            reverse('flashcards:study_start'),
+            {'topic_id': self.topic.pk},
+        )
+
+    def test_21st_session_start_within_hour_returns_429(self):
+        for _ in range(20):
+            response = self._start_session()
+            self.assertEqual(response.status_code, 302)
+
+        response = self._start_session()
+        self.assertEqual(response.status_code, 429)
 
 
 class CardPermissionTests(TestCase):

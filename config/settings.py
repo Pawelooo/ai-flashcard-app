@@ -130,5 +130,15 @@ else:
 RATELIMIT_FAIL_OPEN = True  # przepuść request gdy cache niedostępny (testy, Redis down)
 RATELIMIT_VIEW = 'config.urls.handler429'  # Ratelimited dziedziczy z PermissionDenied — bez tego trafi do handler403
 
+
+def _ratelimit_client_ip(request):
+    # Na Fly.io REMOTE_ADDR to IP bramy proxy, nie klienta — Fly ustawia Fly-Client-IP
+    # na brzegu i nie da się go podrobić. Poza Fly (dev, testy, CI) nagłówka nie ma,
+    # więc wracamy do REMOTE_ADDR zamiast wywalać ImproperlyConfigured.
+    return request.META.get('HTTP_FLY_CLIENT_IP') or request.META.get('REMOTE_ADDR', '')
+
+
+RATELIMIT_IP_META_KEY = _ratelimit_client_ip
+
 CACHE_TTL_LEADERBOARD = 60 * 15   # 15 minut
 CACHE_TTL_TOPICS = 60 * 60 * 24   # 1 dzień

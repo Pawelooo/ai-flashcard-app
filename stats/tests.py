@@ -2,7 +2,7 @@ from datetime import timedelta
 
 from django.contrib.auth import get_user_model
 from django.core.cache import cache
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.utils import timezone
 
 from flashcards.models import CardReview
@@ -202,6 +202,32 @@ class LeaderboardHTMLTests(TestCase):
         content = response.content.decode()
         # The active class block wraps the Ranking link on this path
         self.assertIn('bg-primary bg-opacity-25', content[:content.find('bi-trophy') + 500])
+
+
+class LeaderboardRedisDownTests(TestCase):
+    """Redis unreachable + IGNORE_EXCEPTIONS must fail open (plan Phase 1 desired end state)."""
+
+    _unreachable_redis_caches = {
+        'default': {
+            'BACKEND': 'django_redis.cache.RedisCache',
+            'LOCATION': 'redis://localhost:6399/0',
+            'OPTIONS': {
+                'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+                'IGNORE_EXCEPTIONS': True,
+                'SOCKET_CONNECT_TIMEOUT': 0.5,
+                'SOCKET_TIMEOUT': 0.5,
+            },
+        }
+    }
+
+    def setUp(self):
+        self.user = User.objects.create_user(username='redisdownviewer', password='pass')
+        self.client.force_login(self.user)
+
+    @override_settings(CACHES=_unreachable_redis_caches)
+    def test_leaderboard_returns_200_when_redis_unavailable(self):
+        response = self.client.get('/stats/leaderboard/')
+        self.assertEqual(response.status_code, 200)
 
 
 class StatsDashboardViewTests(TestCase):

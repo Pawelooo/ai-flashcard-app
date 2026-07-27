@@ -1,7 +1,7 @@
 ---
 change_id: redis-caching-ratelimit
 title: Redis caching and rate limiting
-status: implemented
+status: impl_reviewed
 created: 2026-07-25
 updated: 2026-07-26
 archived_at: null
