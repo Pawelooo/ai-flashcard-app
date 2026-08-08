@@ -1,3 +1,5 @@
+from functools import cached_property
+
 from django.shortcuts import redirect
 from django.urls import reverse
 
@@ -14,6 +16,12 @@ class RequireEmailMiddleware:
     def __init__(self, get_response):
         self.get_response = get_response
 
+    @cached_property
+    def _exempt_paths(self):
+        # Resolved lazily (not in __init__) and cached once per process — the
+        # URLConf must already be loaded, which __init__ time doesn't guarantee.
+        return {reverse('accounts:complete_email'), reverse('accounts:resend_verification'), reverse('logout')}
+
     def __call__(self, request):
         user = request.user
         if (
@@ -21,8 +29,7 @@ class RequireEmailMiddleware:
             and not user.email
             and not request.path.startswith(_ADMIN_PREFIX)
             and not request.path.startswith(_VERIFY_PREFIX)
-            and request.path
-            not in {reverse('complete_email'), reverse('resend_verification'), reverse('logout')}
+            and request.path not in self._exempt_paths
         ):
-            return redirect('complete_email')
+            return redirect('accounts:complete_email')
         return self.get_response(request)

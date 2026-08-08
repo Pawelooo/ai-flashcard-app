@@ -16,6 +16,10 @@ class EmailOrUsernameBackend(ModelBackend):
         if user is None:
             user = CustomUser.objects.filter(username=username).first()
         if user is None:
+            # Run the default password hasher once anyway, to reduce the
+            # timing difference between an existing and a nonexistent user
+            # (same rationale as ModelBackend.authenticate(), Django #20760).
+            CustomUser().set_password(password)
             return None
         if not user.check_password(password):
             return None

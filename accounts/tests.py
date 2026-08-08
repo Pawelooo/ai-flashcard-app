@@ -29,7 +29,7 @@ class RegistrationTests(TestCase):
         cache.clear()
 
     def test_registration_creates_inactive_user_and_sends_one_email(self):
-        response = self.client.post(reverse('register'), {
+        response = self.client.post(reverse('accounts:register'), {
             'email': 'new@example.com',
             'password1': 'a-strong-passw0rd',
             'password2': 'a-strong-passw0rd',
@@ -43,7 +43,7 @@ class RegistrationTests(TestCase):
 
     def test_duplicate_email_registration_creates_no_second_user_and_shows_generic_page(self):
         _make_user('existing@example.com')
-        response = self.client.post(reverse('register'), {
+        response = self.client.post(reverse('accounts:register'), {
             'email': 'existing@example.com',
             'password1': 'a-strong-passw0rd',
             'password2': 'a-strong-passw0rd',
@@ -67,7 +67,7 @@ class EmailVerificationTests(TestCase):
     def test_valid_token_activates_account_and_logs_in(self):
         user = _make_user('verify@example.com')
         token = make_verification_token(user)
-        response = self.client.get(reverse('verify_email', args=[token]))
+        response = self.client.get(reverse('accounts:verify_email', args=[token]))
         self.assertRedirects(response, reverse('flashcards:topics'))
         user.refresh_from_db()
         self.assertTrue(user.is_active)
@@ -78,7 +78,7 @@ class EmailVerificationTests(TestCase):
         token = make_verification_token(user)
         future = time.time() + VERIFICATION_MAX_AGE + 3600
         with patch('django.core.signing.time.time', return_value=future):
-            response = self.client.get(reverse('verify_email', args=[token]))
+            response = self.client.get(reverse('accounts:verify_email', args=[token]))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'registration/verify_failed.html')
         user.refresh_from_db()
@@ -88,7 +88,7 @@ class EmailVerificationTests(TestCase):
         user = _make_user('tampered@example.com')
         token = make_verification_token(user)
         tampered = token[:-1] + ('a' if token[-1] != 'a' else 'b')
-        response = self.client.get(reverse('verify_email', args=[tampered]))
+        response = self.client.get(reverse('accounts:verify_email', args=[tampered]))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'registration/verify_failed.html')
         user.refresh_from_db()
@@ -105,8 +105,8 @@ class ResendVerificationTests(TestCase):
 
     def test_resend_rate_limited_to_one_per_minute_per_email(self):
         _make_user('resend@example.com')
-        first = self.client.post(reverse('resend_verification'), {'email': 'resend@example.com'})
-        second = self.client.post(reverse('resend_verification'), {'email': 'resend@example.com'})
+        first = self.client.post(reverse('accounts:resend_verification'), {'email': 'resend@example.com'})
+        second = self.client.post(reverse('accounts:resend_verification'), {'email': 'resend@example.com'})
         self.assertEqual(first.status_code, 200)
         self.assertEqual(second.status_code, 429)
 
@@ -187,16 +187,16 @@ class LegacyAccountGateTests(TestCase):
         _make_legacy_user('legacyuser2', password='a-strong-passw0rd')
         self.client.login(username='legacyuser2', password='a-strong-passw0rd')
         response = self.client.get(reverse('flashcards:topics'))
-        self.assertRedirects(response, reverse('complete_email'))
+        self.assertRedirects(response, reverse('accounts:complete_email'))
         user = CustomUser.objects.get(username='legacyuser2')
         self.assertTrue(user.is_active)
 
     def test_legacy_account_can_still_reach_exempt_paths_without_looping(self):
         user = _make_legacy_user('legacyuser3', password='a-strong-passw0rd')
         self.client.login(username='legacyuser3', password='a-strong-passw0rd')
-        response = self.client.get(reverse('complete_email'))
+        response = self.client.get(reverse('accounts:complete_email'))
         self.assertEqual(response.status_code, 200)
-        response = self.client.post(reverse('complete_email'), {'email': 'legacyuser3@example.com'})
+        response = self.client.post(reverse('accounts:complete_email'), {'email': 'legacyuser3@example.com'})
         self.assertEqual(response.status_code, 200)
         user.refresh_from_db()
         self.assertEqual(user.email, 'legacyuser3@example.com')
