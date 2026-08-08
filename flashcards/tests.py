@@ -13,7 +13,7 @@ User = get_user_model()
 class StudySessionTests(TestCase):
 
     def setUp(self):
-        self.user = User.objects.create_user(username='testuser', password='pass')
+        self.user = User.objects.create_user(username='testuser', email='testuser@example.com', password='pass')
         self.topic = Topic.objects.create(name='Test Topic', slug='test-topic')
         self.cards = [
             Card.objects.create(topic=self.topic, question=f'Q{i}', answer=f'A{i}')
@@ -100,7 +100,7 @@ class StudySessionTests(TestCase):
 class SpacedRepetitionTests(TestCase):
 
     def setUp(self):
-        self.user = User.objects.create_user(username='sruser', password='pass')
+        self.user = User.objects.create_user(username='sruser', email='sruser@example.com', password='pass')
         self.topic = Topic.objects.create(name='SR Topic', slug='sr-topic')
         self.cards = [
             Card.objects.create(topic=self.topic, question=f'SRQ{i}', answer=f'SRA{i}')
@@ -296,7 +296,7 @@ class SpacedRepetitionTests(TestCase):
 class SessionHardeningTests(TestCase):
 
     def setUp(self):
-        self.user = User.objects.create_user(username='hardenuser', password='pass')
+        self.user = User.objects.create_user(username='hardenuser', email='hardenuser@example.com', password='pass')
         self.topic = Topic.objects.create(name='Hardening Topic', slug='hardening-topic')
         self.cards = [
             Card.objects.create(topic=self.topic, question=f'HQ{i}', answer=f'HA{i}')
@@ -419,7 +419,7 @@ class SessionStartRateLimitTests(TestCase):
 
     def setUp(self):
         cache.clear()
-        self.user = User.objects.create_user(username='ratelimituser', password='pass')
+        self.user = User.objects.create_user(username='ratelimituser', email='ratelimituser@example.com', password='pass')
         self.topic = Topic.objects.create(name='Rate Limit Topic', slug='rate-limit-topic')
         Card.objects.create(topic=self.topic, question='Q', answer='A')
         self.client.force_login(self.user)
@@ -442,9 +442,9 @@ class SessionStartRateLimitTests(TestCase):
 class CardPermissionTests(TestCase):
 
     def setUp(self):
-        self.owner = User.objects.create_user(username='owner', password='pass')
-        self.other = User.objects.create_user(username='other', password='pass')
-        self.staff = User.objects.create_user(username='staff', password='pass', is_staff=True)
+        self.owner = User.objects.create_user(username='owner', email='owner@example.com', password='pass')
+        self.other = User.objects.create_user(username='other', email='other@example.com', password='pass')
+        self.staff = User.objects.create_user(username='staff', email='staff@example.com', password='pass', is_staff=True)
         self.topic = Topic.objects.create(name='Perm Topic', slug='perm-topic')
         self.card = Card.objects.create(
             topic=self.topic, question='Owner Q', answer='Owner A', created_by=self.owner,
@@ -523,9 +523,9 @@ class CardPermissionTests(TestCase):
 class CardDetailViewTests(TestCase):
 
     def setUp(self):
-        self.owner = User.objects.create_user(username='det_owner', password='pass')
-        self.other = User.objects.create_user(username='det_other', password='pass')
-        self.staff = User.objects.create_user(username='det_staff', password='pass', is_staff=True)
+        self.owner = User.objects.create_user(username='det_owner', email='det_owner@example.com', password='pass')
+        self.other = User.objects.create_user(username='det_other', email='det_other@example.com', password='pass')
+        self.staff = User.objects.create_user(username='det_staff', email='det_staff@example.com', password='pass', is_staff=True)
         self.topic = Topic.objects.create(name='Detail Topic', slug='detail-topic')
         self.card = Card.objects.create(
             topic=self.topic, question='Detail Q', answer='Detail A', created_by=self.owner,
@@ -560,7 +560,7 @@ class CardDetailViewTests(TestCase):
 class CardUpdateViewTests(TestCase):
 
     def setUp(self):
-        self.owner = User.objects.create_user(username='upd_owner', password='pass')
+        self.owner = User.objects.create_user(username='upd_owner', email='upd_owner@example.com', password='pass')
         self.topic = Topic.objects.create(name='Update Topic', slug='update-topic')
         self.card = Card.objects.create(
             topic=self.topic, question='Original Q', answer='Original A', created_by=self.owner,
@@ -598,7 +598,7 @@ class CardUpdateViewTests(TestCase):
 class CardDeleteViewTests(TestCase):
 
     def setUp(self):
-        self.owner = User.objects.create_user(username='del_owner', password='pass')
+        self.owner = User.objects.create_user(username='del_owner', email='del_owner@example.com', password='pass')
         self.topic = Topic.objects.create(name='Delete Topic', slug='delete-topic')
         self.card = Card.objects.create(
             topic=self.topic, question='Delete Q', answer='Delete A', created_by=self.owner,

@@ -54,6 +54,7 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'accounts.middleware.RequireEmailMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django_ratelimit.middleware.RatelimitMiddleware',
@@ -62,6 +63,8 @@ MIDDLEWARE = [
 ROOT_URLCONF = 'config.urls'
 
 AUTH_USER_MODEL = 'accounts.CustomUser'
+
+AUTHENTICATION_BACKENDS = ['accounts.backends.EmailOrUsernameBackend']
 
 LOGIN_URL = '/accounts/login/'
 LOGIN_REDIRECT_URL = '/flashcards/topics/'

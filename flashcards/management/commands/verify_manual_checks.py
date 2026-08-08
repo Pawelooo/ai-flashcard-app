@@ -32,7 +32,7 @@ def run_checks():
 
     # ── setup ──────────────────────────────────────────────────────────────
     User.objects.filter(username="_verify_").delete()
-    user = User.objects.create_user("_verify_", password="v3rify!")
+    user = User.objects.create_user("_verify_", email="_verify_@example.com", password="v3rify!")
 
     Topic.objects.filter(slug="_verify_").delete()
     topic = Topic.objects.create(name="Verify Topic", slug="_verify_")

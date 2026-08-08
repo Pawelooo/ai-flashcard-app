@@ -106,3 +106,95 @@ class ResendVerificationTests(TestCase):
         second = self.client.post(reverse('resend_verification'), {'email': 'resend@example.com'})
         self.assertEqual(first.status_code, 200)
         self.assertEqual(second.status_code, 429)
+
+
+def _make_legacy_user(username, password='testpass123'):
+    # Pre-existing (pre-change) account: no email, already active — the state
+    # every real production user is in going into this change.
+    user = CustomUser(username=username, email=None, is_active=True)
+    user.set_password(password)
+    user.save()
+    return user
+
+
+@override_settings(CACHES={
+    'default': {'BACKEND': 'django.core.cache.backends.locmem.LocMemCache'},
+})
+class LoginTests(TestCase):
+
+    def setUp(self):
+        cache.clear()
+
+    def test_correct_email_and_password_login_succeeds_for_verified_account(self):
+        _make_user('login@example.com', password='a-strong-passw0rd', is_active=True)
+        response = self.client.post(reverse('login'), {
+            'username': 'login@example.com',
+            'password': 'a-strong-passw0rd',
+        })
+        self.assertTrue(self.client.session.get('_auth_user_id'))
+        self.assertRedirects(response, '/flashcards/topics/')
+
+    def test_wrong_email_or_password_show_identical_generic_error(self):
+        _make_user('known@example.com', password='a-strong-passw0rd', is_active=True)
+        wrong_password = self.client.post(reverse('login'), {
+            'username': 'known@example.com',
+            'password': 'wrong-password',
+        })
+        wrong_email = self.client.post(reverse('login'), {
+            'username': 'unknown@example.com',
+            'password': 'a-strong-passw0rd',
+        })
+        self.assertEqual(
+            wrong_password.context['form'].errors['__all__'],
+            wrong_email.context['form'].errors['__all__'],
+        )
+
+    def test_correct_credentials_for_unverified_account_show_distinct_message(self):
+        _make_user('unverified@example.com', password='a-strong-passw0rd', is_active=False)
+        response = self.client.post(reverse('login'), {
+            'username': 'unverified@example.com',
+            'password': 'a-strong-passw0rd',
+        })
+        self.assertIn('niezweryfikowane', str(response.context['form'].errors['__all__']))
+        self.assertFalse(self.client.session.get('_auth_user_id'))
+
+    def test_legacy_account_logs_in_via_old_username(self):
+        _make_legacy_user('legacyuser', password='a-strong-passw0rd')
+        response = self.client.post(reverse('login'), {
+            'username': 'legacyuser',
+            'password': 'a-strong-passw0rd',
+        })
+        self.assertTrue(self.client.session.get('_auth_user_id'))
+        # Login itself succeeds and redirects to LOGIN_REDIRECT_URL — the
+        # further redirect to complete-email (no email on file) is the
+        # RequireEmailMiddleware's job, covered separately below, not login's.
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response['Location'], '/flashcards/topics/')
+
+
+@override_settings(CACHES={
+    'default': {'BACKEND': 'django.core.cache.backends.locmem.LocMemCache'},
+})
+class LegacyAccountGateTests(TestCase):
+
+    def setUp(self):
+        cache.clear()
+
+    def test_legacy_account_redirected_to_complete_email_and_stays_active(self):
+        _make_legacy_user('legacyuser2', password='a-strong-passw0rd')
+        self.client.login(username='legacyuser2', password='a-strong-passw0rd')
+        response = self.client.get(reverse('flashcards:topics'))
+        self.assertRedirects(response, reverse('complete_email'))
+        user = CustomUser.objects.get(username='legacyuser2')
+        self.assertTrue(user.is_active)
+
+    def test_legacy_account_can_still_reach_exempt_paths_without_looping(self):
+        user = _make_legacy_user('legacyuser3', password='a-strong-passw0rd')
+        self.client.login(username='legacyuser3', password='a-strong-passw0rd')
+        response = self.client.get(reverse('complete_email'))
+        self.assertEqual(response.status_code, 200)
+        response = self.client.post(reverse('complete_email'), {'email': 'legacyuser3@example.com'})
+        self.assertEqual(response.status_code, 200)
+        user.refresh_from_db()
+        self.assertEqual(user.email, 'legacyuser3@example.com')
+        self.assertTrue(user.is_active)

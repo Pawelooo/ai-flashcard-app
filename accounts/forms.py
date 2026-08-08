@@ -1,4 +1,5 @@
-from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
+from django.core.exceptions import ValidationError
 
 from .models import CustomUser
 
@@ -25,3 +26,22 @@ class EmailRegistrationForm(UserCreationForm):
         if commit:
             user.save()
         return user
+
+
+class EmailAuthenticationForm(AuthenticationForm):
+    # Django's AuthenticationForm always names its identity field "username"
+    # internally (see plan Key Discoveries) — relabeled here for display only.
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['username'].label = 'Email'
+
+    def confirm_login_allowed(self, user):
+        # Overrides (not calls super()) Django's generic "This account is
+        # inactive" wording — password already checked successfully at this
+        # point, so this is "correct credentials, not verified yet", not a
+        # credentials error. Must not leak into the wrong-password path.
+        if not user.is_active:
+            raise ValidationError(
+                'Konto niezweryfikowane — sprawdź maila lub wyślij link ponownie.',
+                code='inactive',
+            )

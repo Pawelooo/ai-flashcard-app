@@ -15,7 +15,7 @@ User = get_user_model()
 
 class StudyStatsTests(TestCase):
     def setUp(self):
-        self.user = User.objects.create_user(username='tester', password='pass')
+        self.user = User.objects.create_user(username='tester', email='tester@example.com', password='pass')
 
     def _add_review(self, days_ago=0, is_correct=True):
         return CardReview.objects.create(
@@ -103,7 +103,7 @@ class StudyStatsTests(TestCase):
         self.assertEqual(stats.next_review, timezone.localdate())
 
     def test_stats_isolated_per_user(self):
-        other = User.objects.create_user(username='other', password='pass')
+        other = User.objects.create_user(username='other', email='other@example.com', password='pass')
         self._add_review(days_ago=0)
         stats = compute_study_stats(other)
         self.assertEqual(stats.today_count, 0)
@@ -118,10 +118,10 @@ class StudyStatsTests(TestCase):
 class LeaderboardViewTests(TestCase):
     def setUp(self):
         cache.clear()
-        self.user = User.objects.create_user(username='viewer', password='pass')
+        self.user = User.objects.create_user(username='viewer', email='viewer@example.com', password='pass')
 
     def _make_user(self, username):
-        return User.objects.create_user(username=username, password='pass')
+        return User.objects.create_user(username=username, email=f'{username}@example.com', password='pass')
 
     def _add_correct_reviews(self, user, count):
         for _ in range(count):
@@ -171,7 +171,7 @@ class LeaderboardHTMLTests(TestCase):
 
     def setUp(self):
         cache.clear()
-        self.user = User.objects.create_user(username='htmluser', password='pass')
+        self.user = User.objects.create_user(username='htmluser', email='htmluser@example.com', password='pass')
         self.client.force_login(self.user)
 
     def _add_correct_reviews(self, user, count):
@@ -221,7 +221,7 @@ class LeaderboardRedisDownTests(TestCase):
     }
 
     def setUp(self):
-        self.user = User.objects.create_user(username='redisdownviewer', password='pass')
+        self.user = User.objects.create_user(username='redisdownviewer', email='redisdownviewer@example.com', password='pass')
         self.client.force_login(self.user)
 
     @override_settings(CACHES=_unreachable_redis_caches)
@@ -232,7 +232,7 @@ class LeaderboardRedisDownTests(TestCase):
 
 class StatsDashboardViewTests(TestCase):
     def setUp(self):
-        self.user = User.objects.create_user(username='viewer', password='pass')
+        self.user = User.objects.create_user(username='viewer', email='statsviewer@example.com', password='pass')
         self.client.force_login(self.user)
 
     def test_page_returns_200(self):

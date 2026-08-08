@@ -23,6 +23,8 @@ from django.views.generic import TemplateView
 from django.shortcuts import redirect
 from django_ratelimit.decorators import ratelimit
 
+from accounts.forms import EmailAuthenticationForm
+
 
 class HomeView(TemplateView):
     template_name = 'home.html'
@@ -51,7 +53,11 @@ urlpatterns = [
     path('', HomeView.as_view(), name='home'),
     path('healthz/', lambda request: _healthz(request), name='healthz'),
     path('admin/', admin.site.urls),
-    path('accounts/login/', _rate_auth(auth_views.LoginView.as_view()), name='login'),
+    path(
+        'accounts/login/',
+        _rate_auth(auth_views.LoginView.as_view(authentication_form=EmailAuthenticationForm)),
+        name='login',
+    ),
     path('accounts/logout/', auth_views.LogoutView.as_view(), name='logout'),
     path('accounts/', include('accounts.urls')),
     path('flashcards/', include('flashcards.urls')),

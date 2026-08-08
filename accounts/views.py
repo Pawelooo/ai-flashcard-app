@@ -1,4 +1,6 @@
+from django import forms
 from django.contrib.auth import login
+from django.contrib.auth.decorators import login_required
 from django.core import signing
 from django.core.mail import send_mail
 from django.shortcuts import redirect, render
@@ -69,3 +71,32 @@ def resend_verification(request):
             _send_verification_email(user, request)
         return render(request, 'registration/check_email.html')
     return redirect('login')
+
+
+class CompleteEmailForm(forms.Form):
+    email = forms.EmailField(label='Email')
+
+    def clean_email(self):
+        email = self.cleaned_data['email']
+        if CustomUser.objects.filter(email__iexact=email).exists():
+            raise forms.ValidationError('Ten adres email jest już używany.')
+        return email
+
+
+@login_required
+def complete_email(request):
+    if request.user.email:
+        return redirect('flashcards:topics')
+    if request.method == 'POST':
+        form = CompleteEmailForm(request.POST)
+        if form.is_valid():
+            user = request.user
+            # Only email changes here — is_active was already True for this
+            # legacy account before this change shipped and must stay that way.
+            user.email = form.cleaned_data['email']
+            user.save(update_fields=['email'])
+            _send_verification_email(user, request)
+            return render(request, 'registration/check_email.html')
+    else:
+        form = CompleteEmailForm()
+    return render(request, 'registration/complete_email.html', {'form': form})
