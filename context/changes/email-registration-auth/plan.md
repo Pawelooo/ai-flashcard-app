@@ -321,32 +321,32 @@ The Phase 1 migration is the only genuinely hard-to-reverse step in this plan �
 
 #### Automated
 
-- [x] 1.1 `manage.py makemigrations --check` reports no missing migrations
-- [x] 1.2 `manage.py migrate` applies cleanly against fixture-seeded copy of current schema
-- [x] 1.3 `manage.py test` passes
+- [x] 1.1 `manage.py makemigrations --check` reports no missing migrations — 45df554
+- [x] 1.2 `manage.py migrate` applies cleanly against fixture-seeded copy of current schema — 45df554
+- [x] 1.3 `manage.py test` passes — 45df554
 
 #### Manual
 
-- [x] 1.4 Migration against a copy of `db.sqlite3` preserves existing users/passwords/IDs
-- [x] 1.5 `CardReview`/`Card` FKs still resolve after migration
-- [x] 1.6 Real email delivery confirmed via Resend sandbox key
+- [x] 1.4 Migration against a copy of `db.sqlite3` preserves existing users/passwords/IDs — 45df554
+- [x] 1.5 `CardReview`/`Card` FKs still resolve after migration — 45df554
+- [x] 1.6 Real email delivery confirmed via Resend sandbox key — 45df554
 
 ### Phase 2: Registration & Email Verification
 
 #### Automated
 
-- [ ] 2.1 `manage.py test` passes
-- [ ] 2.2 Registration creates inactive user + exactly one outbound email
-- [ ] 2.3 Duplicate-email registration creates no second user, shows generic message
-- [ ] 2.4 Valid verification token activates account and logs in
-- [ ] 2.5 Expired verification token rejected, resend option shown
-- [ ] 2.6 Tampered verification token rejected
-- [ ] 2.7 Resend rate-limited to 1/min per email
+- [x] 2.1 `manage.py test` passes
+- [x] 2.2 Registration creates inactive user + exactly one outbound email
+- [x] 2.3 Duplicate-email registration creates no second user, shows generic message
+- [x] 2.4 Valid verification token activates account and logs in
+- [x] 2.5 Expired verification token rejected, resend option shown
+- [x] 2.6 Tampered verification token rejected
+- [x] 2.7 Resend rate-limited to 1/min per email
 
 #### Manual
 
-- [ ] 2.8 Real-inbox registration → verification → auto-login round trip
-- [ ] 2.9 Check-email and resend screens read sensibly
+- [x] 2.8 Real-inbox registration → verification → auto-login round trip
+- [x] 2.9 Check-email and resend screens read sensibly
 
 ### Phase 3: Email Login & Legacy Account Gate
 

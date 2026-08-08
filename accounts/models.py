@@ -28,7 +28,50 @@ class CustomUser(AbstractUser):
     )
     email = models.EmailField(unique=True, null=True, blank=True)
 
+    # Explicit `through` models below, not Django's auto-created M2M through
+    # tables: Django names the auto through table after Meta.db_table (so it
+    # would correctly land on the pre-existing `auth_user_groups` /
+    # `auth_user_user_permissions` tables here), but it names the FK *column*
+    # after the defining model's class name (`customuser_id`), independent of
+    # db_table. Those tables' actual columns — inherited unchanged from the
+    # original auth.User migration — are `user_id`, not `customuser_id`.
+    # Without this override, any ORM access to `.groups`/`.user_permissions`
+    # (including `user.delete()`'s cascade collector and the admin's user
+    # change form) raises `OperationalError: no such column ...customuser_id`.
+    groups = models.ManyToManyField(
+        'auth.Group',
+        through='accounts.CustomUserGroups',
+        blank=True,
+        related_name='user_set',
+        related_query_name='user',
+    )
+    user_permissions = models.ManyToManyField(
+        'auth.Permission',
+        through='accounts.CustomUserUserPermissions',
+        blank=True,
+        related_name='user_set',
+        related_query_name='user',
+    )
+
     objects = CustomUserManager()
 
     class Meta:
         db_table = 'auth_user'
+
+
+class CustomUserGroups(models.Model):
+    customuser = models.ForeignKey('accounts.CustomUser', on_delete=models.CASCADE, db_column='user_id')
+    group = models.ForeignKey('auth.Group', on_delete=models.CASCADE, db_column='group_id')
+
+    class Meta:
+        db_table = 'auth_user_groups'
+        unique_together = [('customuser', 'group')]
+
+
+class CustomUserUserPermissions(models.Model):
+    customuser = models.ForeignKey('accounts.CustomUser', on_delete=models.CASCADE, db_column='user_id')
+    permission = models.ForeignKey('auth.Permission', on_delete=models.CASCADE, db_column='permission_id')
+
+    class Meta:
+        db_table = 'auth_user_user_permissions'
+        unique_together = [('customuser', 'permission')]

@@ -21,13 +21,24 @@
 #
 # groups/user_permissions: Django names a M2M field's auto-created through table as
 # `<db_table>_<field_name>`, not `<app_label>_<model_name>_<field_name>` — since
-# CustomUser sets `db_table='auth_user'`, its through tables are named
-# `auth_user_groups` / `auth_user_user_permissions`, i.e. the EXACT SAME names (and
-# structure) as the original auth.User's own M2M tables. So these must be part of the
-# SAME conditional "create if missing" step as the base table (both existing DBs already
-# have them from auth.User's original migration, both empty per a pre-migration
-# `SELECT count(*)` check) — NOT a separate always-real AddField, which would try to
-# CREATE TABLE auth_user_groups on an existing database where it already exists.
+# CustomUser sets `db_table='auth_user'`, its through tables DO land on the correct
+# names (`auth_user_groups` / `auth_user_user_permissions`). BUT the through table's FK
+# *column* name is derived separately, from the defining model's class name
+# (`customuser_id`), regardless of db_table. The physical columns on these pre-existing
+# tables — inherited unchanged from auth.User's original migration — are `user_id`, not
+# `customuser_id`. Verified empirically: `user.delete()` (whose cascade collector reads
+# `.groups`) raised `OperationalError: no such column: auth_user_groups.customuser_id`
+# before this fix. CustomUser therefore declares `groups`/`user_permissions` with an
+# explicit `through=` to `CustomUserGroups`/`CustomUserUserPermissions` below, each with
+# `db_column='user_id'` to match. Both the base table and these two through tables are
+# part of the SAME conditional "create if missing" step (existing DBs already have all
+# three, empty, from auth.User's original migration) — NOT a separate always-real
+# AddField, which would try to CREATE TABLE on an existing database where it already
+# exists. The bootstrap-only `CustomUserBootstrap` model (fresh-DB path) mirrors this
+# same explicit-through-table structure via `CustomUserBootstrapGroups`/
+# `CustomUserBootstrapUserPermissions` below, so a genuinely fresh database (CI, a new
+# clone, `manage.py test`'s throwaway DB) gets the same `user_id`/`group_id`/
+# `permission_id` column names instead of Django's default class-name-derived ones.
 #
 # IMPORTANT: `email`/`username` are deliberately declared here in their CURRENT physical
 # shape (email: not unique, not null; username: unique, not null) rather than the final
@@ -42,6 +53,7 @@
 import accounts.models
 import django.contrib.auth.models
 import django.contrib.auth.validators
+import django.db.models.deletion
 import django.utils.timezone
 from django.apps import apps as global_apps
 from django.db import migrations, models
@@ -92,16 +104,49 @@ def create_auth_user_tables_if_missing(apps, schema_editor):
                 validators=[django.contrib.auth.validators.UnicodeUsernameValidator()],
             )),
             ('email', models.EmailField(blank=True, max_length=254)),
-            # related_name='+': this model is thrown away immediately after use, so it
-            # must not create any reverse accessor on auth.Group/auth.Permission.
-            ('groups', models.ManyToManyField('auth.Group', blank=True, related_name='+')),
-            ('user_permissions', models.ManyToManyField('auth.Permission', blank=True, related_name='+')),
+            # No groups/user_permissions M2M fields here — Django's default
+            # auto-created through table for an M2M field on this model would name
+            # its FK column `customuserbootstrap_id`, the same class-name-derived
+            # mismatch this whole migration exists to avoid (see module docstring).
+            # The two through tables are created explicitly below instead, with the
+            # matching `user_id` column, and never appear as a field on this model at
+            # all — it's discarded immediately after use, so it needs no relation
+            # back to them.
         ],
         options={'db_table': 'auth_user'},
         bases=(models.Model,),
     ))
+    # Explicit through-table stand-ins for `auth_user_groups` / `auth_user_user_permissions`,
+    # matching CustomUserGroups/CustomUserUserPermissions in accounts/models.py — same
+    # `user_id`/`group_id`/`permission_id` column names, not Django's class-name-derived
+    # defaults. related_name='+': thrown away immediately, must not create a reverse
+    # accessor on auth.Group/auth.Permission.
+    state.add_model(ModelState(
+        app_label='accounts',
+        name='CustomUserBootstrapGroups',
+        fields=[
+            ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+            ('customuserbootstrap', models.ForeignKey('accounts.CustomUserBootstrap', on_delete=models.CASCADE, db_column='user_id')),
+            ('group', models.ForeignKey('auth.Group', on_delete=models.CASCADE, db_column='group_id', related_name='+')),
+        ],
+        options={'db_table': 'auth_user_groups'},
+        bases=(models.Model,),
+    ))
+    state.add_model(ModelState(
+        app_label='accounts',
+        name='CustomUserBootstrapUserPermissions',
+        fields=[
+            ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+            ('customuserbootstrap', models.ForeignKey('accounts.CustomUserBootstrap', on_delete=models.CASCADE, db_column='user_id')),
+            ('permission', models.ForeignKey('auth.Permission', on_delete=models.CASCADE, db_column='permission_id', related_name='+')),
+        ],
+        options={'db_table': 'auth_user_user_permissions'},
+        bases=(models.Model,),
+    ))
     CustomUserBootstrap = state.apps.get_model('accounts', 'CustomUserBootstrap')
     schema_editor.create_model(CustomUserBootstrap)
+    schema_editor.create_model(state.apps.get_model('accounts', 'CustomUserBootstrapGroups'))
+    schema_editor.create_model(state.apps.get_model('accounts', 'CustomUserBootstrapUserPermissions'))
 
 
 def reverse_noop(apps, schema_editor):
@@ -133,8 +178,8 @@ class Migration(migrations.Migration):
                         ('date_joined', models.DateTimeField(default=django.utils.timezone.now, verbose_name='date joined')),
                         ('username', models.CharField(max_length=150, unique=True, validators=[django.contrib.auth.validators.UnicodeUsernameValidator()], verbose_name='username')),
                         ('email', models.EmailField(blank=True, max_length=254, verbose_name='email address')),
-                        ('groups', models.ManyToManyField(blank=True, help_text='The groups this user belongs to. A user will get all permissions granted to each of their groups.', related_name='user_set', related_query_name='user', to='auth.group', verbose_name='groups')),
-                        ('user_permissions', models.ManyToManyField(blank=True, help_text='Specific permissions for this user.', related_name='user_set', related_query_name='user', to='auth.permission', verbose_name='user permissions')),
+                        ('groups', models.ManyToManyField(blank=True, related_name='user_set', related_query_name='user', through='accounts.CustomUserGroups', to='auth.group')),
+                        ('user_permissions', models.ManyToManyField(blank=True, related_name='user_set', related_query_name='user', through='accounts.CustomUserUserPermissions', to='auth.permission')),
                     ],
                     options={
                         'db_table': 'auth_user',
@@ -142,6 +187,30 @@ class Migration(migrations.Migration):
                     managers=[
                         ('objects', accounts.models.CustomUserManager()),
                     ],
+                ),
+                migrations.CreateModel(
+                    name='CustomUserGroups',
+                    fields=[
+                        ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                        ('customuser', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='accounts.customuser', db_column='user_id')),
+                        ('group', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='auth.group', db_column='group_id')),
+                    ],
+                    options={
+                        'db_table': 'auth_user_groups',
+                        'unique_together': {('customuser', 'group')},
+                    },
+                ),
+                migrations.CreateModel(
+                    name='CustomUserUserPermissions',
+                    fields=[
+                        ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                        ('customuser', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='accounts.customuser', db_column='user_id')),
+                        ('permission', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='auth.permission', db_column='permission_id')),
+                    ],
+                    options={
+                        'db_table': 'auth_user_user_permissions',
+                        'unique_together': {('customuser', 'permission')},
+                    },
                 ),
             ],
             database_operations=[

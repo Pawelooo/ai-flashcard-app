@@ -1,0 +1,11 @@
+from django.urls import path
+
+from config.urls import _rate_auth
+
+from . import views
+
+urlpatterns = [
+    path('register/', _rate_auth(views.RegisterView.as_view()), name='register'),
+    path('verify/<str:token>/', views.verify_email, name='verify_email'),
+    path('resend-verification/', views.resend_verification, name='resend_verification'),
+]

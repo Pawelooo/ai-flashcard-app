@@ -1,0 +1,6 @@
+Potwierdź swój adres email w NaukaAI
+
+Kliknij w poniższy link, aby aktywować konto:
+{{ verify_url }}
+
+Link jest ważny przez 24 godziny. Jeśli to nie Ty próbowałeś/aś się zarejestrować, zignoruj tę wiadomość.

@@ -16,24 +16,12 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.contrib.auth import views as auth_views
-from django.contrib.auth.forms import UserCreationForm
 from django.db import connection as db_connection
 from django.http import HttpResponse
 from django.urls import include, path
-from django.views.generic import CreateView, TemplateView
-from django.contrib.auth import login
+from django.views.generic import TemplateView
 from django.shortcuts import redirect
 from django_ratelimit.decorators import ratelimit
-
-
-class RegisterView(CreateView):
-    form_class = UserCreationForm
-    template_name = 'registration/register.html'
-
-    def form_valid(self, form):
-        user = form.save()
-        login(self.request, user)
-        return redirect('flashcards:topics')
 
 
 class HomeView(TemplateView):
@@ -65,7 +53,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('accounts/login/', _rate_auth(auth_views.LoginView.as_view()), name='login'),
     path('accounts/logout/', auth_views.LogoutView.as_view(), name='logout'),
-    path('accounts/register/', _rate_auth(RegisterView.as_view()), name='register'),
+    path('accounts/', include('accounts.urls')),
     path('flashcards/', include('flashcards.urls')),
     path('stats/', include('stats.urls')),
 ]
