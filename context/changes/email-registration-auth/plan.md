@@ -335,18 +335,18 @@ The Phase 1 migration is the only genuinely hard-to-reverse step in this plan �
 
 #### Automated
 
-- [x] 2.1 `manage.py test` passes
-- [x] 2.2 Registration creates inactive user + exactly one outbound email
-- [x] 2.3 Duplicate-email registration creates no second user, shows generic message
-- [x] 2.4 Valid verification token activates account and logs in
-- [x] 2.5 Expired verification token rejected, resend option shown
-- [x] 2.6 Tampered verification token rejected
-- [x] 2.7 Resend rate-limited to 1/min per email
+- [x] 2.1 `manage.py test` passes — 61ac2fe
+- [x] 2.2 Registration creates inactive user + exactly one outbound email — 61ac2fe
+- [x] 2.3 Duplicate-email registration creates no second user, shows generic message — 61ac2fe
+- [x] 2.4 Valid verification token activates account and logs in — 61ac2fe
+- [x] 2.5 Expired verification token rejected, resend option shown — 61ac2fe
+- [x] 2.6 Tampered verification token rejected — 61ac2fe
+- [x] 2.7 Resend rate-limited to 1/min per email — 61ac2fe
 
 #### Manual
 
-- [x] 2.8 Real-inbox registration → verification → auto-login round trip
-- [x] 2.9 Check-email and resend screens read sensibly
+- [x] 2.8 Real-inbox registration → verification → auto-login round trip — 61ac2fe
+- [x] 2.9 Check-email and resend screens read sensibly — 61ac2fe
 
 ### Phase 3: Email Login & Legacy Account Gate
 
