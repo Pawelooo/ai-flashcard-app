@@ -352,17 +352,17 @@ The Phase 1 migration is the only genuinely hard-to-reverse step in this plan �
 
 #### Automated
 
-- [x] 3.1 `manage.py test` passes
-- [x] 3.2 `manage.py check` reports 0 issues
-- [x] 3.3 Correct email+password login succeeds for verified account
-- [x] 3.4 Wrong email or password shows identical generic error
-- [x] 3.5 Correct credentials for unverified account show distinct message
-- [x] 3.6 Legacy account logs in via old username
-- [x] 3.7 Legacy account redirected to complete-email, stays active
+- [x] 3.1 `manage.py test` passes — 375ed95
+- [x] 3.2 `manage.py check` reports 0 issues — 375ed95
+- [x] 3.3 Correct email+password login succeeds for verified account — 375ed95
+- [x] 3.4 Wrong email or password shows identical generic error — 375ed95
+- [x] 3.5 Correct credentials for unverified account show distinct message — 375ed95
+- [x] 3.6 Legacy account logs in via old username — 375ed95
+- [x] 3.7 Legacy account redirected to complete-email, stays active — 375ed95
 
 #### Manual
 
-- [x] 3.8 Prod-like legacy account never locked out, guided to add email
+- [x] 3.8 Prod-like legacy account never locked out, guided to add email — 375ed95
 
 ### Phase 4: Password Reset
 
