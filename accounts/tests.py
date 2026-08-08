@@ -1,10 +1,13 @@
 import time
 from unittest.mock import patch
 
+from django.contrib.auth.tokens import default_token_generator
 from django.core import mail
 from django.core.cache import cache
 from django.test import TestCase, override_settings
 from django.urls import reverse
+from django.utils.encoding import force_bytes
+from django.utils.http import urlsafe_base64_encode
 
 from .models import CustomUser
 from .tokens import VERIFICATION_MAX_AGE, make_verification_token
@@ -198,3 +201,55 @@ class LegacyAccountGateTests(TestCase):
         user.refresh_from_db()
         self.assertEqual(user.email, 'legacyuser3@example.com')
         self.assertTrue(user.is_active)
+
+
+@override_settings(CACHES={
+    'default': {'BACKEND': 'django.core.cache.backends.locmem.LocMemCache'},
+})
+class PasswordResetTests(TestCase):
+
+    def setUp(self):
+        cache.clear()
+
+    def test_reset_email_sent_for_verified_account(self):
+        _make_user('resetverified@example.com', is_active=True)
+        response = self.client.post(reverse('password_reset'), {'email': 'resetverified@example.com'})
+        self.assertRedirects(response, reverse('password_reset_done'))
+        self.assertEqual(len(mail.outbox), 1)
+
+    def test_no_reset_email_for_unverified_account(self):
+        _make_user('resetunverified@example.com', is_active=False)
+        response = self.client.post(reverse('password_reset'), {'email': 'resetunverified@example.com'})
+        self.assertRedirects(response, reverse('password_reset_done'))
+        self.assertEqual(len(mail.outbox), 0)
+
+    def test_valid_reset_link_changes_password_and_new_password_logs_in(self):
+        user = _make_user('reset@example.com', password='old-strong-passw0rd', is_active=True)
+        uid = urlsafe_base64_encode(force_bytes(user.pk))
+        token = default_token_generator.make_token(user)
+        response = self.client.get(reverse('password_reset_confirm', args=[uid, token]), follow=True)
+        self.assertTrue(response.context['validlink'])
+        set_password_path = response.request['PATH_INFO']
+        response = self.client.post(set_password_path, {
+            'new_password1': 'a-new-strong-passw0rd',
+            'new_password2': 'a-new-strong-passw0rd',
+        })
+        self.assertRedirects(response, reverse('password_reset_complete'))
+        self.assertTrue(self.client.login(username='reset@example.com', password='a-new-strong-passw0rd'))
+
+    def test_tampered_reset_link_rejected(self):
+        user = _make_user('resettamper@example.com', is_active=True)
+        uid = urlsafe_base64_encode(force_bytes(user.pk))
+        token = default_token_generator.make_token(user)
+        tampered = token[:-1] + ('a' if token[-1] != 'a' else 'b')
+        response = self.client.get(reverse('password_reset_confirm', args=[uid, tampered]))
+        self.assertFalse(response.context['validlink'])
+
+    @override_settings(PASSWORD_RESET_TIMEOUT=1)
+    def test_expired_reset_link_rejected(self):
+        user = _make_user('resetexpire@example.com', is_active=True)
+        uid = urlsafe_base64_encode(force_bytes(user.pk))
+        token = default_token_generator.make_token(user)
+        time.sleep(2)
+        response = self.client.get(reverse('password_reset_confirm', args=[uid, token]))
+        self.assertFalse(response.context['validlink'])

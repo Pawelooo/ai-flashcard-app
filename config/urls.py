@@ -59,6 +59,26 @@ urlpatterns = [
         name='login',
     ),
     path('accounts/logout/', auth_views.LogoutView.as_view(), name='logout'),
+    path(
+        'accounts/password-reset/',
+        _rate_auth(auth_views.PasswordResetView.as_view()),
+        name='password_reset',
+    ),
+    path(
+        'accounts/password-reset/done/',
+        auth_views.PasswordResetDoneView.as_view(),
+        name='password_reset_done',
+    ),
+    path(
+        'accounts/password-reset/confirm/<uidb64>/<token>/',
+        auth_views.PasswordResetConfirmView.as_view(),
+        name='password_reset_confirm',
+    ),
+    path(
+        'accounts/password-reset/complete/',
+        auth_views.PasswordResetCompleteView.as_view(),
+        name='password_reset_complete',
+    ),
     path('accounts/', include('accounts.urls')),
     path('flashcards/', include('flashcards.urls')),
     path('stats/', include('stats.urls')),

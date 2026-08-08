@@ -1,4 +1,4 @@
-
+ 
 # Email Registration, Verification, Login & Password Reset — Implementation Plan
 
 ## Overview
@@ -368,12 +368,12 @@ The Phase 1 migration is the only genuinely hard-to-reverse step in this plan �
 
 #### Automated
 
-- [ ] 4.1 `manage.py test` passes
-- [ ] 4.2 Reset email sent for verified account
-- [ ] 4.3 No reset email sent for unverified account
-- [ ] 4.4 Valid reset link changes password and new password logs in
-- [ ] 4.5 Expired/tampered reset link rejected
+- [x] 4.1 `manage.py test` passes
+- [x] 4.2 Reset email sent for verified account
+- [x] 4.3 No reset email sent for unverified account
+- [x] 4.4 Valid reset link changes password and new password logs in
+- [x] 4.5 Expired/tampered reset link rejected
 
 #### Manual
 
-- [ ] 4.6 Full Resend round trip: request → email → set password → log in
+- [x] 4.6 Full Resend round trip: request → email → set password → log in
