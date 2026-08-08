@@ -6,7 +6,7 @@ Run with:
     uv run python manage.py verify_manual_checks
 """
 
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand
 from django.test import Client
 from django.urls import reverse
@@ -14,6 +14,7 @@ from django.utils import timezone
 
 from flashcards.models import Card, CardReview, Topic
 
+User = get_user_model()
 
 PASS = "\033[32mPASS\033[0m"
 FAIL = "\033[31mFAIL\033[0m"

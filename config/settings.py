@@ -36,6 +36,7 @@ CSRF_TRUSTED_ORIGINS = [o for o in os.environ.get('CSRF_TRUSTED_ORIGINS', '').sp
 # When adding a custom domain, update fly secrets: CSRF_TRUSTED_ORIGINS="https://yourdomain.com,https://www.yourdomain.com"
 
 INSTALLED_APPS = [
+    'accounts',
     'flashcards',
     'stats',
     'django.contrib.admin',
@@ -59,6 +60,8 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'config.urls'
+
+AUTH_USER_MODEL = 'accounts.CustomUser'
 
 LOGIN_URL = '/accounts/login/'
 LOGIN_REDIRECT_URL = '/flashcards/topics/'
@@ -129,6 +132,14 @@ else:
 
 RATELIMIT_FAIL_OPEN = True  # przepuść request gdy cache niedostępny (testy, Redis down)
 RATELIMIT_VIEW = 'config.urls.handler429'  # Ratelimited dziedziczy z PermissionDenied — bez tego trafi do handler403
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.resend.com'
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'resend'
+EMAIL_HOST_PASSWORD = os.environ.get('RESEND_API_KEY')
+EMAIL_USE_TLS = True
+DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'NaukaAI <noreply@localhost>')
 
 
 def _ratelimit_client_ip(request):
