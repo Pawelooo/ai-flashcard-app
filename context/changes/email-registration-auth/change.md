@@ -1,7 +1,7 @@
 ---
 change_id: email-registration-auth
 title: Email-based registration, verification, login, and password reset
-status: implementing
+status: implemented
 created: 2026-07-27
 updated: 2026-08-08
 archived_at: null
