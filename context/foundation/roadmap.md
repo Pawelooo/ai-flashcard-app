@@ -4,7 +4,7 @@ project: AI Flashcard App
 version: 1
 status: draft
 created: 2026-05-26
-updated: 2026-05-30
+updated: 2026-08-08
 prd_version: 1
 main_goal: speed
 top_blocker: decisions
@@ -33,7 +33,7 @@ Working developers preparing for AI/ML job interviews have no clear, structured 
 | F-01 | dev-tooling-baseline     | (foundation) ruff + .env.example in place                     | —             | —                                    | ready    |
 | F-02 | topic-deck-model         | (foundation) Topic model exists; Card linked to Topic         | —             | FR-002, FR-007                       | ready    |
 | S-01 | complete-study-session   | pick a topic, flip deck, mark cards correct/incorrect, see score | F-01, F-02 | FR-001, FR-002, FR-003, FR-004, US-01 | impl_reviewed |
-| S-03 | admin-ai-deck-seeding    | (admin) create AI-seeded topic decks                          | F-01, F-02    | FR-007                               | blocked  |
+| S-03 | admin-ai-deck-seeding    | (admin) create AI-seeded topic decks                          | F-01, F-02    | FR-007                               | ready    |
 | S-02 | leaderboard              | view ranking of all users by cumulative correct answers       | S-01          | FR-005                               | proposed |
 | S-04 | spaced-repetition-review | review cards marked incorrect in a prior session              | S-01          | FR-006                               | proposed |
 
@@ -111,10 +111,9 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Prerequisites:** F-01, F-02
 - **Parallel with:** S-01 (once unblocked)
 - **Blockers:** —
-- **Unknowns:**
-  - Admin role model — which is canonical: a separate named admin role, Django's built-in `is_staff`/`is_superuser`, or out-of-app seeding via management command only? (PRD Open Question #3) — Owner: user. Block: yes.
-- **Risk:** Blocked until the admin role decision is made. The lowest-effort resolution is Django's built-in `is_superuser` — the Django admin panel already has `Card` and `CardReview` registered (`flashcards/admin.py`), so a superuser can already create cards manually; the only addition would be an AI-seeding action or command. Resolving the question takes minutes; not resolving it blocks the entire content-supply mechanism for the product.
-- **Status:** blocked
+- **Unknowns:** — (Admin role model resolved 2026-08-08: Django's built-in `is_superuser`, per PRD Open Question #3.)
+- **Risk:** The Django admin panel already has `Card` and `CardReview` registered (`flashcards/admin.py`), so a superuser can already create cards manually; the remaining work is an AI-seeding action or management command layered on that existing access.
+- **Status:** ready
 
 ### S-02: Tablica liderów
 
@@ -148,13 +147,13 @@ Foundations below assume these are present and do NOT re-scaffold them.
 | F-01       | dev-tooling-baseline     | Add ruff formatter and .env.example to project        | yes                   | Quick setup (< 5 min); do before or during F-02     |
 | F-02       | topic-deck-model         | Add Topic model; link Card to Topic; update seed data | yes                   | Run parallel to F-01                                |
 | S-01       | complete-study-session   | Implement end-to-end study session with score screen  | no                    | Needs F-01 + F-02 done first                        |
-| S-03       | admin-ai-deck-seeding    | Admin: AI-seeded topic deck creation                  | no                    | Blocked — resolve Open Question #3 first            |
+| S-03       | admin-ai-deck-seeding    | Admin: AI-seeded topic deck creation                  | yes                   | Unblocked 2026-08-08 — admin role = Django is_superuser |
 | S-02       | leaderboard              | Implement user leaderboard by cumulative score        | no                    | Needs S-01 done first                               |
 | S-04       | spaced-repetition-review | Implement spaced repetition review session            | no                    | Nice-to-have; needs S-01; parallel with S-02        |
 
 ## Open Roadmap Questions
 
-1. **Admin role — which model is canonical?** Separate named admin role, Django's built-in `is_staff`/`is_superuser`, or out-of-app seeding via management command only? — Owner: user. Block: S-03 (FR-007 is unplannable until resolved; lowest-effort resolution is `is_superuser` since Django admin is already wired).
+1. ~~**Admin role — which model is canonical?**~~ **RESOLVED (2026-08-08):** Django's built-in `is_superuser`, since the Django admin is already wired for `Card`/`CardReview`. S-03 is now unblocked.
 2. **CI/CD pipeline timing** — When to set up GitHub Actions auto-deploy to Fly.io (per `ci_default_flow: auto-deploy-on-merge` in `tech-stack.md`)? — Owner: user. Block: no (manual `fly deploy` works now; CI/CD reduces friction but is not required for the MVP sprint).
 3. **US-01 acceptance criteria edge cases** — Empty deck, mid-session connection failure, score display precision, duplicate session submissions — not defined in PRD (Open Question #4). — Owner: user. Block: no (sufficient to start planning S-01; matters before implementation ends).
 

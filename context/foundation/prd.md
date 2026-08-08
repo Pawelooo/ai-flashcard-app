@@ -92,9 +92,7 @@ The app ranks users by their cumulative total of correct answers across all stud
 
 ## Access Control
 
-Users log in via email/password or OAuth. Flat user model — all users have equal access; no admin or role separation. Progress and deck state are persisted per account across devices.
-
-# TODO: admin access control detail — see Open Questions
+Users log in via email/password or OAuth. Regular users have equal access to study features; no separate named admin role exists. Admin content-seeding access (FR-007) is granted via Django's built-in `is_superuser` flag on an otherwise-regular account — see Open Questions #3 for the resolution. Progress and deck state are persisted per account across devices.
 
 ## Non-Goals
 
@@ -106,5 +104,5 @@ Users log in via email/password or OAuth. Flat user model — all users have equ
 
 1. **What is the insight paragraph for Vision & Problem Statement?** What does this product understand about the problem that existing resources (YouTube tutorials, scattered docs, bootcamps) do not address? — Owner: user. Block: no (PRD is functional without it, but weaker for pitching).
 2. **What are the qps and data_volume estimates for target_scale?** Downstream stack selection can proceed with small/small defaults, but explicit values anchor NFR targets better. — Owner: user. Block: no.
-3. **Admin role vs. flat user model — contradiction to resolve.** shape-notes Access Control states "flat user model — no admin or role separation", but FR-007 (must-have) requires an Admin who can create topic decks. Which is canonical: a separate named admin role, a super-user toggle on a regular account, or out-of-app seeding (e.g. direct database access)? — Owner: user. Block: yes (FR-007 is must-have; without role clarity the implementation is undefined).
+3. ~~**Admin role vs. flat user model — contradiction to resolve.**~~ **RESOLVED (2026-08-08):** Django's built-in `is_superuser` flag is the canonical admin-role mechanism for FR-007. No new role model or separate admin table. Rationale: the Django admin panel already registers `Card`/`CardReview` (`flashcards/admin.py`) and a superuser can already create cards manually through it; the only remaining work for S-03 is an AI-seeding action or management command layered on top of that existing access. This unblocks roadmap item S-03 (`admin-ai-deck-seeding`).
 4. **US-01 acceptance criteria incomplete.** Only a Given/When/Then block exists; no formal acceptance criteria checklist was captured. What are the edge cases — empty deck, connection failure mid-session, score display precision, duplicate session submissions? — Owner: user. Block: no (enough to start; completeness matters before implementation begins).

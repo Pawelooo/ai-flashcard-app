@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 AI Flashcard App — a Django web app for developers studying AI/ML concepts before job interviews. Features flashcard study sessions, self-scoring, spaced repetition, and a leaderboard.
 
-See `@context/foundation/prd.md` for full requirements and open questions (including the unresolved admin-role question in FR-007).
+See `@context/foundation/prd.md` for full requirements and open questions. The admin-role question in FR-007 is resolved: Django's built-in `is_superuser` is the canonical admin mechanism.
 
 ## Commands
 
