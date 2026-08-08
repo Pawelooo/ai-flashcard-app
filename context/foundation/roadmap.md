@@ -30,12 +30,12 @@ Working developers preparing for AI/ML job interviews have no clear, structured 
 
 | ID   | Change ID                | Outcome (user can …)                                          | Prerequisites | PRD refs                             | Status   |
 |------|--------------------------|---------------------------------------------------------------|---------------|--------------------------------------|----------|
-| F-01 | dev-tooling-baseline     | (foundation) ruff + .env.example in place                     | —             | —                                    | ready    |
-| F-02 | topic-deck-model         | (foundation) Topic model exists; Card linked to Topic         | —             | FR-002, FR-007                       | ready    |
+| F-01 | dev-tooling-baseline     | (foundation) ruff + .env.example in place                     | —             | —                                    | implemented |
+| F-02 | topic-deck-model         | (foundation) Topic model exists; Card linked to Topic         | —             | FR-002, FR-007                       | implemented |
 | S-01 | complete-study-session   | pick a topic, flip deck, mark cards correct/incorrect, see score | F-01, F-02 | FR-001, FR-002, FR-003, FR-004, US-01 | impl_reviewed |
 | S-03 | admin-ai-deck-seeding    | (admin) create AI-seeded topic decks                          | F-01, F-02    | FR-007                               | ready    |
-| S-02 | leaderboard              | view ranking of all users by cumulative correct answers       | S-01          | FR-005                               | proposed |
-| S-04 | spaced-repetition-review | review cards marked incorrect in a prior session              | S-01          | FR-006                               | proposed |
+| S-02 | leaderboard              | view ranking of all users by cumulative correct answers       | S-01          | FR-005                               | implemented |
+| S-04 | spaced-repetition-review | review cards marked incorrect in a prior session              | S-01          | FR-006                               | implemented |
 
 ## Streams
 
@@ -72,7 +72,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** Without ruff, each slice introduces inconsistent formatting that accumulates as noise in diffs. Without `.env.example`, environment variable assumptions are implicit. Both are under 5 minutes to configure; risk is in skipping and paying later across every slice.
-- **Status:** ready
+- **Status:** implemented (ruff wired via `.pre-commit-config.yaml`'s `ruff-check` hook rather than a `[tool.ruff]` block in `pyproject.toml`, functionally equivalent; `.env.example` present at project root. No dedicated change folder was ever created for this item — done ad-hoc early. Status corrected 2026-08-08 during a roadmap refresh.)
 
 ### F-02: Topic/deck data model
 
@@ -85,7 +85,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** Simple Django model addition. The only design lock-in risk: if cards ever need to belong to multiple topics, a FK is too narrow and a ManyToMany would be required. For MVP (each card belongs to one topic), FK is correct and the simplest path per the `speed` goal.
-- **Status:** ready
+- **Status:** implemented (`Topic` model confirmed present in `flashcards/models.py`, `Card.topic` FK wired throughout. No dedicated change folder was ever created for this item — done ad-hoc early, likely alongside/before S-01. Status corrected 2026-08-08 during a roadmap refresh.)
 
 ## Slices
 
@@ -125,7 +125,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** Low technical risk. The leaderboard is an aggregate query on `CardReview` data that already exists after S-01 ships. Business logic is fully specified in the PRD: cumulative correct answers, all session types count equally. The only edge case is an empty leaderboard at launch (few early users) — PRD acknowledged this and kept the feature.
-- **Status:** proposed
+- **Status:** implemented (shipped 2026-05-31, `feature/leaderboard` → master; status corrected 2026-08-08 during a roadmap refresh — `change.md` had been left at `planned` since creation despite the merge)
 
 ### S-04: Powtórki słabych kart
 
@@ -138,18 +138,18 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Unknowns:**
   - Spaced repetition algorithm scope — is v1 "show wrong cards from last session" or a full SRS algorithm (e.g. SM-2)? PRD secondary success criterion says "resurfaces cards the user got wrong in a prior session, automatically prioritizing weak spots." — Owner: user. Block: no (the minimal reading — wrong cards from last session — is implementable first; full SRS is a progressive enhancement).
 - **Risk:** FR-006 is nice-to-have; sequenced after S-02 to protect the must-have path. Secondary success criterion treats it as an adoption signal, so it is not purely cosmetic — but it is the last item in the must-have → nice-to-have order and should not delay the `speed` goal.
-- **Status:** proposed
+- **Status:** implemented (shipped ~2026-06-01, `feature/repetition-review` → master; status corrected 2026-08-08 during a roadmap refresh — `change.md` had been left at `planned` since creation despite the merge)
 
 ## Backlog Handoff
 
 | Roadmap ID | Change ID                | Suggested issue title                                 | Ready for `/10x-plan` | Notes                                               |
 |------------|--------------------------|-------------------------------------------------------|-----------------------|-----------------------------------------------------|
-| F-01       | dev-tooling-baseline     | Add ruff formatter and .env.example to project        | yes                   | Quick setup (< 5 min); do before or during F-02     |
-| F-02       | topic-deck-model         | Add Topic model; link Card to Topic; update seed data | yes                   | Run parallel to F-01                                |
-| S-01       | complete-study-session   | Implement end-to-end study session with score screen  | no                    | Needs F-01 + F-02 done first                        |
+| F-01       | dev-tooling-baseline     | Add ruff formatter and .env.example to project        | done                  | Done ad-hoc, no dedicated change folder             |
+| F-02       | topic-deck-model         | Add Topic model; link Card to Topic; update seed data | done                  | Done ad-hoc, no dedicated change folder             |
+| S-01       | complete-study-session   | Implement end-to-end study session with score screen  | done                  | Shipped, impl-reviewed                              |
 | S-03       | admin-ai-deck-seeding    | Admin: AI-seeded topic deck creation                  | yes                   | Unblocked 2026-08-08 — admin role = Django is_superuser |
-| S-02       | leaderboard              | Implement user leaderboard by cumulative score        | no                    | Needs S-01 done first                               |
-| S-04       | spaced-repetition-review | Implement spaced repetition review session            | no                    | Nice-to-have; needs S-01; parallel with S-02        |
+| S-02       | leaderboard              | Implement user leaderboard by cumulative score        | done                  | Shipped 2026-05-31                                  |
+| S-04       | spaced-repetition-review | Implement spaced repetition review session            | done                  | Shipped ~2026-06-01                                 |
 
 ## Open Roadmap Questions
 
@@ -165,6 +165,21 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Observability stack (Sentry, structured logging, metrics)** — Why parked: no PRD NFR requires it at MVP; stdout logging via `fly logs` is sufficient for solo MVP operation. Add post-launch when there are users to monitor.
 - **CI/CD auto-deploy pipeline** — Why parked: manual `fly deploy` is sufficient for the MVP sprint; set up once the must-have path is stable and deploys become frequent.
 - **Insight paragraph (Vision & Problem Statement)** — Why parked: PRD Open Question #1, Block: no; not required for roadmap or implementation.
+
+## Beyond-roadmap work (added 2026-08-08 during a roadmap refresh)
+
+Shipped changes with no corresponding roadmap slice — mostly infrastructure/hardening enablers that came up during implementation of the slices above, not new PRD-driven user-visible outcomes. Listed here for a complete picture; none of these need a roadmap entry unless they gate a future slice.
+
+| Change ID                                  | What it is                                                | Status        |
+|---------------------------------------------|------------------------------------------------------------|---------------|
+| deployment                                  | Fly.io + Cloudflare deploy setup                            | impl_reviewed |
+| ci-cd                                       | Automated code review in CI/CD pipeline                     | implemented   |
+| redis-caching-ratelimit                     | Redis caching (leaderboard/topics) and rate limiting        | impl_reviewed |
+| email-registration-auth                     | Email-based registration, verification, login, password reset — closes the PRD's "email/password login" gap (superseded the built-in `auth.User` + `UserCreationForm`) | impl_reviewed |
+| crud-gap-analysis                           | CRUD gap analysis across existing models                    | impl_reviewed |
+| refactor-opportunities                      | Prioritized technical-debt refactor from session-flow analysis | implemented |
+| testing-score-accuracy-session-hardening    | Integration tests for score accuracy & session hardening    | implemented   |
+| tool-loop-agent, code-review-evals          | AI SDK tooling for the internal code-reviewer agent (dev tooling, not product-facing) | implemented |
 
 ## Done
 
