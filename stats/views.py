@@ -1,7 +1,7 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import TemplateView
 
-from .services import compute_study_stats, get_leaderboard
+from .services import compute_study_stats, get_leaderboard, get_timed_leaderboard
 
 
 class StatsDashboardView(LoginRequiredMixin, TemplateView):
@@ -18,5 +18,7 @@ class LeaderboardView(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
-        ctx['leaderboard'] = get_leaderboard()
+        tab = 'timed' if self.request.GET.get('tab') == 'timed' else 'total'
+        ctx['tab'] = tab
+        ctx['leaderboard'] = get_timed_leaderboard() if tab == 'timed' else get_leaderboard()
         return ctx

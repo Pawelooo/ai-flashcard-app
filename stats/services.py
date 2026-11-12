@@ -3,7 +3,7 @@ from datetime import date, timedelta
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.cache import cache
-from django.db.models import Count, Q
+from django.db.models import Count, Max, Q
 from django.utils import timezone
 
 from flashcards.models import CardReview
@@ -26,6 +26,16 @@ def get_leaderboard():
     )
     cache.set(_CACHE_KEY_LEADERBOARD, result, timeout=settings.CACHE_TTL_LEADERBOARD)
     return result
+
+
+def get_timed_leaderboard():
+    """Top 10 rekordów trybu na czas. Bez cache — nowy rekord ma być widoczny od razu."""
+    User = get_user_model()
+    return list(
+        User.objects.annotate(best_timed=Max('timed_runs__score'))
+        .filter(best_timed__gt=0)
+        .order_by('-best_timed', 'username')[:10]
+    )
 
 
 def compute_study_stats(user) -> StudyStats:

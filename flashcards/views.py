@@ -7,6 +7,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.cache import cache
 from django.core.exceptions import PermissionDenied
+from django.db.models import Count
 from django.http import HttpResponseNotAllowed
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.generic import CreateView, DeleteView, DetailView, ListView, UpdateView
@@ -17,7 +18,8 @@ from .models import Card, CardReview, Topic
 from .forms import CardForm
 from .session import SK, get_session
 
-_CACHE_KEY_TOPICS = 'topics_list'
+# v2: obiekty z card_count + icon/description — stary klucz trzymał inny kształt
+_CACHE_KEY_TOPICS = 'topics_list_v2'
 
 
 class TopicsListView(LoginRequiredMixin, ListView):
@@ -26,12 +28,46 @@ class TopicsListView(LoginRequiredMixin, ListView):
     context_object_name = 'topics'
 
     def get_queryset(self):
-        cached = cache.get(_CACHE_KEY_TOPICS)
-        if cached is not None:
-            return cached
-        topics = list(Topic.objects.order_by('name'))
-        cache.set(_CACHE_KEY_TOPICS, topics, timeout=settings.CACHE_TTL_TOPICS)
+        # Wspólny cache trzyma tylko dane niezależne od użytkownika (nazwa + liczba
+        # fiszek). Postęp liczymy co request — inaczej jeden użytkownik zobaczyłby
+        # w cache'u wyniki innego.
+        topics = cache.get(_CACHE_KEY_TOPICS)
+        if topics is None:
+            topics = list(Topic.objects.annotate(card_count=Count('cards')).order_by('name'))
+            cache.set(_CACHE_KEY_TOPICS, topics, timeout=settings.CACHE_TTL_TOPICS)
+        return self._with_progress(topics)
+
+    def _with_progress(self, topics):
+        """Dolicza postęp bieżącego użytkownika: fiszka = opanowana, gdy ma
+        choć jedną poprawną odpowiedź."""
+        mastered_by_topic = dict(
+            Card.objects.filter(
+                reviews__user=self.request.user,
+                reviews__is_correct=True,
+            )
+            .values_list('topic_id')
+            .annotate(mastered=Count('pk', distinct=True))
+        )
+        for topic in topics:
+            mastered = mastered_by_topic.get(topic.pk, 0)
+            topic.mastered_count = mastered
+            topic.due_count = max(topic.card_count - mastered, 0)
+            topic.mastered_pct = (
+                round(mastered / topic.card_count * 100) if topic.card_count else 0
+            )
         return topics
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        topics = ctx['topics']
+        total_cards = sum(t.card_count for t in topics)
+        total_mastered = sum(t.mastered_count for t in topics)
+        ctx['total_cards'] = total_cards
+        ctx['total_due'] = sum(t.due_count for t in topics)
+        ctx['total_mastered_pct'] = (
+            round(total_mastered / total_cards * 100) if total_cards else 0
+        )
+        return ctx
 
     def get(self, request, *args, **kwargs):
         for key in SK.ALL:
@@ -54,6 +90,35 @@ def session_start(request):
 
     random.shuffle(card_ids)
     request.session[SK.TOPIC_ID] = topic.pk
+    request.session[SK.CARDS] = card_ids
+    request.session[SK.INDEX] = 0
+    request.session[SK.SCORE] = 0
+    request.session[SK.WRONG_IDS] = []
+    return redirect('flashcards:study')
+
+
+@login_required
+@ratelimit(key='user', rate='20/h', block=True, method=['POST'])
+def study_all(request):
+    """Sesja ze wszystkich nieopanowanych fiszek (każdego tematu)."""
+    if request.method != 'POST':
+        return HttpResponseNotAllowed(['POST'])
+
+    mastered_ids = CardReview.objects.filter(
+        user=request.user, is_correct=True, card__isnull=False,
+    ).values('card_id')
+    card_ids = list(
+        Card.objects.filter(topic__isnull=False)
+        .exclude(pk__in=mastered_ids)
+        .values_list('id', flat=True)
+    )
+
+    if not card_ids:
+        messages.info(request, 'Wszystko opanowane — nie ma nic do powtórki.')
+        return redirect('flashcards:topics')
+
+    random.shuffle(card_ids)
+    request.session[SK.TOPIC_ID] = None
     request.session[SK.CARDS] = card_ids
     request.session[SK.INDEX] = 0
     request.session[SK.SCORE] = 0
@@ -123,6 +188,12 @@ class CardUpdateView(LoginRequiredMixin, CardEditPermissionMixin, UpdateView):
     model = Card
     form_class = CardForm
     template_name = 'flashcards/card_form.html'
+
+    def form_valid(self, form):
+        # Zmienione pytanie/odpowiedź = stare błędne odpowiedzi mogą być już poprawne
+        if {'question', 'answer'} & set(form.changed_data):
+            form.instance.distractors = []
+        return super().form_valid(form)
 
     # success_url can't be a class attribute here — URL requires self.object.pk
     def get_success_url(self):

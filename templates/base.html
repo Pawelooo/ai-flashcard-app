@@ -45,6 +45,7 @@
       font-family: 'Segoe UI', system-ui, sans-serif;
       background-color: var(--bg);
       color: var(--text);
+      min-height: 100vh; /* gradient w dark mode ma pokrywać cały ekran, nie tylko treść */
       transition: background-color .3s, color .3s;
     }
     [data-theme="dark"] body {
@@ -84,6 +85,95 @@
     }
     .card-title { color: var(--text) !important; }
 
+    /* ── Topic cards (lista tematów) ── */
+    .topic-card { border-radius: 1rem; transition: transform .15s ease, background .3s, border-color .2s, box-shadow .2s; }
+    .topic-card:hover { transform: translateY(-3px); }
+    .topic-icon {
+      width: 52px; height: 52px; flex-shrink: 0;
+      border-radius: 14px; font-size: 1.6rem;
+      display: grid; place-items: center;
+      background: linear-gradient(135deg, rgba(99,102,241,.14), rgba(139,92,246,.14));
+    }
+    .topic-modes { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .5rem; }
+    .topic-add {
+      border-radius: 1rem; min-height: 220px;
+      border-style: dashed !important; border-width: 2px !important;
+      color: var(--muted) !important; box-shadow: none !important;
+      transition: color .2s, border-color .2s, transform .15s ease;
+    }
+    .topic-add:hover {
+      color: var(--primary) !important;
+      border-color: var(--primary) !important;
+      transform: translateY(-3px);
+    }
+    .badge-due {
+      background: rgba(245,158,11,.15); color: #b45309;
+      border: 1px solid rgba(245,158,11,.3); font-weight: 600;
+    }
+    [data-theme="dark"] .badge-due { color: #fbbf24; }
+    .badge-done {
+      background: rgba(16,185,129,.14); color: #047857;
+      border: 1px solid rgba(16,185,129,.3); font-weight: 600;
+    }
+    [data-theme="dark"] .badge-done { color: #34d399; }
+
+    /* ── Tryb na czas ── */
+    .timed-clock {
+      font-size: 2.75rem; font-weight: 800; line-height: 1;
+      font-variant-numeric: tabular-nums; transition: color .2s;
+    }
+    .timed-clock--low { color: #dc2626; }
+    [data-theme="dark"] .timed-clock--low { color: #f87171; }
+    .timed-score { font-size: 1.75rem; font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; }
+    .timed-result-score {
+      font-size: 4.5rem; font-weight: 800; line-height: 1;
+      background: linear-gradient(135deg, var(--primary), var(--primary2));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+
+    /* ── Quiz ABCD ── */
+    .quiz-option {
+      display: flex; align-items: center; gap: .85rem;
+      padding: .8rem 1rem; border-radius: .75rem;
+      border: 1px solid var(--input-border); background: var(--input-bg); color: var(--text);
+      transition: border-color .15s, background .15s, transform .1s;
+    }
+    .quiz-option:hover:not(:disabled) { border-color: var(--primary); background: rgba(99,102,241,.06); color: var(--text); }
+    .quiz-option:active:not(:disabled) { transform: scale(.99); }
+    .quiz-option:disabled {
+      opacity: 1; color: var(--text);
+      border-color: var(--input-border); background: var(--input-bg);
+    }
+    .quiz-letter {
+      flex-shrink: 0; width: 2rem; height: 2rem; border-radius: .5rem;
+      display: grid; place-items: center; font-weight: 700;
+      background: rgba(99,102,241,.12); color: var(--primary);
+    }
+    .quiz-option--correct { border-color: #10b981 !important; background: rgba(16,185,129,.12) !important; }
+    .quiz-option--correct .quiz-letter { background: #10b981; color: #fff; }
+    .quiz-option--wrong { border-color: #ef4444 !important; background: rgba(239,68,68,.1) !important; }
+    .quiz-option--wrong .quiz-letter { background: #ef4444; color: #fff; }
+
+    /* ── Wpisz odpowiedź ── */
+    .badge-wrong {
+      background: rgba(239,68,68,.12); color: #b91c1c;
+      border: 1px solid rgba(239,68,68,.3); font-weight: 600;
+    }
+    [data-theme="dark"] .badge-wrong { color: #f87171; }
+    .written-box {
+      border: 1px solid var(--input-border); border-radius: .75rem;
+      padding: .85rem 1rem; background: var(--input-bg);
+    }
+    .written-box--reference { border-color: rgba(16,185,129,.45); background: rgba(16,185,129,.06); }
+    .written-text { white-space: pre-wrap; overflow-wrap: anywhere; }
+
+    /* ── Zakładki (nav-pills) ── */
+    .nav-pills .nav-link { color: var(--primary); }
+    .nav-pills .nav-link.active {
+      background: linear-gradient(135deg, var(--primary), var(--primary2));
+      color: #fff;
+    }
+
     /* ── Buttons ── */
     .btn-primary {
       background: linear-gradient(135deg, var(--primary), var(--primary2)) !important;
@@ -102,6 +192,7 @@
     }
 
     /* ── Progress bar ── */
+    .progress-bar { background: linear-gradient(90deg, var(--primary), var(--primary2)); }
     [data-theme="dark"] .progress { background: rgba(255,255,255,.08); }
     [data-theme="dark"] .progress-bar { background: linear-gradient(90deg,#6366f1,#06b6d4); }
 
@@ -118,6 +209,17 @@
     }
     .form-control::placeholder { color: var(--muted) !important; }
     .form-label { color: var(--muted); }
+
+    /* ── Dropdown (menu użytkownika) ── */
+    [data-theme="dark"] .dropdown-menu {
+      background: var(--surface); border: 1px solid var(--border);
+      backdrop-filter: blur(10px);
+    }
+    [data-theme="dark"] .dropdown-item { color: var(--text); }
+    [data-theme="dark"] .dropdown-item:hover,
+    [data-theme="dark"] .dropdown-item:focus {
+      background: rgba(99,102,241,.18); color: var(--text);
+    }
 
     /* ── Text / misc ── */
     .text-muted { color: var(--muted) !important; }
@@ -179,7 +281,7 @@
 </head>
 <body>
 
-<nav class="navbar navbar-expand-md navbar-dark sticky-top shadow-sm">
+<nav class="navbar navbar-expand-lg navbar-dark sticky-top shadow-sm">
   <div class="container">
 
     <a class="navbar-brand navbar-brand-logo text-white text-decoration-none" href="/">
@@ -232,16 +334,21 @@
             <span class="toggle-icon" id="themeIcon">🌙</span>
           </label>
         </li>
-        <li class="nav-item">
-          <span class="nav-link text-secondary small">
-            <i class="bi bi-person-circle me-1"></i>{{ user.username }}
-          </span>
-        </li>
-        <li class="nav-item">
-          <form method="post" action="{% url 'logout' %}">
-            {% csrf_token %}
-            <button type="submit" class="btn btn-sm btn-outline-light opacity-75">Wyloguj</button>
-          </form>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle d-flex align-items-center gap-1" href="#"
+             role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="bi bi-person-circle"></i>{{ user.username }}
+          </a>
+          <ul class="dropdown-menu dropdown-menu-end">
+            <li>
+              <form method="post" action="{% url 'logout' %}">
+                {% csrf_token %}
+                <button type="submit" class="dropdown-item">
+                  <i class="bi bi-box-arrow-right me-2"></i>Wyloguj
+                </button>
+              </form>
+            </li>
+          </ul>
         </li>
       </ul>
       {% else %}

@@ -123,6 +123,10 @@ if REDIS_URL:
             'OPTIONS': {
                 'CLIENT_CLASS': 'django_redis.client.DefaultClient',
                 'IGNORE_EXCEPTIONS': True,  # fail open — nie blokuj app gdy Redis niedostępny
+                # Bez limitów fail open nie działa: każda operacja wisi na połączeniu
+                # (na Windowsie ~4 s na odrzucone połączenie), a widok robi ich kilka.
+                'SOCKET_CONNECT_TIMEOUT': 0.5,
+                'SOCKET_TIMEOUT': 0.5,
             },
         }
     }
@@ -136,7 +140,14 @@ else:
 RATELIMIT_FAIL_OPEN = True  # przepuść request gdy cache niedostępny (testy, Redis down)
 RATELIMIT_VIEW = 'config.urls.handler429'  # Ratelimited dziedziczy z PermissionDenied — bez tego trafi do handler403
 
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# W dev (DEBUG=1) maile lądują w konsoli runservera — konto testowe Resend
+# dostarcza tylko na adres właściciela, a na inne rzuca 550 → 500 w widoku.
+# Prawdziwy SMTP w dev: EMAIL_BACKEND=django.core.mail.backends.smtp.EmailBackend w .env
+EMAIL_BACKEND = os.environ.get(
+    'EMAIL_BACKEND',
+    'django.core.mail.backends.console.EmailBackend' if DEBUG
+    else 'django.core.mail.backends.smtp.EmailBackend',
+)
 EMAIL_HOST = 'smtp.resend.com'
 EMAIL_PORT = 587
 EMAIL_HOST_USER = 'resend'
@@ -156,3 +167,11 @@ RATELIMIT_IP_META_KEY = _ratelimit_client_ip
 
 CACHE_TTL_LEADERBOARD = 60 * 15   # 15 minut
 CACHE_TTL_TOPICS = 60 * 60 * 24   # 1 dzień
+
+# ── AI (Claude) ──
+# Klucz: ANTHROPIC_API_KEY w .env / fly secrets — SDK czyta go sam.
+ANTHROPIC_MODEL = os.environ.get('ANTHROPIC_MODEL', 'claude-sonnet-5-5')
+# low | medium | high — wyższy = staranniejsze odpowiedzi, ale wolniej i drożej
+ANTHROPIC_EFFORT = os.environ.get('ANTHROPIC_EFFORT', 'medium')
+# Wywołania w trakcie requestu: gunicorn na Fly ma --timeout 30, więc twardy limit poniżej
+AI_REQUEST_TIMEOUT_SECONDS = 22

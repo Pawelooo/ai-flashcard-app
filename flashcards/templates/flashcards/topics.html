@@ -1,39 +1,160 @@
 {% extends 'base.html' %}
+{% load pl_plural %}
 {% block title %}Wybierz temat — NaukaAI{% endblock %}
 
 {% block content %}
-<div class="mb-4">
-  <h1 class="fw-bold mb-1">Wybierz temat</h1>
-  <p class="text-muted">Przeglądaj dostępne tematy i zacznij sesję nauki.</p>
+<div class="d-flex flex-wrap justify-content-between align-items-end gap-3 mb-4">
+  <div>
+    <h1 class="fw-bold mb-1">Wybierz temat</h1>
+    <p class="text-muted mb-0">Przeglądaj dostępne tematy i zacznij sesję nauki.</p>
+  </div>
+  {% if total_cards %}
+  <div class="d-flex flex-wrap align-items-center gap-3">
+    <div class="small text-muted">
+      <div>
+        <i class="bi bi-collection me-1"></i>{{ total_cards }} {{ total_cards|pl_plural:"fiszka,fiszki,fiszek" }}
+        w {{ topics|length }} {% if topics|length == 1 %}temacie{% else %}tematach{% endif %}
+      </div>
+      <div>
+        <i class="bi bi-check2-circle me-1"></i>Opanowane: {{ total_mastered_pct }}%
+        {% if total_due %}· do powtórki: {{ total_due }}{% endif %}
+      </div>
+    </div>
+    <form method="post" action="{% url 'flashcards:timed_start' %}">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-outline-primary fw-semibold"
+              title="60 sekund, fiszki ze wszystkich tematów">
+        <i class="bi bi-stopwatch me-1"></i>Na czas
+      </button>
+    </form>
+    {% if total_due %}
+    <form method="post" action="{% url 'flashcards:study_all' %}">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-outline-primary fw-semibold">
+        <i class="bi bi-arrow-repeat me-1"></i>Powtórz wszystko ({{ total_due }})
+      </button>
+    </form>
+    {% endif %}
+  </div>
+  {% endif %}
 </div>
 
-{% if topics %}
 <div class="row g-4">
   {% for topic in topics %}
-  <div class="col-md-4">
-    <div class="card h-100 shadow-sm border-0">
-      <div class="card-body d-flex flex-column">
-        <div class="mb-3" style="font-size:2rem;">🧠</div>
-        <h5 class="card-title fw-bold">{{ topic.name }}</h5>
-        <div class="mt-auto pt-3">
+  <div class="col-sm-6 col-lg-4 col-xl-3">
+    <div class="card topic-card h-100">
+      <div class="card-body d-flex flex-column p-4">
+
+        <div class="d-flex align-items-center gap-3 mb-3">
+          <div class="topic-icon">{{ topic.icon|default:"🧠" }}</div>
+          <div class="overflow-hidden">
+            <h5 class="card-title fw-bold mb-0">{{ topic.name }}</h5>
+            <small class="text-muted">{{ topic.card_count }} {{ topic.card_count|pl_plural:"fiszka,fiszki,fiszek" }}</small>
+          </div>
+        </div>
+
+        {% if topic.description %}
+        <p class="text-muted small mb-3">{{ topic.description|truncatechars:90 }}</p>
+        {% endif %}
+
+        {% if topic.card_count %}
+        <div class="d-flex justify-content-between small mb-1">
+          <span class="text-muted">Opanowane</span>
+          <span class="fw-semibold">{{ topic.mastered_pct }}%</span>
+        </div>
+        <div class="progress mb-3" style="height:6px;">
+          <div class="progress-bar" role="progressbar" style="width: {{ topic.mastered_pct }}%;"
+               aria-valuenow="{{ topic.mastered_pct }}" aria-valuemin="0" aria-valuemax="100"></div>
+        </div>
+        {% if topic.due_count %}
+        <span class="badge badge-due align-self-start mb-3">
+          <i class="bi bi-arrow-repeat me-1"></i>{{ topic.due_count }} do powtórki
+        </span>
+        {% else %}
+        <span class="badge badge-done align-self-start mb-3">
+          <i class="bi bi-check2 me-1"></i>Temat opanowany
+        </span>
+        {% endif %}
+        {% endif %}
+
+        <div class="mt-auto pt-2">
+          {% if topic.card_count %}
           <form method="post" action="{% url 'flashcards:study_start' %}">
             {% csrf_token %}
             <input type="hidden" name="topic_id" value="{{ topic.pk }}">
-            <button type="submit" class="btn btn-primary w-100">
+            <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold">
               <i class="bi bi-play-circle me-1"></i>Zacznij naukę
             </button>
           </form>
+          <div class="topic-modes mt-2">
+            <form method="post" action="{% url 'flashcards:quiz_start' %}" class="js-loading-form">
+              {% csrf_token %}
+              <input type="hidden" name="topic_id" value="{{ topic.pk }}">
+              <button type="submit" class="btn btn-outline-primary w-100 py-2 px-1 fw-semibold text-nowrap"
+                      title="Quiz ABCD — błędne odpowiedzi generuje AI"
+                      data-loading-text="AI…">
+                <i class="bi bi-ui-radios me-1"></i>ABCD
+              </button>
+            </form>
+            <form method="post" action="{% url 'flashcards:written_start' %}">
+              {% csrf_token %}
+              <input type="hidden" name="topic_id" value="{{ topic.pk }}">
+              <button type="submit" class="btn btn-outline-primary w-100 py-2 px-1 fw-semibold text-nowrap"
+                      title="Wpisz odpowiedź własnymi słowami — AI ją oceni i powie, czego brakuje">
+                <i class="bi bi-pencil-square me-1"></i>Wpisz
+              </button>
+            </form>
+            <form method="post" action="{% url 'flashcards:timed_start' %}">
+              {% csrf_token %}
+              <input type="hidden" name="topic_id" value="{{ topic.pk }}">
+              <button type="submit" class="btn btn-outline-primary w-100 py-2 px-1 fw-semibold text-nowrap"
+                      title="Tryb na czas: 60 sekund, ile zdążysz">
+                <i class="bi bi-stopwatch me-1"></i>60 s
+              </button>
+            </form>
+          </div>
+          {% else %}
+          <button type="button" class="btn btn-outline-secondary w-100 py-2" disabled>
+            Brak fiszek w tym temacie
+          </button>
+          {% endif %}
         </div>
+
       </div>
     </div>
   </div>
+  {% empty %}
+  <div class="col-12">
+    <div class="text-center py-5">
+      <i class="bi bi-collection display-1 text-muted"></i>
+      <h3 class="mt-3">Brak tematów</h3>
+      <p class="text-muted">Dodaj tematy przez <a href="/admin/">panel admina</a>.</p>
+    </div>
+  </div>
   {% endfor %}
+
+  {% if topics %}
+  <div class="col-sm-6 col-lg-4 col-xl-3">
+    <a href="{% url 'flashcards:card_create' %}"
+       class="card topic-add h-100 text-decoration-none d-flex flex-column align-items-center justify-content-center p-4">
+      <i class="bi bi-plus-circle fs-2 mb-2"></i>
+      <span class="fw-semibold">Dodaj własną fiszkę</span>
+    </a>
+  </div>
+  {% endif %}
 </div>
-{% else %}
-<div class="text-center py-5">
-  <i class="bi bi-collection display-1 text-muted"></i>
-  <h3 class="mt-3">Brak tematów</h3>
-  <p class="text-muted">Dodaj tematy przez <a href="/admin/">panel admina</a>.</p>
-</div>
-{% endif %}
+{% endblock %}
+{% block extra_js %}
+<script>
+// Pierwszy quiz z danego tematu czeka kilka sekund na AI — pokaż, że coś się dzieje
+document.querySelectorAll('.js-loading-form').forEach(function (form) {
+  form.addEventListener('submit', function (e) {
+    var btn = form.querySelector('button[type=submit]');
+    if (btn.disabled) { e.preventDefault(); return; }
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>'
+      + btn.dataset.loadingText;
+  });
+});
+</script>
 {% endblock %}

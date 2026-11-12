@@ -10,7 +10,15 @@ class SK:
     SCORE = "session_score"
     WRONG_IDS = "session_wrong_ids"
     LAST_WRONG_IDS = "last_wrong_ids"
-    ALL = [TOPIC_ID, CARDS, INDEX, SCORE, WRONG_IDS]
+    # Quiz ABCD: kolejność opcji bieżącej karty — trzymana na serwerze, nie w formularzu
+    QUIZ_OPTIONS = "quiz_options"
+    ALL = [TOPIC_ID, CARDS, INDEX, SCORE, WRONG_IDS, QUIZ_OPTIONS]
+
+    # Tryb na czas — osobne klucze, żeby nie mieszać się ze zwykłą sesją nauki
+    TIMED_RUN = "timed_run_id"
+    TIMED_CARDS = "timed_cards"
+    TIMED_INDEX = "timed_index"
+    TIMED_ALL = [TIMED_RUN, TIMED_CARDS, TIMED_INDEX]
 
 
 class SessionState(TypedDict):
