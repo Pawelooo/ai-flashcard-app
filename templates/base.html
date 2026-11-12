@@ -4,406 +4,465 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block title %}NaukaAI{% endblock %}</title>
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%234f46e5'/><text x='50%25' y='54%25' dominant-baseline='middle' text-anchor='middle' font-size='20'>⚡</text></svg>">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%23c8f04f'/><path d='M18 5 9 18h6l-2 9 9-13h-6z' fill='%231b2a05'/></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
   <style>
-    /* ── Light theme (default) ── */
+    /* ══ Tokeny ══════════════════════════════════════════════════════ */
     :root {
-      --bg:          #f8f9fa;
+      --bg:          #f5f6f1;   /* złamana biel */
+      --bg-alt:      #eef0e9;   /* pasy sekcji */
       --surface:     #ffffff;
-      --navbar-bg:   #212529;
-      --border:      rgba(0,0,0,.08);
-      --text:        #212529;
-      --muted:       #6c757d;
-      --card-shadow: 0 1px 4px rgba(0,0,0,.08);
-      --primary:     #4f46e5;
-      --primary2:    #7c3aed;
-      --input-bg:    #ffffff;
-      --input-border:#dee2e6;
-      --input-text:  #212529;
-    }
+      --surface-2:   #f0f2eb;   /* tła wewnątrz kart, tory pasków */
+      --border:      #e3e5dc;
+      --border-strong:#cfd3c5;
+      --text:        #16181d;
+      --muted:       #5c6157;
+      --accent:      #c8f04f;   /* limonka — główne CTA */
+      --accent-hover:#bce53a;
+      --on-accent:   #1b2a05;
+      --olive:       #5a8a0f;   /* paski, linki, akcenty */
+      --olive-soft:  rgba(90,138,15,.12);
+      --ink:         #16181d;   /* ciemne przyciski */
+      --on-ink:      #ffffff;
+      --warn:        #a15c07;
+      --warn-soft:   rgba(217,140,22,.14);
+      --danger:      #b42318;
+      --danger-soft: rgba(217,45,32,.10);
+      --ok:          #3f6f06;
+      --ok-soft:     rgba(90,138,15,.14);
+      --shadow-lg:   0 18px 40px -18px rgba(22,24,29,.18);
+      --radius:      14px;
+      --font-body:   'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+      --font-display:'Space Grotesk', 'Inter', system-ui, sans-serif;
+      --font-mono:   'JetBrains Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
 
-    /* ── Dark theme ── */
+      /* Bootstrap 5.3 dziedziczy z tych zmiennych */
+      --bs-body-bg: var(--bg);
+      --bs-body-color: var(--text);
+      --bs-body-font-family: var(--font-body);
+      --bs-secondary-color: var(--muted);
+      --bs-border-color: var(--border);
+      --bs-primary: #5a8a0f;
+      --bs-primary-rgb: 90,138,15;
+      --bs-link-color: var(--olive);
+      --bs-link-hover-color: var(--text);
+      --bs-link-color-rgb: 90,138,15;
+      --bs-link-hover-color-rgb: 22,24,29;
+      --bs-emphasis-color: var(--text);
+      --bs-heading-color: var(--text);
+    }
     [data-theme="dark"] {
-      --bg:          #07090f;
-      --surface:     rgba(15,20,40,.8);
-      --navbar-bg:   rgba(7,9,15,.95);
-      --border:      rgba(99,102,241,.18);
-      --text:        #e2e8f0;
-      --muted:       #64748b;
-      --card-shadow: 0 0 24px rgba(99,102,241,.15);
-      --primary:     #6366f1;
-      --primary2:    #8b5cf6;
-      --input-bg:    rgba(255,255,255,.05);
-      --input-border:rgba(99,102,241,.25);
-      --input-text:  #e2e8f0;
+      --bg:          #0f110d;
+      --bg-alt:      #141711;
+      --surface:     #181b15;
+      --surface-2:   #20241c;
+      --border:      #2a2f24;
+      --border-strong:#3a4032;
+      --text:        #eef0e6;
+      --muted:       #9ba293;
+      --accent:      #c8f04f;
+      --accent-hover:#d6f76f;
+      --on-accent:   #1b2a05;
+      --olive:       #a3d14a;
+      --olive-soft:  rgba(163,209,74,.14);
+      --ink:         #eef0e6;
+      --on-ink:      #0f110d;
+      --warn:        #f0b45a;
+      --warn-soft:   rgba(240,180,90,.14);
+      --danger:      #f87168;
+      --danger-soft: rgba(248,113,104,.12);
+      --ok:          #b5e06a;
+      --ok-soft:     rgba(163,209,74,.16);
+      --shadow-lg:   0 18px 40px -18px rgba(0,0,0,.6);
+      --bs-primary: #a3d14a;
+      --bs-primary-rgb: 163,209,74;
+      --bs-link-color-rgb: 163,209,74;
+      --bs-link-hover-color-rgb: 238,240,230;
+      color-scheme: dark;
     }
 
-    /* ── Base ── */
+    /* ══ Baza ════════════════════════════════════════════════════════ */
     body {
-      font-family: 'Segoe UI', system-ui, sans-serif;
-      background-color: var(--bg);
-      color: var(--text);
-      min-height: 100vh; /* gradient w dark mode ma pokrywać cały ekran, nie tylko treść */
-      transition: background-color .3s, color .3s;
+      background: var(--bg); color: var(--text);
+      font-family: var(--font-body); font-size: 15.5px; line-height: 1.6;
+      min-height: 100vh; display: flex; flex-direction: column;
+      -webkit-font-smoothing: antialiased;
     }
-    [data-theme="dark"] body {
-      background-image:
-        radial-gradient(ellipse at 15% 40%, rgba(99,102,241,.07) 0%, transparent 55%),
-        radial-gradient(ellipse at 85% 10%, rgba(139,92,246,.06) 0%, transparent 55%);
+    main { flex: 1 0 auto; }
+    h1, h2, h3, h4, h5, h6, .font-display {
+      font-family: var(--font-display); font-weight: 600;
+      letter-spacing: -.02em; color: var(--text);
     }
-
-    /* ── Navbar ── */
-    .navbar { background: var(--navbar-bg) !important; transition: background .3s; }
-    .navbar-brand-logo {
-      display: inline-flex; align-items: center; gap: .45rem;
-      font-weight: 700; font-size: 1.2rem; letter-spacing: -.01em;
-    }
-    .logo-icon {
-      width: 32px; height: 32px;
-      background: linear-gradient(135deg, var(--primary) 0%, var(--primary2) 100%);
-      border-radius: 8px;
-      display: inline-flex; align-items: center; justify-content: center;
-      font-size: 1rem; flex-shrink: 0;
-    }
-    [data-theme="dark"] .logo-icon { box-shadow: 0 0 14px rgba(99,102,241,.55); }
-    .nav-link { font-size: .92rem; }
-
-    /* ── Cards ── */
-    .card {
-      background: var(--surface) !important;
-      border: 1px solid var(--border) !important;
-      color: var(--text) !important;
-      box-shadow: var(--card-shadow) !important;
-      transition: background .3s, border-color .2s, box-shadow .2s;
-    }
-    [data-theme="dark"] .card { backdrop-filter: blur(10px); }
-    [data-theme="dark"] .card:hover {
-      border-color: rgba(99,102,241,.4) !important;
-      box-shadow: 0 0 28px rgba(99,102,241,.25) !important;
-    }
-    .card-title { color: var(--text) !important; }
-
-    /* ── Topic cards (lista tematów) ── */
-    .topic-card { border-radius: 1rem; transition: transform .15s ease, background .3s, border-color .2s, box-shadow .2s; }
-    .topic-card:hover { transform: translateY(-3px); }
-    .topic-icon {
-      width: 52px; height: 52px; flex-shrink: 0;
-      border-radius: 14px; font-size: 1.6rem;
-      display: grid; place-items: center;
-      background: linear-gradient(135deg, rgba(99,102,241,.14), rgba(139,92,246,.14));
-    }
-    .topic-modes { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .5rem; }
-    .topic-add {
-      border-radius: 1rem; min-height: 220px;
-      border-style: dashed !important; border-width: 2px !important;
-      color: var(--muted) !important; box-shadow: none !important;
-      transition: color .2s, border-color .2s, transform .15s ease;
-    }
-    .topic-add:hover {
-      color: var(--primary) !important;
-      border-color: var(--primary) !important;
-      transform: translateY(-3px);
-    }
-    .badge-due {
-      background: rgba(245,158,11,.15); color: #b45309;
-      border: 1px solid rgba(245,158,11,.3); font-weight: 600;
-    }
-    [data-theme="dark"] .badge-due { color: #fbbf24; }
-    .badge-done {
-      background: rgba(16,185,129,.14); color: #047857;
-      border: 1px solid rgba(16,185,129,.3); font-weight: 600;
-    }
-    [data-theme="dark"] .badge-done { color: #34d399; }
-
-    /* ── Tryb na czas ── */
-    .timed-clock {
-      font-size: 2.75rem; font-weight: 800; line-height: 1;
-      font-variant-numeric: tabular-nums; transition: color .2s;
-    }
-    .timed-clock--low { color: #dc2626; }
-    [data-theme="dark"] .timed-clock--low { color: #f87171; }
-    .timed-score { font-size: 1.75rem; font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; }
-    .timed-result-score {
-      font-size: 4.5rem; font-weight: 800; line-height: 1;
-      background: linear-gradient(135deg, var(--primary), var(--primary2));
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    h1 { font-weight: 700; }
+    .display-1, .display-4 { font-family: var(--font-display); font-weight: 700; letter-spacing: -.03em; }
+    a { color: var(--olive); text-underline-offset: 3px; }
+    a:hover { color: var(--text); }
+    .text-muted, .text-secondary, .text-body-secondary { color: var(--muted) !important; }
+    .text-primary { color: var(--olive) !important; }
+    .text-success { color: var(--ok) !important; }
+    .text-danger  { color: var(--danger) !important; }
+    .bg-primary   { background-color: var(--olive) !important; }
+    .bg-white     { background-color: var(--surface) !important; }
+    hr { border-color: var(--border); opacity: 1; }
+    kbd {
+      background: var(--surface-2); color: var(--text); border: 1px solid var(--border);
+      font-family: var(--font-mono); font-size: .75em; padding: .1em .4em; border-radius: 5px;
     }
 
-    /* ── Quiz ABCD ── */
-    .quiz-option {
-      display: flex; align-items: center; gap: .85rem;
-      padding: .8rem 1rem; border-radius: .75rem;
-      border: 1px solid var(--input-border); background: var(--input-bg); color: var(--text);
-      transition: border-color .15s, background .15s, transform .1s;
+    /* Etykiety mono jak w makiecie */
+    .eyebrow {
+      font-family: var(--font-mono); font-size: .75rem; letter-spacing: .08em;
+      text-transform: uppercase; color: var(--olive);
     }
-    .quiz-option:hover:not(:disabled) { border-color: var(--primary); background: rgba(99,102,241,.06); color: var(--text); }
-    .quiz-option:active:not(:disabled) { transform: scale(.99); }
-    .quiz-option:disabled {
-      opacity: 1; color: var(--text);
-      border-color: var(--input-border); background: var(--input-bg);
+    .mono { font-family: var(--font-mono); }
+    .chip {
+      display: inline-flex; align-items: center; gap: .35rem;
+      font-family: var(--font-mono); font-size: .72rem; line-height: 1;
+      padding: .35rem .6rem; border-radius: 999px;
+      border: 1px solid var(--border-strong); color: var(--muted); background: transparent;
     }
-    .quiz-letter {
-      flex-shrink: 0; width: 2rem; height: 2rem; border-radius: .5rem;
-      display: grid; place-items: center; font-weight: 700;
-      background: rgba(99,102,241,.12); color: var(--primary);
-    }
-    .quiz-option--correct { border-color: #10b981 !important; background: rgba(16,185,129,.12) !important; }
-    .quiz-option--correct .quiz-letter { background: #10b981; color: #fff; }
-    .quiz-option--wrong { border-color: #ef4444 !important; background: rgba(239,68,68,.1) !important; }
-    .quiz-option--wrong .quiz-letter { background: #ef4444; color: #fff; }
+    .chip--olive { border-color: var(--olive); color: var(--olive); }
+    .text-uppercase.small, .small.text-uppercase { font-family: var(--font-mono); letter-spacing: .06em; font-weight: 500 !important; }
 
-    /* ── Wpisz odpowiedź ── */
-    .badge-wrong {
-      background: rgba(239,68,68,.12); color: #b91c1c;
-      border: 1px solid rgba(239,68,68,.3); font-weight: 600;
+    /* ══ Pasek nawigacji ═════════════════════════════════════════════ */
+    .site-nav {
+      background: color-mix(in srgb, var(--bg) 88%, transparent);
+      backdrop-filter: saturate(140%) blur(10px);
+      border-bottom: 1px solid var(--border);
     }
-    [data-theme="dark"] .badge-wrong { color: #f87171; }
-    .written-box {
-      border: 1px solid var(--input-border); border-radius: .75rem;
-      padding: .85rem 1rem; background: var(--input-bg);
+    .site-nav .navbar { padding: .65rem 0; }
+    .brand {
+      display: inline-flex; align-items: center; gap: .5rem;
+      font-family: var(--font-display); font-weight: 600; font-size: 1.15rem;
+      color: var(--text); text-decoration: none; letter-spacing: -.01em;
     }
-    .written-box--reference { border-color: rgba(16,185,129,.45); background: rgba(16,185,129,.06); }
-    .written-text { white-space: pre-wrap; overflow-wrap: anywhere; }
+    .brand:hover { color: var(--text); }
+    .brand i { color: var(--olive); font-size: 1.25rem; }
+    .site-nav .nav-link {
+      color: var(--muted); font-size: .95rem; padding: .55rem .8rem !important;
+      position: relative;
+    }
+    .site-nav .nav-link:hover { color: var(--text); }
+    .site-nav .nav-link.active { color: var(--text); font-weight: 600; }
+    .site-nav .nav-link--strong { color: var(--text); }
+    @media (min-width: 992px) {
+      .site-nav .nav-link.active::after {
+        content: ''; position: absolute; left: .8rem; right: .8rem; bottom: -.72rem;
+        height: 2px; background: var(--olive); border-radius: 2px;
+      }
+    }
+    .icon-btn {
+      width: 40px; height: 40px; border-radius: 50%;
+      display: inline-grid; place-items: center;
+      border: 1px solid var(--border-strong); background: var(--surface); color: var(--text);
+      font-weight: 600; font-size: .95rem; line-height: 1; padding: 0;
+      transition: border-color .15s, background .15s;
+    }
+    .icon-btn:hover { border-color: var(--text); color: var(--text); }
+    .icon-btn.dropdown-toggle::after { display: none; }
+    .navbar-toggler { border: 1px solid var(--border-strong); padding: .35rem .55rem; }
+    .navbar-toggler:focus { box-shadow: 0 0 0 3px var(--olive-soft); }
+    .navbar-toggler-icon { filter: none; }
+    [data-theme="dark"] .navbar-toggler-icon { filter: invert(1); }
+    .dropdown-menu {
+      --bs-dropdown-bg: var(--surface); --bs-dropdown-border-color: var(--border);
+      --bs-dropdown-link-color: var(--text); --bs-dropdown-link-hover-bg: var(--surface-2);
+      --bs-dropdown-link-hover-color: var(--text); --bs-dropdown-header-color: var(--muted);
+      --bs-dropdown-divider-bg: var(--border);
+      border-radius: 12px; box-shadow: var(--shadow-lg); padding: .4rem;
+    }
+    .dropdown-item { border-radius: 8px; }
 
-    /* ── Zakładki (nav-pills) ── */
-    .nav-pills .nav-link { color: var(--primary); }
-    .nav-pills .nav-link.active {
-      background: linear-gradient(135deg, var(--primary), var(--primary2));
-      color: #fff;
-    }
-
-    /* ── Buttons ── */
+    /* ══ Przyciski ═══════════════════════════════════════════════════ */
+    .btn { --bs-btn-font-weight: 600; --bs-btn-border-radius: 10px; letter-spacing: -.005em; }
+    .btn-lg { --bs-btn-border-radius: 12px; --bs-btn-padding-y: .8rem; --bs-btn-font-size: 1rem; }
     .btn-primary {
-      background: linear-gradient(135deg, var(--primary), var(--primary2)) !important;
-      border: none !important;
+      --bs-btn-bg: var(--accent); --bs-btn-border-color: var(--accent); --bs-btn-color: var(--on-accent);
+      --bs-btn-hover-bg: var(--accent-hover); --bs-btn-hover-border-color: var(--accent-hover); --bs-btn-hover-color: var(--on-accent);
+      --bs-btn-active-bg: var(--accent-hover); --bs-btn-active-border-color: var(--accent-hover); --bs-btn-active-color: var(--on-accent);
+      --bs-btn-disabled-bg: var(--accent); --bs-btn-disabled-border-color: var(--accent); --bs-btn-disabled-color: var(--on-accent);
+      --bs-btn-focus-shadow-rgb: 90,138,15;
     }
-    [data-theme="dark"] .btn-primary { box-shadow: 0 0 14px rgba(99,102,241,.4); }
-    [data-theme="dark"] .btn-primary:hover { box-shadow: 0 0 28px rgba(99,102,241,.65) !important; transform: translateY(-1px); }
-    .btn-outline-primary { border-color: var(--primary) !important; color: var(--primary) !important; }
-    [data-theme="dark"] .btn-success {
-      background: linear-gradient(135deg,#10b981,#059669) !important;
-      border: none !important; box-shadow: 0 0 12px rgba(16,185,129,.35);
+    .btn-dark, .btn-ink {
+      --bs-btn-bg: var(--ink); --bs-btn-border-color: var(--ink); --bs-btn-color: var(--on-ink);
+      --bs-btn-hover-bg: var(--ink); --bs-btn-hover-border-color: var(--ink); --bs-btn-hover-color: var(--on-ink);
+      --bs-btn-active-bg: var(--ink); --bs-btn-active-color: var(--on-ink);
     }
-    [data-theme="dark"] .btn-danger {
-      background: linear-gradient(135deg,#ef4444,#dc2626) !important;
-      border: none !important; box-shadow: 0 0 12px rgba(239,68,68,.3);
+    .btn-dark:hover, .btn-ink:hover, .btn-warning:hover { opacity: .88; }
+    /* btn-warning (np. „Powtórz błędne karty”) = drugorzędne CTA w ciemnym tuszu, nie żółć Bootstrapa */
+    .btn-warning {
+      --bs-btn-bg: var(--ink); --bs-btn-border-color: var(--ink); --bs-btn-color: var(--on-ink);
+      --bs-btn-hover-bg: var(--ink); --bs-btn-hover-border-color: var(--ink); --bs-btn-hover-color: var(--on-ink);
+      --bs-btn-active-bg: var(--ink); --bs-btn-active-color: var(--on-ink);
     }
+    .btn-outline-primary, .btn-outline-secondary, .btn-outline-light {
+      --bs-btn-color: var(--text); --bs-btn-border-color: var(--border-strong); --bs-btn-bg: var(--surface);
+      --bs-btn-hover-color: var(--text); --bs-btn-hover-bg: var(--surface-2); --bs-btn-hover-border-color: var(--text);
+      --bs-btn-active-color: var(--text); --bs-btn-active-bg: var(--surface-2); --bs-btn-active-border-color: var(--text);
+      --bs-btn-disabled-color: var(--muted); --bs-btn-disabled-bg: var(--surface); --bs-btn-disabled-border-color: var(--border);
+      --bs-btn-focus-shadow-rgb: 90,138,15;
+    }
+    .btn-success {
+      --bs-btn-bg: var(--ok-soft); --bs-btn-border-color: var(--olive); --bs-btn-color: var(--ok);
+      --bs-btn-hover-bg: var(--olive); --bs-btn-hover-border-color: var(--olive); --bs-btn-hover-color: #fff;
+      --bs-btn-active-bg: var(--olive); --bs-btn-active-color: #fff;
+    }
+    .btn-danger {
+      --bs-btn-bg: var(--danger-soft); --bs-btn-border-color: var(--danger); --bs-btn-color: var(--danger);
+      --bs-btn-hover-bg: var(--danger); --bs-btn-hover-border-color: var(--danger); --bs-btn-hover-color: #fff;
+      --bs-btn-active-bg: var(--danger); --bs-btn-active-color: #fff;
+    }
+    .btn-link-underline {
+      color: var(--olive); font-weight: 600; text-decoration: none;
+      border-bottom: 2px solid var(--olive); padding-bottom: .25rem;
+    }
+    .btn-link-underline:hover { color: var(--text); border-color: var(--text); }
 
-    /* ── Progress bar ── */
-    .progress-bar { background: linear-gradient(90deg, var(--primary), var(--primary2)); }
-    [data-theme="dark"] .progress { background: rgba(255,255,255,.08); }
-    [data-theme="dark"] .progress-bar { background: linear-gradient(90deg,#6366f1,#06b6d4); }
+    /* ══ Karty ═══════════════════════════════════════════════════════ */
+    .card {
+      --bs-card-bg: var(--surface); --bs-card-border-color: var(--border);
+      --bs-card-border-radius: var(--radius); --bs-card-inner-border-radius: calc(var(--radius) - 1px);
+      --bs-card-color: var(--text); --bs-card-title-color: var(--text);
+    }
+    .card-header, .card-footer {
+      --bs-card-cap-bg: transparent; --bs-card-cap-color: var(--text);
+      border-color: var(--border);
+    }
+    .list-group {
+      --bs-list-group-bg: transparent; --bs-list-group-color: var(--text);
+      --bs-list-group-border-color: var(--border);
+      --bs-list-group-action-hover-bg: var(--surface-2); --bs-list-group-action-hover-color: var(--text);
+    }
+    .shadow-sm { box-shadow: 0 1px 2px rgba(22,24,29,.04) !important; }
+    .shadow    { box-shadow: var(--shadow-lg) !important; }
+    .border-0.card { border: 1px solid var(--border) !important; }
+    .rounded-4 { border-radius: var(--radius) !important; }
 
-    /* ── Forms ── */
+    /* ══ Formularze ══════════════════════════════════════════════════ */
     .form-control, .form-select {
-      background: var(--input-bg) !important;
-      border-color: var(--input-border) !important;
-      color: var(--input-text) !important;
-      transition: background .3s, border-color .2s;
+      background-color: var(--surface); border-color: var(--border-strong); color: var(--text);
+      border-radius: 10px;
     }
     .form-control:focus, .form-select:focus {
-      border-color: var(--primary) !important;
-      box-shadow: 0 0 0 3px rgba(99,102,241,.2) !important;
+      background-color: var(--surface); color: var(--text);
+      border-color: var(--olive); box-shadow: 0 0 0 3px var(--olive-soft);
     }
-    .form-control::placeholder { color: var(--muted) !important; }
-    .form-label { color: var(--muted); }
+    .form-control::placeholder { color: var(--muted); opacity: .8; }
+    .form-label { color: var(--text); font-weight: 500; font-size: .92rem; }
+    .form-text { color: var(--muted); }
+    .form-check-input:checked { background-color: var(--olive); border-color: var(--olive); }
 
-    /* ── Dropdown (menu użytkownika) ── */
-    [data-theme="dark"] .dropdown-menu {
-      background: var(--surface); border: 1px solid var(--border);
-      backdrop-filter: blur(10px);
+    /* ══ Alerty i tabele ═════════════════════════════════════════════ */
+    .alert {
+      --bs-alert-bg: var(--surface); --bs-alert-border-color: var(--border); --bs-alert-color: var(--text);
+      border-radius: 12px; border-left-width: 3px;
     }
-    [data-theme="dark"] .dropdown-item { color: var(--text); }
-    [data-theme="dark"] .dropdown-item:hover,
-    [data-theme="dark"] .dropdown-item:focus {
-      background: rgba(99,102,241,.18); color: var(--text);
+    .alert-success, .alert-info { border-left-color: var(--olive); }
+    .alert-warning { border-left-color: var(--warn); }
+    .alert-danger, .alert-error { border-left-color: var(--danger); }
+    .table {
+      --bs-table-bg: transparent; --bs-table-color: var(--text); --bs-table-border-color: var(--border);
+      --bs-table-hover-bg: var(--surface-2); --bs-table-hover-color: var(--text);
+      --bs-table-active-bg: var(--surface-2);
     }
+    .table > thead th {
+      font-family: var(--font-mono); font-size: .72rem; font-weight: 500; text-transform: uppercase;
+      letter-spacing: .06em; color: var(--muted); background: transparent; border-bottom-color: var(--border-strong);
+    }
+    .table-primary { --bs-table-bg: var(--olive-soft); --bs-table-color: var(--text); --bs-table-border-color: var(--border); }
 
-    /* ── Text / misc ── */
-    .text-muted { color: var(--muted) !important; }
-    [data-theme="dark"] hr { border-color: rgba(99,102,241,.18); }
-    [data-theme="dark"] .table { color: var(--text); }
-    [data-theme="dark"] .table thead th,
-    [data-theme="dark"] .table td,
-    [data-theme="dark"] .table th { border-color: rgba(99,102,241,.18); }
-    [data-theme="dark"] h1, [data-theme="dark"] h2 {
-      background: linear-gradient(135deg, #e2e8f0 0%, #a78bfa 100%);
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
-    }
-    [data-theme="dark"] .alert {
-      background: rgba(15,20,40,.8) !important;
-      border: 1px solid rgba(99,102,241,.2) !important;
-      color: var(--text) !important;
-      backdrop-filter: blur(8px);
-    }
-    [data-theme="dark"] #flashcard { box-shadow: 0 0 40px rgba(99,102,241,.15) !important; }
+    /* ══ Paski postępu ═══════════════════════════════════════════════ */
+    .progress { --bs-progress-bg: var(--surface-2); --bs-progress-border-radius: 999px; }
+    .progress-bar { background: var(--olive); }
 
-    /* ── Theme toggle switch ── */
-    .theme-toggle {
-      display: flex; align-items: center; gap: .4rem;
-      cursor: pointer; user-select: none;
+    /* ══ Plakietki ═══════════════════════════════════════════════════ */
+    .badge-due, .badge-done, .badge-wrong {
+      font-weight: 500; font-family: var(--font-body); border-radius: 999px; padding: .38em .7em;
     }
-    .theme-toggle input { display: none; }
-    .toggle-track {
-      width: 38px; height: 20px; border-radius: 99px;
-      background: #4b5563; position: relative; transition: background .3s;
-    }
-    .toggle-track::after {
-      content: '';
-      position: absolute; top: 2px; left: 2px;
-      width: 16px; height: 16px; border-radius: 50%;
-      background: #fff; transition: transform .25s;
-    }
-    .theme-toggle input:checked + .toggle-track { background: #6366f1; }
-    .theme-toggle input:checked + .toggle-track::after { transform: translateX(18px); }
-    .toggle-icon { font-size: .85rem; }
+    .badge-due   { background: var(--warn-soft);   color: var(--warn);   border: 1px solid color-mix(in srgb, var(--warn) 35%, transparent); }
+    .badge-done  { background: var(--ok-soft);     color: var(--ok);     border: 1px solid color-mix(in srgb, var(--olive) 40%, transparent); }
+    .badge-wrong { background: var(--danger-soft); color: var(--danger); border: 1px solid color-mix(in srgb, var(--danger) 35%, transparent); }
 
-    /* ── Hero gradient (home page) ── */
-    .hero-gradient {
-      background: linear-gradient(135deg, #f0f4ff 0%, #faf5ff 100%);
-      border-radius: 1.5rem;
-      padding: 4rem 2rem;
-      margin-bottom: 3rem;
+    /* ══ Zakładki segmentowe (14 dni / 30 dni, ranking) ══════════════ */
+    .nav-pills {
+      display: inline-flex; gap: .25rem; padding: .3rem;
+      background: var(--surface-2); border: 1px solid var(--border); border-radius: 12px;
     }
-    [data-theme="dark"] .hero-gradient {
-      background: linear-gradient(135deg, rgba(99,102,241,.1) 0%, rgba(139,92,246,.08) 100%);
+    .nav-pills .nav-link {
+      color: var(--muted); border-radius: 9px; padding: .4rem .85rem; font-weight: 500; font-size: .92rem;
     }
+    .nav-pills .nav-link:hover { color: var(--text); }
+    .nav-pills .nav-link.active { background: var(--accent); color: var(--on-accent); font-weight: 600; }
+
+    /* ══ Lista tematów ═══════════════════════════════════════════════ */
+    .topic-card { transition: transform .15s ease, border-color .15s ease, box-shadow .2s ease; }
+    .topic-card:hover { transform: translateY(-2px); border-color: var(--border-strong); box-shadow: var(--shadow-lg) !important; }
+    .topic-icon {
+      width: 48px; height: 48px; flex-shrink: 0; border-radius: 12px; font-size: 1.5rem;
+      display: grid; place-items: center; background: var(--olive-soft);
+    }
+    .topic-modes { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .5rem; }
+    .topic-modes .btn { font-size: .86rem; font-weight: 500; }
+    .topic-modes .btn i { margin-right: .2rem !important; }
+    .topic-add {
+      min-height: 220px; border: 1.5px dashed var(--border-strong) !important;
+      background: transparent !important; color: var(--muted) !important; box-shadow: none !important;
+      transition: color .15s, border-color .15s;
+    }
+    .topic-add:hover { color: var(--olive) !important; border-color: var(--olive) !important; }
+
+    /* ══ Tryb na czas ════════════════════════════════════════════════ */
+    .timed-clock {
+      font-family: var(--font-display); font-size: 2.75rem; font-weight: 700; line-height: 1;
+      font-variant-numeric: tabular-nums; transition: color .2s;
+    }
+    .timed-clock--low { color: var(--danger); }
+    .timed-score { font-family: var(--font-display); font-size: 1.75rem; font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; }
+    .timed-result-score { font-family: var(--font-display); font-size: 4.5rem; font-weight: 700; line-height: 1; letter-spacing: -.03em; color: var(--text); }
+
+    /* ══ Quiz ABCD ═══════════════════════════════════════════════════ */
+    .quiz-option {
+      display: flex; align-items: center; gap: .85rem; padding: .8rem 1rem; border-radius: 12px;
+      border: 1px solid var(--border-strong); background: var(--surface); color: var(--text); font-weight: 400;
+      transition: border-color .15s, background .15s, transform .1s;
+    }
+    .quiz-option:hover:not(:disabled) { border-color: var(--text); background: var(--surface-2); color: var(--text); }
+    .quiz-option:active:not(:disabled) { transform: scale(.99); }
+    .quiz-option:disabled { opacity: 1; color: var(--text); border-color: var(--border); background: var(--surface); }
+    .quiz-letter {
+      flex-shrink: 0; width: 2rem; height: 2rem; border-radius: 8px; display: grid; place-items: center;
+      font-family: var(--font-mono); font-weight: 500; background: var(--surface-2); color: var(--text);
+    }
+    .quiz-option--correct { border-color: var(--olive) !important; background: var(--ok-soft) !important; }
+    .quiz-option--correct .quiz-letter { background: var(--olive); color: #fff; }
+    .quiz-option--wrong { border-color: var(--danger) !important; background: var(--danger-soft) !important; }
+    .quiz-option--wrong .quiz-letter { background: var(--danger); color: #fff; }
+
+    /* ══ Wpisz odpowiedź ═════════════════════════════════════════════ */
+    .written-box { border: 1px solid var(--border); border-radius: 12px; padding: .85rem 1rem; background: var(--surface-2); }
+    .written-box--reference { border-color: color-mix(in srgb, var(--olive) 45%, transparent); background: var(--ok-soft); }
+    .written-text { white-space: pre-wrap; overflow-wrap: anywhere; }
+
+    /* ══ Ikona nad formularzem / wynikiem ════════════════════════════ */
+    .auth-icon {
+      width: 56px; height: 56px; border-radius: 16px; display: inline-grid; place-items: center;
+      background: var(--olive-soft); color: var(--olive); font-size: 1.6rem;
+    }
+    .auth-icon--lg { width: 72px; height: 72px; border-radius: 20px; font-size: 2.1rem; }
+
+    /* ══ Stopka ══════════════════════════════════════════════════════ */
+    .site-footer { border-top: 1px solid var(--border); color: var(--muted); font-size: .88rem; }
+    .site-footer a { color: var(--muted); }
+    .site-footer a:hover { color: var(--text); }
   </style>
-  {# Apply saved theme before first paint to avoid flash #}
+  {% block extra_css %}{% endblock %}
+  {# Motyw przed pierwszym malowaniem — bez mignięcia jasnego tła #}
   <script>
-    (function(){
-      var t = localStorage.getItem('theme');
-      if (t === 'dark') document.documentElement.setAttribute('data-theme','dark');
+    (function () {
+      try {
+        if (localStorage.getItem('theme') === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+      } catch (e) {}
     })();
   </script>
 </head>
 <body>
 
-<nav class="navbar navbar-expand-lg navbar-dark sticky-top shadow-sm">
-  <div class="container">
+<header class="site-nav sticky-top">
+  <nav class="navbar navbar-expand-lg">
+    <div class="container">
+      <a class="brand" href="{% if user.is_authenticated %}{% url 'stats:dashboard' %}{% else %}/{% endif %}">
+        <i class="bi bi-lightning-charge"></i>NaukaAI
+      </a>
 
-    <a class="navbar-brand navbar-brand-logo text-white text-decoration-none" href="/">
-      <span class="logo-icon">⚡</span>
-      NaukaAI
-    </a>
-
-    <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navMain">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-
-    <div class="collapse navbar-collapse" id="navMain">
-      {% if user.is_authenticated %}
-      <ul class="navbar-nav me-auto gap-1">
-        <li class="nav-item">
-          <a class="nav-link px-3 rounded {% if request.path == '/flashcards/topics/' %}bg-primary bg-opacity-25{% endif %}"
-             href="{% url 'flashcards:topics' %}">
-            <i class="bi bi-play-circle me-1"></i>Nauka
-          </a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link px-3 rounded {% if request.path == '/flashcards/' %}bg-primary bg-opacity-25{% endif %}"
-             href="{% url 'flashcards:card_list' %}">
-            <i class="bi bi-collection me-1"></i>Fiszki
-          </a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link px-3 rounded" href="{% url 'flashcards:card_create' %}">
-            <i class="bi bi-plus-circle me-1"></i>Dodaj
-          </a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link px-3 rounded {% if request.path == '/stats/' %}bg-primary bg-opacity-25{% endif %}"
-             href="{% url 'stats:dashboard' %}">
-            <i class="bi bi-bar-chart me-1"></i>Statystyki
-          </a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link px-3 rounded {% if request.path == '/stats/leaderboard/' %}bg-primary bg-opacity-25{% endif %}"
-             href="{% url 'stats:leaderboard' %}">
-            <i class="bi bi-trophy me-1"></i>Ranking
-          </a>
-        </li>
-      </ul>
-      <ul class="navbar-nav ms-auto align-items-center gap-2">
-        <li class="nav-item d-flex align-items-center">
-          <label class="theme-toggle mx-2" title="Przełącz motyw">
-            <input type="checkbox" id="themeToggle">
-            <span class="toggle-track"></span>
-            <span class="toggle-icon" id="themeIcon">🌙</span>
-          </label>
-        </li>
-        <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle d-flex align-items-center gap-1" href="#"
-             role="button" data-bs-toggle="dropdown" aria-expanded="false">
-            <i class="bi bi-person-circle"></i>{{ user.username }}
-          </a>
+      <div class="d-flex align-items-center gap-2 order-lg-last">
+        <button type="button" class="icon-btn" id="themeToggle" title="Przełącz motyw" aria-label="Przełącz motyw">
+          <i class="bi bi-circle-half"></i>
+        </button>
+        {% if user.is_authenticated %}
+        <div class="dropdown">
+          <button class="icon-btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false"
+                  aria-label="Menu konta" title="{{ user.username|default:user.email }}">{{ user_initial }}</button>
           <ul class="dropdown-menu dropdown-menu-end">
+            <li><h6 class="dropdown-header">{{ user.username|default:user.email }}</h6></li>
             <li>
               <form method="post" action="{% url 'logout' %}">
                 {% csrf_token %}
-                <button type="submit" class="dropdown-item">
-                  <i class="bi bi-box-arrow-right me-2"></i>Wyloguj
-                </button>
+                <button type="submit" class="dropdown-item"><i class="bi bi-box-arrow-right me-2"></i>Wyloguj</button>
               </form>
             </li>
           </ul>
-        </li>
-      </ul>
-      {% else %}
-      <ul class="navbar-nav ms-auto align-items-center gap-2">
-        <li class="nav-item d-flex align-items-center">
-          <label class="theme-toggle mx-2" title="Przełącz motyw">
-            <input type="checkbox" id="themeToggle">
-            <span class="toggle-track"></span>
-            <span class="toggle-icon" id="themeIcon">🌙</span>
-          </label>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="{% url 'login' %}">Zaloguj się</a>
-        </li>
-        <li class="nav-item">
-          <a class="btn btn-primary btn-sm px-3 my-1" href="{% url 'accounts:register' %}">Zarejestruj się</a>
-        </li>
-      </ul>
-      {% endif %}
-    </div>
-  </div>
-</nav>
-
-<div class="container py-4">
-  {% if messages %}
-    {% for msg in messages %}
-      <div class="alert alert-{{ msg.tags }} alert-dismissible fade show" role="alert">
-        {{ msg }}
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        {% endif %}
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMain"
+                aria-controls="navMain" aria-expanded="false" aria-label="Menu">
+          <span class="navbar-toggler-icon"></span>
+        </button>
       </div>
-    {% endfor %}
-  {% endif %}
 
-  {% block content %}{% endblock %}
-</div>
+      <div class="collapse navbar-collapse" id="navMain">
+        <ul class="navbar-nav ms-auto me-lg-3 align-items-lg-center">
+          {% if user.is_authenticated %}
+          <li class="nav-item"><a class="nav-link {% if nav_section == 'panel' %}active{% endif %}" href="{% url 'stats:dashboard' %}">Panel</a></li>
+          <li class="nav-item"><a class="nav-link {% if nav_section == 'nauka' %}active{% endif %}" href="{% url 'flashcards:topics' %}">Nauka</a></li>
+          <li class="nav-item"><a class="nav-link {% if nav_section == 'fiszki' %}active{% endif %}" href="{% url 'flashcards:card_list' %}">Fiszki</a></li>
+          <li class="nav-item"><a class="nav-link {% if nav_section == 'dodaj' %}active{% endif %}" href="{% url 'flashcards:card_create' %}">Dodaj</a></li>
+          <li class="nav-item"><a class="nav-link {% if nav_section == 'ranking' %}active{% endif %}" href="{% url 'stats:leaderboard' %}">Ranking</a></li>
+          {% else %}
+          <li class="nav-item"><a class="nav-link" href="/#jak-to-dziala">Jak to działa</a></li>
+          <li class="nav-item"><a class="nav-link" href="/#panel-postepow">Panel postępów</a></li>
+          <li class="nav-item"><a class="nav-link nav-link--strong" href="{% url 'login' %}">Zaloguj się</a></li>
+          <li class="nav-item ms-lg-2 my-2 my-lg-0"><a class="btn btn-primary px-3" href="{% url 'accounts:register' %}">Zacznij za darmo</a></li>
+          {% endif %}
+        </ul>
+      </div>
+    </div>
+  </nav>
+</header>
+
+<main>
+  {% block fullwidth %}
+  <div class="container py-4 py-lg-5">
+    {% if messages %}
+      {% for msg in messages %}
+        <div class="alert alert-{{ msg.tags }} alert-dismissible fade show" role="alert">
+          {{ msg }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Zamknij"></button>
+        </div>
+      {% endfor %}
+    {% endif %}
+
+    {% block content %}{% endblock %}
+  </div>
+  {% endblock %}
+</main>
+
+{% block footer %}
+<footer class="site-footer py-4 mt-4">
+  <div class="container d-flex flex-wrap justify-content-between gap-2">
+    <span>NaukaAI — fiszki AI/ML do rozmów rekrutacyjnych</span>
+    {% if not user.is_authenticated %}
+    <span class="d-flex gap-3">
+      <a href="{% url 'login' %}">Zaloguj się</a>
+      <a href="{% url 'accounts:register' %}">Zarejestruj się</a>
+    </span>
+    {% endif %}
+  </div>
+</footer>
+{% endblock %}
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
   (function () {
+    var html = document.documentElement;
     var toggle = document.getElementById('themeToggle');
-    var icon   = document.getElementById('themeIcon');
-    var html   = document.documentElement;
-
-    function applyTheme(dark) {
+    toggle.addEventListener('click', function () {
+      var dark = html.getAttribute('data-theme') !== 'dark';
       html.setAttribute('data-theme', dark ? 'dark' : 'light');
-      toggle.checked     = dark;
-      icon.textContent   = dark ? '☀️' : '🌙';
-    }
-
-    applyTheme(localStorage.getItem('theme') === 'dark');
-
-    toggle.addEventListener('change', function () {
-      var dark = toggle.checked;
-      localStorage.setItem('theme', dark ? 'dark' : 'light');
-      applyTheme(dark);
+      try { localStorage.setItem('theme', dark ? 'dark' : 'light'); } catch (e) {}
     });
   })();
 </script>

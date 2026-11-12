@@ -200,8 +200,10 @@ class LeaderboardHTMLTests(TestCase):
         # 2.5 — Navbar active state applied when on /stats/leaderboard/
         response = self.client.get('/stats/leaderboard/')
         content = response.content.decode()
-        # The active class block wraps the Ranking link on this path
-        self.assertIn('bg-primary bg-opacity-25', content[:content.find('bi-trophy') + 500])
+        # Tylko zakładka Ranking jest aktywna (podkreślenie w nowym navbarze)
+        header = content[:content.index('</header>')]
+        self.assertIn('class="nav-link active" href="/stats/leaderboard/"', header)
+        self.assertEqual(header.count('class="nav-link active"'), 1)
 
 
 class LeaderboardRedisDownTests(TestCase):
@@ -248,3 +250,106 @@ class StatsDashboardViewTests(TestCase):
         response = self.client.get('/stats/')
         self.assertIn('stats', response.context)
         self.assertIsInstance(response.context['stats'], StudyStats)
+
+
+class DashboardServiceTests(TestCase):
+    def setUp(self):
+        from flashcards.models import Card, Topic
+        self.user = User.objects.create_user(username='dash', email='dash@example.com', password='pass')
+        self.t1 = Topic.objects.create(name='Alpha', slug='alpha')
+        self.t2 = Topic.objects.create(name='Beta', slug='beta')
+        self.a = [Card.objects.create(topic=self.t1, question=f'A{i}', answer='x') for i in range(4)]
+        self.b = [Card.objects.create(topic=self.t2, question=f'B{i}', answer='x') for i in range(2)]
+
+    def _review(self, card, days_ago=0, ok=True, user=None):
+        return CardReview.objects.create(
+            user=user or self.user, card=card, is_correct=ok,
+            reviewed_at=timezone.now() - timedelta(days=days_ago),
+        )
+
+    def _dash(self, days=30):
+        from .services import compute_dashboard
+        return compute_dashboard(self.user, days)
+
+    def test_empty_user(self):
+        d = self._dash()
+        self.assertEqual((d['streak'], d['longest_streak'], d['mastered'], d['due']), (0, 0, 0, 6))
+        self.assertIsNone(d['accuracy_pct'])
+        self.assertEqual(d['chart']['points'], [])
+        self.assertEqual(d['due_topics'], 2)
+
+    def test_mastery_due_and_weakest(self):
+        self._review(self.a[0])
+        self._review(self.a[1])
+        self._review(self.a[2], ok=False)
+        self._review(self.b[0])
+        self._review(self.b[1])
+        d = self._dash()
+        self.assertEqual((d['mastered'], d['total_cards'], d['due']), (4, 6, 2))
+        self.assertEqual(d['due_topics'], 1)
+        # Beta jest opanowana w 100% — nie trafia do „co powtórzyć najpierw”
+        self.assertEqual([t.name for t in d['weakest']], ['Alpha'])
+        self.assertEqual([(t.name, t.mastered_pct) for t in d['topics']], [('Beta', 100), ('Alpha', 50)])
+
+    def test_progress_is_per_user(self):
+        other = User.objects.create_user(username='o', email='o@example.com', password='pass')
+        for c in self.a:
+            self._review(c, user=other)
+        self.assertEqual(self._dash()['mastered'], 0)
+
+    def test_longest_streak_and_accuracy_window(self):
+        for days in (0, 1, 5, 6, 7, 8):
+            self._review(self.a[0], days_ago=days, ok=True)
+        self._review(self.a[1], days_ago=20, ok=False)  # poza oknem 14 dni
+        self._review(self.a[1], days_ago=0, ok=False)
+        d = self._dash()
+        self.assertEqual(d['streak'], 2)
+        self.assertEqual(d['longest_streak'], 4)
+        self.assertEqual(d['accuracy_pct'], round(6 / 7 * 100))
+
+    def test_series_gaps_split_the_line(self):
+        self._review(self.a[0], days_ago=0)
+        self._review(self.a[0], days_ago=1)
+        self._review(self.a[0], days_ago=5, ok=False)
+        d = self._dash(14)
+        self.assertEqual(len(d['series']), 14)
+        self.assertEqual(len(d['chart']['points']), 3)
+        self.assertEqual(len(d['chart']['polylines']), 2)  # luka między 5 a 1 dniem temu
+        self.assertEqual(d['series'][-1]['pct'], 100)
+        self.assertEqual(d['range_avg_pct'], 67)
+
+    def test_svg_coordinates_use_dot_decimal(self):
+        self._review(self.a[0])
+        point = self._dash()['chart']['points'][0]
+        float(point['x'])
+        float(point['y'])
+        self.assertNotIn(',', point['x'] + point['y'])
+
+    def test_heatmap_shape_levels_and_future(self):
+        for _ in range(4):
+            self._review(self.a[0], days_ago=0)
+        self._review(self.a[1], days_ago=3)
+        heat = self._dash()['heatmap']
+        self.assertEqual(len(heat), 12)
+        self.assertTrue(all(len(week) == 7 for week in heat))
+        cells = {c['date']: c for week in heat for c in week}
+        today = timezone.localdate()
+        self.assertEqual(cells[today]['level'], 4)
+        self.assertEqual(cells[today - timedelta(days=3)]['level'], 1)
+        self.assertTrue(all(c['future'] for c in cells.values() if c['date'] > today))
+
+
+class DashboardPageTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username='paneluser', email='panel@example.com', password='pass')
+        self.client.force_login(self.user)
+
+    def test_range_param(self):
+        self.assertEqual(self.client.get('/stats/').context['dash']['range_days'], 30)
+        self.assertEqual(self.client.get('/stats/?range=14').context['dash']['range_days'], 14)
+        self.assertEqual(self.client.get('/stats/?range=999').context['dash']['range_days'], 30)
+
+    def test_greeting_and_active_tab(self):
+        content = self.client.get('/stats/').content.decode()
+        self.assertIn('Cześć, paneluser', content)
+        self.assertIn('class="nav-link active" href="/stats/"', content)

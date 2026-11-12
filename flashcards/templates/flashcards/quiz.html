@@ -44,7 +44,7 @@
           {% if is_correct %}
           <span class="badge badge-done fs-6"><i class="bi bi-check2 me-1"></i>Dobrze!</span>
           {% else %}
-          <span class="badge badge-due fs-6"><i class="bi bi-x-lg me-1"></i>Źle — poprawna odpowiedź jest zaznaczona na zielono</span>
+          <span class="badge badge-wrong fs-6"><i class="bi bi-x-lg me-1"></i>Źle — poprawna odpowiedź jest zaznaczona na zielono</span>
           {% endif %}
           <a href="{{ next_url }}" class="btn btn-primary px-4" id="next-btn" autofocus>
             {% if is_last %}Zobacz wynik{% else %}Dalej{% endif %} <i class="bi bi-arrow-right ms-1"></i>

@@ -15,6 +15,7 @@ from django.urls import reverse_lazy
 from django_ratelimit.decorators import ratelimit
 
 from .models import Card, CardReview, Topic
+from .progress import apply_progress
 from .forms import CardForm
 from .session import SK, get_session
 
@@ -38,24 +39,7 @@ class TopicsListView(LoginRequiredMixin, ListView):
         return self._with_progress(topics)
 
     def _with_progress(self, topics):
-        """Dolicza postęp bieżącego użytkownika: fiszka = opanowana, gdy ma
-        choć jedną poprawną odpowiedź."""
-        mastered_by_topic = dict(
-            Card.objects.filter(
-                reviews__user=self.request.user,
-                reviews__is_correct=True,
-            )
-            .values_list('topic_id')
-            .annotate(mastered=Count('pk', distinct=True))
-        )
-        for topic in topics:
-            mastered = mastered_by_topic.get(topic.pk, 0)
-            topic.mastered_count = mastered
-            topic.due_count = max(topic.card_count - mastered, 0)
-            topic.mastered_pct = (
-                round(mastered / topic.card_count * 100) if topic.card_count else 0
-            )
-        return topics
+        return apply_progress(topics, self.request.user)
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)

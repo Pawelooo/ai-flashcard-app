@@ -9,11 +9,11 @@
       <div class="card-body py-5 px-4">
 
         {% if percent == 100 %}
-        <div class="mb-3" style="font-size:3rem;">🏆</div>
+        <div class="mb-3"><span class="auth-icon auth-icon--lg"><i class="bi bi-trophy"></i></span></div>
         {% elif percent >= 70 %}
-        <div class="mb-3" style="font-size:3rem;">👍</div>
+        <div class="mb-3"><span class="auth-icon auth-icon--lg"><i class="bi bi-hand-thumbs-up"></i></span></div>
         {% else %}
-        <div class="mb-3" style="font-size:3rem;">📚</div>
+        <div class="mb-3"><span class="auth-icon auth-icon--lg"><i class="bi bi-book"></i></span></div>
         {% endif %}
 
         <h2 class="fw-bold mb-1">{{ score }} / {{ total }}</h2>
