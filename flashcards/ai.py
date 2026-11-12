@@ -4,7 +4,6 @@ import logging
 from concurrent.futures import ThreadPoolExecutor
 from typing import Literal
 
-import anthropic
 from django.conf import settings
 from pydantic import BaseModel
 
@@ -42,6 +41,11 @@ Zwróć wynik dla każdej fiszki z wejścia, z jej card_id."""
 
 
 def _client():
+    # Import w funkcji, nie w module: SDK ciągnie duże drzewo typów, a config.urls
+    # ładuje ten moduł przy starcie — przy imporcie globalnym każdy worker gunicorna
+    # płacił za to pamięcią przy boocie (OOM na 256 MB maszynie Fly).
+    import anthropic
+
     return anthropic.Anthropic(
         timeout=settings.AI_REQUEST_TIMEOUT_SECONDS,
         # Ponowienie przekroczyłoby limit gunicorna (30 s) — błąd pokazujemy od razu
@@ -51,6 +55,8 @@ def _client():
 
 def _parse(*, system, payload, output_format, max_tokens, what):
     """Jedno wywołanie z ustrukturyzowanym wynikiem. Wszystkie błędy → AIError."""
+    import anthropic  # lazy — patrz komentarz w _client()
+
     try:
         response = _client().beta.messages.parse(
             model=settings.ANTHROPIC_MODEL,
