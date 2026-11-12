@@ -1,0 +1,119 @@
+{% extends 'base.html' %}
+{% block title %}Na czas — NaukaAI{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-8 col-lg-7">
+
+    <div class="d-flex justify-content-between align-items-end mb-2">
+      <div>
+        <div class="small text-muted text-uppercase fw-semibold">Pozostało</div>
+        <div class="timed-clock" id="clock">{% widthratio ms_left 1000 1 %}</div>
+      </div>
+      <div class="text-end">
+        <div class="small text-muted text-uppercase fw-semibold">Wynik</div>
+        <div class="timed-score">{{ run.score }}<span class="text-muted fs-6"> / {{ run.answered }}</span></div>
+      </div>
+    </div>
+    <div class="progress mb-4" style="height:6px;">
+      <div class="progress-bar" id="time-bar" role="progressbar"
+           style="width:{% widthratio ms_left duration_ms 100 %}%;"></div>
+    </div>
+
+    <div class="card shadow text-center" id="flashcard">
+      <div class="card-body py-5 px-4">
+        <p class="text-muted small mb-2 text-uppercase fw-semibold">
+          Pytanie{% if card.topic %} · {{ card.topic.name }}{% endif %}
+        </p>
+        <h3 class="mb-4">{{ card.question }}</h3>
+
+        <div id="answer-section" style="display:none;">
+          <hr>
+          <p class="text-muted small mb-2 text-uppercase fw-semibold">Odpowiedź</p>
+          <p class="fs-5 mb-4">{{ card.answer }}</p>
+
+          <div class="d-flex gap-3 justify-content-center flex-wrap">
+            <form method="post" class="timed-answer">
+              {% csrf_token %}
+              <input type="hidden" name="card_id" value="{{ card.pk }}">
+              <input type="hidden" name="is_correct" value="0">
+              <button type="submit" class="btn btn-danger btn-lg px-4" id="btn-wrong">
+                <i class="bi bi-x-circle"></i> Nie wiedziałem <kbd class="ms-1">1</kbd>
+              </button>
+            </form>
+            <form method="post" class="timed-answer">
+              {% csrf_token %}
+              <input type="hidden" name="card_id" value="{{ card.pk }}">
+              <input type="hidden" name="is_correct" value="1">
+              <button type="submit" class="btn btn-success btn-lg px-4" id="btn-right">
+                <i class="bi bi-check-circle"></i> Wiedziałem <kbd class="ms-1">2</kbd>
+              </button>
+            </form>
+          </div>
+        </div>
+
+        <div id="show-btn-wrapper">
+          <button type="button" class="btn btn-outline-primary btn-lg px-5" id="btn-show">
+            <i class="bi bi-eye"></i> Pokaż odpowiedź <kbd class="ms-1">Spacja</kbd>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <p class="text-center small text-muted mt-3 mb-0">
+      Skróty: <kbd>Spacja</kbd> pokaż odpowiedź · <kbd>1</kbd> nie wiedziałem · <kbd>2</kbd> wiedziałem
+    </p>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+  var resultsUrl = "{% url 'flashcards:timed_results' run.pk %}";
+  var duration = {{ duration_ms|stringformat:"d" }};
+  var end = performance.now() + {{ ms_left|stringformat:"d" }};
+  var clock = document.getElementById('clock');
+  var bar = document.getElementById('time-bar');
+  var answer = document.getElementById('answer-section');
+  var showWrap = document.getElementById('show-btn-wrapper');
+  var sent = false;
+
+  function tick() {
+    var left = Math.max(0, end - performance.now());
+    clock.textContent = Math.ceil(left / 1000);
+    bar.style.width = (left / duration * 100) + '%';
+    clock.classList.toggle('timed-clock--low', left <= 10000);
+    if (left <= 0) {
+      if (!sent) { sent = true; window.location.href = resultsUrl; }
+      return;
+    }
+    requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+
+  function reveal() {
+    answer.style.display = 'block';
+    showWrap.style.display = 'none';
+  }
+  document.getElementById('btn-show').addEventListener('click', reveal);
+
+  // Jedna odpowiedź na kartę — blokuje podwójne kliknięcie i powtórzony klawisz
+  document.querySelectorAll('.timed-answer').forEach(function (form) {
+    form.addEventListener('submit', function (e) {
+      if (sent) { e.preventDefault(); return; }
+      sent = true;
+    });
+  });
+
+  document.addEventListener('keydown', function (e) {
+    if (e.repeat || sent) return;
+    if (e.key === ' ' || e.key === 'Enter') {
+      if (answer.style.display !== 'block') { e.preventDefault(); reveal(); }
+    } else if (answer.style.display === 'block' && (e.key === '1' || e.key === '2')) {
+      document.getElementById(e.key === '1' ? 'btn-wrong' : 'btn-right').click();
+    }
+  });
+})();
+</script>
+{% endblock %}

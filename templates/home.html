@@ -1,106 +1,215 @@
 {% extends 'base.html' %}
-{% block title %}NaukaAI — Fiszki AI/ML do rozmów rekrutacyjnych{% endblock %}
+{% load pl_plural %}
+{% block title %}NaukaAI — fiszki AI/ML do rozmów rekrutacyjnych{% endblock %}
 
-{% block content %}
+{% block extra_css %}
+<style>
+  .home-section { padding: 5.5rem 0; }
+  .home-section--alt { background: var(--bg-alt); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+  .hero-title { font-size: clamp(2.6rem, 5.4vw, 4.1rem); line-height: 1.04; letter-spacing: -.035em; margin: 1.25rem 0 1.5rem; }
+  .hero-lead { font-size: 1.12rem; color: var(--muted); max-width: 33rem; }
+  .section-title { font-size: clamp(1.8rem, 3.2vw, 2.5rem); line-height: 1.12; letter-spacing: -.03em; }
 
-{# Hero #}
-<div class="text-center py-5 mb-5">
-  <div class="mb-3">
-    <span style="font-size:3.5rem;">⚡</span>
+  .demo-meta { font-family: var(--font-mono); font-size: .75rem; color: var(--muted); }
+  .demo-card { border-radius: 18px; padding: 2rem; min-height: 340px; display: flex; flex-direction: column; }
+  .demo-question { font-size: 1.55rem; line-height: 1.25; margin: 1.1rem 0; }
+  .demo-answer { color: var(--text); border-top: 1px solid var(--border); padding-top: 1rem; margin-bottom: 1.25rem; }
+
+  .step { border-top: 2px solid var(--olive); padding-top: 1.4rem; }
+  .step-no { font-family: var(--font-mono); font-size: .8rem; color: var(--olive); }
+  .step h3 { font-size: 1.3rem; margin: .9rem 0 .7rem; }
+
+  .stat-big { font-family: var(--font-display); font-size: 2.6rem; font-weight: 700; line-height: 1; letter-spacing: -.03em; }
+  .bar-row { display: grid; grid-template-columns: 9rem 1fr 3rem; align-items: center; gap: 1rem; font-size: .92rem; }
+  .bar-row .progress { height: 6px; }
+
+  .topic-pill { font-family: var(--font-mono); font-size: .9rem; padding: .7rem 1.1rem; border: 1px solid var(--border-strong); border-radius: 999px; color: var(--text); }
+  .topic-pill--more { border-style: dashed; color: var(--muted); }
+
+  .cta-title { font-size: clamp(2rem, 4.2vw, 3.2rem); line-height: 1.08; letter-spacing: -.035em; }
+</style>
+{% endblock %}
+
+{% block fullwidth %}
+
+{% if messages %}
+<div class="container pt-4">
+  {% for msg in messages %}
+  <div class="alert alert-{{ msg.tags }} alert-dismissible fade show" role="alert">
+    {{ msg }}<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Zamknij"></button>
   </div>
-  <h1 class="display-4 fw-bold mb-3">
-    Przygotuj się na rozmowę<br>
-    <span class="text-primary">rekrutacyjną z AI/ML</span>
-  </h1>
-  <p class="lead text-muted mb-4 mx-auto" style="max-width:560px;">
-    Ucz się pojęć z uczenia maszynowego przez interaktywne fiszki.
-    Śledź postępy, buduj serię dni, sprawdzaj statystyki.
-  </p>
-  <div class="d-flex gap-3 justify-content-center flex-wrap">
-    <a href="{% url 'accounts:register' %}" class="btn btn-primary btn-lg px-5 shadow-sm">
-      Zacznij za darmo
-    </a>
-    <a href="{% url 'login' %}" class="btn btn-outline-secondary btn-lg px-5">
-      Zaloguj się
-    </a>
-  </div>
+  {% endfor %}
 </div>
+{% endif %}
 
-{# Features #}
-<div class="row g-4 mb-5">
-  <div class="col-md-4">
-    <div class="card h-100 border-0 shadow-sm text-center p-4">
-      <div class="mb-3" style="font-size:2.5rem;">🧠</div>
-      <h5 class="fw-bold">10 kategorii AI/ML</h5>
-      <p class="text-muted mb-0">
-        Gradient descent, transformery, LLM, backpropagation — wszystko czego pytają rekruterzy.
-      </p>
-    </div>
-  </div>
-  <div class="col-md-4">
-    <div class="card h-100 border-0 shadow-sm text-center p-4">
-      <div class="mb-3" style="font-size:2.5rem;">📈</div>
-      <h5 class="fw-bold">Statystyki i seria dni</h5>
-      <p class="text-muted mb-0">
-        Śledź procent poprawnych odpowiedzi, buduj serię codziennej nauki i obserwuj postępy.
-      </p>
-    </div>
-  </div>
-  <div class="col-md-4">
-    <div class="card h-100 border-0 shadow-sm text-center p-4">
-      <div class="mb-3" style="font-size:2.5rem;">⚡</div>
-      <h5 class="fw-bold">Szybka sesja nauki</h5>
-      <p class="text-muted mb-0">
-        Pytanie → odkryj odpowiedź → oceń siebie. Jedna sesja zajmuje mniej niż 5 minut.
-      </p>
-    </div>
-  </div>
-</div>
+{# ── Hero ───────────────────────────────────────────────────────── #}
+<section class="home-section">
+  <div class="container">
+    <div class="row g-5 align-items-center">
+      <div class="col-lg-6">
+        <div class="eyebrow">Fiszki AI/ML do rozmów rekrutacyjnych</div>
+        <h1 class="hero-title">Odpowiedz na pytanie z&nbsp;ML, zanim zada je rekruter.</h1>
+        <p class="hero-lead mb-4">
+          Ucz się pojęć z uczenia maszynowego w sesjach krótszych niż 5 minut.
+          Pytanie, odpowiedź, samoocena — a panel pokazuje, co już umiesz i co wymaga powtórki.
+        </p>
+        <div class="d-flex flex-wrap align-items-center gap-3">
+          <a href="{% url 'accounts:register' %}" class="btn btn-primary btn-lg px-4">Zacznij za darmo</a>
+          <span class="small text-muted">Bez karty kredytowej. Konto w 30 sekund.</span>
+        </div>
+      </div>
 
-{# How it works #}
-<div class="bg-white rounded-4 shadow-sm p-5 mb-5">
-  <h2 class="fw-bold text-center mb-4">Jak to działa?</h2>
-  <div class="row g-4 align-items-center">
-    <div class="col-md-4 text-center">
-      <div class="rounded-circle bg-primary text-white d-inline-flex align-items-center justify-content-center mb-3"
-           style="width:56px;height:56px;font-size:1.4rem;font-weight:700;">1</div>
-      <h6 class="fw-bold">Zarejestruj się</h6>
-      <p class="text-muted small mb-0">Utwórz darmowe konto w 30 sekund.</p>
-    </div>
-    <div class="col-md-4 text-center">
-      <div class="rounded-circle bg-primary text-white d-inline-flex align-items-center justify-content-center mb-3"
-           style="width:56px;height:56px;font-size:1.4rem;font-weight:700;">2</div>
-      <h6 class="fw-bold">Ucz się codziennie</h6>
-      <p class="text-muted small mb-0">Przeglądaj fiszki — odkrywaj odpowiedź i oceniaj siebie szczerze.</p>
-    </div>
-    <div class="col-md-4 text-center">
-      <div class="rounded-circle bg-primary text-white d-inline-flex align-items-center justify-content-center mb-3"
-           style="width:56px;height:56px;font-size:1.4rem;font-weight:700;">3</div>
-      <h6 class="fw-bold">Idź na rozmowę</h6>
-      <p class="text-muted small mb-0">Z serią dni i wysokim wynikiem poprawnych — jesteś gotowy.</p>
-    </div>
-  </div>
-</div>
-
-{# Sample card preview #}
-<div class="text-center mb-5">
-  <h2 class="fw-bold mb-4">Przykładowa fiszka</h2>
-  <div class="card shadow mx-auto" style="max-width:540px;">
-    <div class="card-body py-4 px-5">
-      <p class="text-muted small text-uppercase fw-semibold mb-2">Pytanie</p>
-      <h5 class="mb-3">Co to jest backpropagation?</h5>
-      <hr>
-      <p class="text-muted small text-uppercase fw-semibold mb-2">Odpowiedź</p>
-      <p class="mb-0 text-start">
-        Algorytm trenowania sieci neuronowych — oblicza gradienty funkcji straty
-        względem wag metodą łańcuchową (chain rule), propagując błąd od warstwy
-        wyjściowej do wejściowej.
-      </p>
+      <div class="col-lg-6">
+        <div class="d-flex justify-content-between demo-meta mb-2">
+          <span>Wypróbuj bez logowania</span>
+          <span id="demo-counter">Fiszka 1 z {{ demo_cards|length }}</span>
+        </div>
+        <div class="card shadow demo-card" id="demo">
+          <div><span class="chip chip--olive" id="demo-topic">{{ demo_cards.0.topic }}</span></div>
+          <h2 class="demo-question font-display" id="demo-question">{{ demo_cards.0.question }}</h2>
+          <div class="mt-auto">
+            <p class="demo-answer d-none" id="demo-answer"></p>
+            <button type="button" class="btn btn-dark w-100 py-2" id="demo-show">Pokaż odpowiedź</button>
+            <div class="d-none gap-2" id="demo-rate">
+              <button type="button" class="btn btn-outline-secondary flex-fill py-2" data-rate>Do powtórki</button>
+              <button type="button" class="btn btn-dark flex-fill py-2" data-rate>Umiem</button>
+            </div>
+            <div class="d-none text-center" id="demo-done">
+              <p class="mb-3">To było {{ demo_cards|length }} z naszych fiszek. Załóż konto, żeby zapisywać postępy.</p>
+              <a href="{% url 'accounts:register' %}" class="btn btn-primary px-4">Załóż darmowe konto</a>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
-  <a href="{% url 'accounts:register' %}" class="btn btn-primary btn-lg px-5 mt-4 shadow-sm">
-    Zacznij naukę teraz →
-  </a>
-</div>
+</section>
 
+{# ── Jak to działa ──────────────────────────────────────────────── #}
+<section class="home-section home-section--alt" id="jak-to-dziala">
+  <div class="container">
+    <h2 class="section-title mb-5" style="max-width: 40rem;">Jedna sesja to trzy ruchy i mniej niż 5 minut.</h2>
+    <div class="row g-4">
+      <div class="col-md-4">
+        <div class="step">
+          <div class="step-no">01</div>
+          <h3>Dostajesz pytanie</h3>
+          <p class="text-muted mb-0">Takie, jakie padają na rozmowach: gradient descent, transformery, LLM, backpropagation.</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="step">
+          <div class="step-no">02</div>
+          <h3>Odkrywasz odpowiedź</h3>
+          <p class="text-muted mb-0">Najpierw odpowiadasz w głowie albo na głos, dopiero potem sprawdzasz wzorcową odpowiedź.</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="step">
+          <div class="step-no">03</div>
+          <h3>Oceniasz siebie</h3>
+          <p class="text-muted mb-0">„Umiem” albo „Do powtórki”. Z tych ocen powstają Twoje statystyki i seria dni.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+{# ── Podgląd panelu ─────────────────────────────────────────────── #}
+<section class="home-section" id="panel-postepow">
+  <div class="container">
+    <div class="row g-5 align-items-center">
+      <div class="col-lg-5">
+        <h2 class="section-title mb-4">Widzisz, czy jesteś gotowy — zamiast zgadywać.</h2>
+        <p class="text-muted fs-6 mb-4">
+          Panel zbiera procent poprawnych odpowiedzi, serię dni nauki i postęp w każdej kategorii.
+          Od razu wiadomo, co powtórzyć przed rozmową.
+        </p>
+        <a href="{% url 'accounts:register' %}" class="btn-link-underline">Zobacz swój panel</a>
+      </div>
+      <div class="col-lg-7">
+        <div class="card p-4">
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <h3 class="h6 mb-0">Twój postęp</h3>
+            <span class="chip">dane przykładowe</span>
+          </div>
+          <div class="row g-3 mb-4">
+            <div class="col-4"><div class="stat-big">12</div><div class="small text-muted mt-1">dni serii</div></div>
+            <div class="col-4"><div class="stat-big">78%</div><div class="small text-muted mt-1">poprawnych odpowiedzi</div></div>
+            <div class="col-4"><div class="stat-big">146</div><div class="small text-muted mt-1">opanowanych fiszek</div></div>
+          </div>
+          <div class="d-grid gap-2">
+            <div class="bar-row"><span>Gradient descent</span><div class="progress"><div class="progress-bar" style="width:81%"></div></div><span class="text-end">81%</span></div>
+            <div class="bar-row"><span>Transformery</span><div class="progress"><div class="progress-bar" style="width:58%"></div></div><span class="text-end">58%</span></div>
+            <div class="bar-row"><span>LLM</span><div class="progress"><div class="progress-bar" style="width:52%"></div></div><span class="text-end">52%</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+{# ── Kategorie ──────────────────────────────────────────────────── #}
+{% if topic_count %}
+<section class="home-section home-section--alt">
+  <div class="container">
+    <h2 class="section-title mb-4">
+      {{ topic_count }} {{ topic_count|pl_plural:"kategoria,kategorie,kategorii" }} AI/ML w jednej bazie
+    </h2>
+    <div class="d-flex flex-wrap gap-2">
+      {% for name in topic_names %}<span class="topic-pill">{{ name }}</span>{% endfor %}
+      {% if topics_hidden %}
+      <span class="topic-pill topic-pill--more">[pozostałe {{ topics_hidden }} {{ topics_hidden|pl_plural:"kategoria,kategorie,kategorii" }}]</span>
+      {% endif %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+{# ── CTA ────────────────────────────────────────────────────────── #}
+<section class="home-section text-center">
+  <div class="container">
+    <h2 class="cta-title mb-3">Pierwszą sesję skończysz,<br class="d-none d-md-inline"> zanim wystygnie kawa.</h2>
+    <p class="text-muted mb-4">Darmowe konto. Bez karty kredytowej.</p>
+    <a href="{% url 'accounts:register' %}" class="btn btn-primary btn-lg px-4">Zacznij za darmo</a>
+  </div>
+</section>
+
+{{ demo_cards|json_script:"demo-cards" }}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+  var cards = JSON.parse(document.getElementById('demo-cards').textContent);
+  var i = 0;
+  var el = function (id) { return document.getElementById(id); };
+  var show = el('demo-show'), rate = el('demo-rate'), answer = el('demo-answer');
+
+  function render() {
+    var c = cards[i];
+    el('demo-topic').textContent = c.topic;
+    el('demo-question').textContent = c.question;
+    el('demo-counter').textContent = 'Fiszka ' + (i + 1) + ' z ' + cards.length;
+    answer.classList.add('d-none');
+    rate.classList.replace('d-flex', 'd-none');
+    show.classList.remove('d-none');
+  }
+  show.addEventListener('click', function () {
+    answer.textContent = cards[i].answer;
+    answer.classList.remove('d-none');
+    show.classList.add('d-none');
+    rate.classList.replace('d-none', 'd-flex');
+  });
+  rate.querySelectorAll('[data-rate]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      i += 1;
+      if (i < cards.length) { render(); return; }
+      answer.classList.add('d-none');
+      rate.classList.replace('d-flex', 'd-none');
+      el('demo-done').classList.remove('d-none');
+    });
+  });
+})();
+</script>
 {% endblock %}

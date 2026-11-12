@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+{% block title %}Quiz ABCD — NaukaAI{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-8 col-lg-7">
+    <div class="card shadow" id="flashcard">
+      <div class="card-body py-4 px-4">
+
+        <div class="mb-4">
+          <div class="d-flex justify-content-between small text-muted mb-1">
+            <span><i class="bi bi-ui-radios me-1"></i>Quiz ABCD</span>
+            <span>Pytanie {{ current }} z {{ total }}</span>
+          </div>
+          <div class="progress" style="height:6px;">
+            <div class="progress-bar" role="progressbar"
+                 style="width:{% widthratio current total 100 %}%"></div>
+          </div>
+        </div>
+
+        <h3 class="mb-4 text-center">{{ card.question }}</h3>
+
+        <form method="post" id="quiz-form">
+          {% csrf_token %}
+          <input type="hidden" name="card_id" value="{{ card.pk }}">
+          <div class="d-grid gap-2">
+            {% for letter, text in options %}
+            <button type="submit" name="choice" value="{{ forloop.counter0 }}"
+                    class="btn quiz-option text-start
+                      {% if answered %}
+                        {% if forloop.counter0 == correct %}quiz-option--correct
+                        {% elif forloop.counter0 == choice %}quiz-option--wrong{% endif %}
+                      {% endif %}"
+                    {% if answered %}disabled{% endif %}>
+              <span class="quiz-letter">{{ letter }}</span>
+              <span>{{ text }}</span>
+            </button>
+            {% endfor %}
+          </div>
+        </form>
+
+        {% if answered %}
+        <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mt-4">
+          {% if is_correct %}
+          <span class="badge badge-done fs-6"><i class="bi bi-check2 me-1"></i>Dobrze!</span>
+          {% else %}
+          <span class="badge badge-wrong fs-6"><i class="bi bi-x-lg me-1"></i>Źle — poprawna odpowiedź jest zaznaczona na zielono</span>
+          {% endif %}
+          <a href="{{ next_url }}" class="btn btn-primary px-4" id="next-btn" autofocus>
+            {% if is_last %}Zobacz wynik{% else %}Dalej{% endif %} <i class="bi bi-arrow-right ms-1"></i>
+          </a>
+        </div>
+        {% else %}
+        <p class="text-center small text-muted mt-3 mb-0">
+          Skróty: <kbd>1</kbd>–<kbd>4</kbd> albo <kbd>A</kbd>–<kbd>D</kbd>
+        </p>
+        {% endif %}
+
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+  var next = document.getElementById('next-btn');
+  var form = document.getElementById('quiz-form');
+  var sent = false;
+  form.addEventListener('submit', function (e) {
+    if (sent) { e.preventDefault(); return; }
+    sent = true;
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.repeat || e.ctrlKey || e.metaKey || e.altKey) return;
+    if (next) {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); next.click(); }
+      return;
+    }
+    var key = e.key.toUpperCase();
+    var i = '1234'.indexOf(key);
+    if (i < 0) i = 'ABCD'.indexOf(key);
+    var buttons = form.querySelectorAll('button[name=choice]');
+    if (i >= 0 && i < buttons.length) { e.preventDefault(); buttons[i].click(); }
+  });
+})();
+</script>
+{% endblock %}

@@ -26,6 +26,14 @@ from django_ratelimit.decorators import ratelimit
 from accounts.forms import EmailAuthenticationForm
 
 
+_DEMO_FALLBACK = [{
+    'topic': 'Sieci neuronowe',
+    'question': 'Co to jest backpropagation?',
+    'answer': 'Algorytm trenowania sieci neuronowych: liczy gradienty funkcji straty względem '
+              'wag regułą łańcuchową, propagując błąd od wyjścia do wejścia.',
+}]
+
+
 class HomeView(TemplateView):
     template_name = 'home.html'
 
@@ -33,6 +41,23 @@ class HomeView(TemplateView):
         if request.user.is_authenticated:
             return redirect('flashcards:topics')
         return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        from flashcards.models import Card, Topic
+
+        ctx = super().get_context_data(**kwargs)
+        demo = [
+            {'topic': c.topic.name, 'question': c.question, 'answer': c.answer}
+            for c in Card.objects.filter(topic__isnull=False).select_related('topic').order_by('pk')[:3]
+        ]
+        topics = list(Topic.objects.order_by('name').values_list('name', flat=True))
+        ctx.update({
+            'demo_cards': demo or _DEMO_FALLBACK,
+            'topic_names': topics[:4],
+            'topic_count': len(topics),
+            'topics_hidden': max(len(topics) - 4, 0),
+        })
+        return ctx
 
 
 def _healthz(request):

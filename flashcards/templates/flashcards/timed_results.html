@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% load pl_plural %}
+{% block title %}Wynik na czas — NaukaAI{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-7 col-lg-6">
+    <div class="card shadow text-center">
+      <div class="card-body py-5 px-4">
+
+        {% if is_record %}
+        <span class="badge badge-done mb-3"><i class="bi bi-trophy me-1"></i>Nowy rekord!</span>
+        {% endif %}
+
+        <p class="text-muted small text-uppercase fw-semibold mb-1">Koniec czasu</p>
+        <div class="timed-result-score">{{ run.score }}</div>
+        <p class="text-muted mb-4">
+          {{ run.score|pl_plural:"poprawna odpowiedź,poprawne odpowiedzi,poprawnych odpowiedzi" }}
+          {% if run.topic %}· {{ run.topic.name }}{% else %}· wszystkie tematy{% endif %}
+        </p>
+
+        <div class="row g-3 mb-4">
+          <div class="col-4">
+            <div class="fw-bold fs-4">{{ run.answered }}</div>
+            <div class="small text-muted">{{ run.answered|pl_plural:"karta,karty,kart" }}</div>
+          </div>
+          <div class="col-4">
+            <div class="fw-bold fs-4">{{ accuracy }}%</div>
+            <div class="small text-muted">trafność</div>
+          </div>
+          <div class="col-4">
+            <div class="fw-bold fs-4">{{ best }}</div>
+            <div class="small text-muted">twój rekord</div>
+          </div>
+        </div>
+
+        {% if rank %}
+        <p class="mb-4">
+          <i class="bi bi-trophy me-1"></i>Jesteś <strong>#{{ rank }}</strong> w rankingu trybu na czas.
+        </p>
+        {% endif %}
+
+        <div class="d-flex gap-2 justify-content-center flex-wrap">
+          <form method="post" action="{% url 'flashcards:timed_start' %}">
+            {% csrf_token %}
+            {% if run.topic %}<input type="hidden" name="topic_id" value="{{ run.topic.pk }}">{% endif %}
+            <button type="submit" class="btn btn-primary px-4">
+              <i class="bi bi-stopwatch me-1"></i>Zagraj jeszcze raz
+            </button>
+          </form>
+          <a href="{% url 'stats:leaderboard' %}?tab=timed" class="btn btn-outline-primary px-4">
+            <i class="bi bi-bar-chart me-1"></i>Ranking
+          </a>
+          <a href="{% url 'flashcards:topics' %}" class="btn btn-outline-secondary px-4">Tematy</a>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

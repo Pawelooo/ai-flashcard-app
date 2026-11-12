@@ -1,0 +1,145 @@
+{% extends 'base.html' %}
+{% block title %}Wpisz odpowiedź — NaukaAI{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-9 col-lg-8">
+    <div class="card shadow" id="flashcard">
+      <div class="card-body py-4 px-4">
+
+        <div class="mb-4">
+          <div class="d-flex justify-content-between small text-muted mb-1">
+            <span><i class="bi bi-pencil-square me-1"></i>Wpisz odpowiedź</span>
+            <span>Pytanie {{ current }} z {{ total }}</span>
+          </div>
+          <div class="progress" style="height:6px;">
+            <div class="progress-bar" role="progressbar"
+                 style="width:{% widthratio current total 100 %}%"></div>
+          </div>
+        </div>
+
+        <h3 class="mb-4 text-center">{{ card.question }}</h3>
+
+        {% if answered %}
+          <div class="d-flex align-items-start gap-2 mb-3 flex-wrap">
+            <span class="badge {{ verdict_badge }} fs-6"><i class="bi {{ verdict_icon }} me-1"></i>{{ verdict_label }}</span>
+          </div>
+
+          {% if grade %}
+          <p class="fs-5 mb-2">{{ grade.feedback }}</p>
+          {% if grade.missing %}
+          <div class="mb-3">
+            <span class="small text-muted text-uppercase fw-semibold">Brakuje:</span>
+            <ul class="mb-0 mt-1">
+              {% for item in grade.missing %}<li>{{ item }}</li>{% endfor %}
+            </ul>
+          </div>
+          {% endif %}
+          {% endif %}
+
+          <div class="row g-3 mt-1">
+            {% if user_answer %}
+            <div class="col-md-6">
+              <div class="written-box h-100">
+                <div class="small text-muted text-uppercase fw-semibold mb-1">Twoja odpowiedź</div>
+                <div class="written-text">{{ user_answer }}</div>
+              </div>
+            </div>
+            {% endif %}
+            <div class="{% if user_answer %}col-md-6{% else %}col-12{% endif %}">
+              <div class="written-box written-box--reference h-100">
+                <div class="small text-muted text-uppercase fw-semibold mb-1">Odpowiedź wzorcowa</div>
+                <div class="written-text">{{ card.answer }}</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="d-flex justify-content-end mt-4">
+            <a href="{{ next_url }}" class="btn btn-primary px-4" id="next-btn" autofocus>
+              {% if is_last %}Zobacz wynik{% else %}Dalej{% endif %} <i class="bi bi-arrow-right ms-1"></i>
+            </a>
+          </div>
+
+        {% else %}
+          {% if error %}
+          <div class="alert alert-warning py-2">
+            <i class="bi bi-exclamation-triangle me-1"></i>{{ error }}
+          </div>
+          {% endif %}
+
+          <form method="post" id="written-form">
+            {% csrf_token %}
+            <input type="hidden" name="card_id" value="{{ card.pk }}">
+            <label for="answer" class="form-label">Twoja odpowiedź — własnymi słowami</label>
+            <textarea name="answer" id="answer" rows="5" class="form-control mb-1"
+                      maxlength="{{ max_chars }}" autofocus
+                      placeholder="Wyjaśnij tak, jak na rozmowie rekrutacyjnej…">{{ user_answer|default:'' }}</textarea>
+            <div class="d-flex justify-content-between small text-muted mb-3">
+              <span><kbd>Ctrl</kbd>+<kbd>Enter</kbd> — sprawdź</span>
+              <span id="char-count"></span>
+            </div>
+            <div class="d-flex gap-2 justify-content-end flex-wrap">
+              <button type="submit" name="action" value="skip" class="btn btn-outline-secondary px-4"
+                      formnovalidate>
+                Nie wiem — pokaż odpowiedź
+              </button>
+              <button type="submit" name="action" value="answer" class="btn btn-primary px-4" id="check-btn">
+                <i class="bi bi-stars me-1"></i>Sprawdź
+              </button>
+            </div>
+          </form>
+        {% endif %}
+
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+  var next = document.getElementById('next-btn');
+  if (next) {
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' && !e.repeat) { e.preventDefault(); next.click(); }
+    });
+    return;
+  }
+
+  var form = document.getElementById('written-form');
+  var answer = document.getElementById('answer');
+  var check = document.getElementById('check-btn');
+  var counter = document.getElementById('char-count');
+  var max = answer.maxLength;
+  var sent = false;
+
+  function updateCount() { counter.textContent = answer.value.length + ' / ' + max; }
+  answer.addEventListener('input', updateCount);
+  updateCount();
+  answer.setSelectionRange(answer.value.length, answer.value.length);
+
+  form.addEventListener('submit', function (e) {
+    if (sent) { e.preventDefault(); return; }
+    sent = true;
+    var clicked = e.submitter;
+    if (clicked && clicked.value === 'answer') {
+      // Przycisk wyłączony = nie trafia do POST, więc akcję przekazujemy ukrytym polem
+      var hidden = document.createElement('input');
+      hidden.type = 'hidden'; hidden.name = 'action'; hidden.value = 'answer';
+      form.appendChild(hidden);
+      check.disabled = true;
+      check.innerHTML = '<span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>AI ocenia…';
+    }
+  });
+
+  answer.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+      e.preventDefault();
+      if (typeof form.requestSubmit === 'function') form.requestSubmit(check);
+      else check.click();
+    }
+  });
+})();
+</script>
+{% endblock %}
