@@ -67,7 +67,7 @@ uv sync
 
 # Migracje i uruchomienie
 uv run python manage.py migrate
-uv run python manage.py seed_cards       # opcjonalnie: 10 przykładowych fiszek
+uv run python manage.py seed_cards       # opcjonalnie: fiszki AI/ML w 8 tematach (idempotentne)
 uv run python manage.py runserver
 ```
 
